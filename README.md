@@ -35,7 +35,7 @@ Le pagine principali previste sono:
 
 ## Flusso principale utente
 
-Il flusso principale previsto è il seguente(ordine indicativo dato che nel flusso reale alcune azioni possono avvenire in ordine diverso):
+Il flusso principale previsto è il seguente, con ordine indicativo perché nel flusso reale alcune azioni possono avvenire in momenti diversi:
 
 1. L'utente entra nella Home.
 2. Visualizza una breve presentazione del servizio.
@@ -53,7 +53,9 @@ Il flusso principale previsto è il seguente(ordine indicativo dato che nel flus
 14. Conferma l'ordine.
 15. Se loggato, può vedere l'ordine nello storico del profilo.
 
-## Route Vue previste (pò cambiare durante lo sviluppo, ricontrollare)
+## Route Vue previste 
+
+Le route indicate rappresentano una struttura iniziale e potranno cambiare durante lo sviluppo. In caso di modifiche, il README dovrà essere aggiornato per restare coerente con la struttura reale del progetto.
 
 | Pagina | Path previsto | Scopo |
 |---|---|---|
@@ -116,9 +118,9 @@ Le funzionalità finali rappresentano la versione completa del progetto, con bac
 - profilo utente;
 - storico ordini;
 - dettaglio ordine passato;
-- catalogo prodotti caricato dal backend;
+- catalogo prodotti recuperato dal database tramite API backend;
+- ricette recuperate dal database tramite API backend;
 - filtri prodotti collegati alle API;
-- ricette caricate dal backend;
 - prodotti e ricette salvati su PostgreSQL;
 - checkout con invio dell'ordine al backend;
 - salvataggio ordine nel database;
@@ -137,3 +139,11 @@ Le funzionalità secondarie saranno implementate solo dopo aver completato le fu
 - miglioramento grafico delle card ricetta;
 - pagina di errore per route non trovate;
 - eventuali notifiche o messaggi di conferma più curati.
+
+## Schema database previsto
+
+Il progetto userà un database PostgreSQL.
+
+Lo schema teorico sarà definito in modo più dettagliato nel file al percorso `database/README_DATABASE.md`.
+Le tabelle principali previste riguardano utenti, supermercati, prodotti, categorie, allergeni, ricette, slot di ritiro, ordini, preferiti e sessioni utente.
+
