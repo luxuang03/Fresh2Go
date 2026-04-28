@@ -80,3 +80,60 @@ Nella versione finale:
 - Home, Login, Registrazione, Supermercati, Catalogo, Dettaglio prodotto, Ricette e Dettaglio ricetta saranno pubbliche;
 - Profilo, Storico ordini e Dettaglio ordine richiederanno login;
 - Checkout funzionerà in forma simulata, ma nella versione finale salverà l'ordine associandolo all'utente se autenticato.
+
+## Funzionalità previste
+
+Le funzionalità indicate rappresentano una pianificazione iniziale del progetto.
+Potranno essere aggiornate durante lo sviluppo, mantenendo il README coerente con la struttura reale dell'applicazione.
+
+### Funzionalità minime
+
+Le funzionalità minime rappresentano la prima versione funzionante del frontend, basata su dati statici locali.
+
+- Home con presentazione del servizio;
+- scelta di un supermercato;
+- visualizzazione del catalogo prodotti;
+- ricerca testuale dei prodotti;
+- filtri principali del catalogo;
+- dettaglio prodotto;
+- aggiunta prodotti al carrello;
+- modifica quantità nel carrello;
+- rimozione prodotti dal carrello;
+- calcolo totale del carrello;
+- visualizzazione lista ricette;
+- dettaglio ricetta;
+- aggiunta ingredienti di una ricetta al carrello;
+- checkout simulato;
+- conferma ordine simulata.
+
+### Funzionalità finali
+
+Le funzionalità finali rappresentano la versione completa del progetto, con backend Express e database PostgreSQL.
+
+- registrazione utente;
+- login e logout;
+- gestione della sessione utente;
+- profilo utente;
+- storico ordini;
+- dettaglio ordine passato;
+- catalogo prodotti caricato dal backend;
+- filtri prodotti collegati alle API;
+- ricette caricate dal backend;
+- prodotti e ricette salvati su PostgreSQL;
+- checkout con invio dell'ordine al backend;
+- salvataggio ordine nel database;
+- recupero degli ordini associati all'utente loggato;
+- script SQL per ricreare schema e dati iniziali.
+
+### Funzionalità secondarie
+
+Le funzionalità secondarie saranno implementate solo dopo aver completato le funzionalità principali.
+
+- prodotti preferiti;
+- ripetizione di un ordine passato;
+- geolocalizzazione simulata;
+- gestione più avanzata degli slot di ritiro;
+- miglioramento grafico delle card prodotto;
+- miglioramento grafico delle card ricetta;
+- pagina di errore per route non trovate;
+- eventuali notifiche o messaggi di conferma più curati.
