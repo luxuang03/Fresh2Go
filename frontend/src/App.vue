@@ -1,34 +1,31 @@
-<template>
-  <div>
-    <nav>
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/supermarkets">Supermercati</RouterLink>
-      <RouterLink to="/catalog">Catalogo</RouterLink>
-      <RouterLink to="/recipes">Ricette</RouterLink>
-      <RouterLink to="/cart">Carrello</RouterLink>
-      <RouterLink to="/login">Login</RouterLink>
-      <RouterLink to="/profile">Profilo</RouterLink>
-    </nav>
+<script setup>
+import AppHeader from './components/AppHeader.vue'
+import AppFooter from './components/AppFooter.vue'
+</script>
 
-    <RouterView />
+<template>
+  <div class="app-layout">
+    <AppHeader />
+
+    <main class="page-content">
+      <RouterView />
+    </main>
+
+    <AppFooter />
   </div>
 </template>
 
 <style scoped>
-nav {
+.app-layout {
+  min-height: 100vh;
   display: flex;
-  gap: 16px;
-  padding: 16px;
-  border-bottom: 1px solid #dddddd;
+  flex-direction: column;
 }
 
-a {
-  color: #2e7d32;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-a.router-link-active {
-  text-decoration: underline;
+.page-content {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
 }
 </style>
