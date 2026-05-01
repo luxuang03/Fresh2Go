@@ -3,12 +3,16 @@ import { computed, ref } from 'vue'
 import ProductCard from '../components/ProductCard.vue'
 import { mockCategories } from '../data/mockCategories'
 import { mockProducts } from '../data/mockProducts'
+import { mockAllergens } from '../data/mockAllergens'
 
 const searchText = ref('')
 const selectedCategoryId = ref('')
 const maxPrice = ref('')
 const onlyDiscounted = ref(false)
 const onlyAvailable = ref(false)
+const excludedAllergens = ref([])
+const onlyVegetarian = ref(false)
+const onlyVegan = ref(false)
 
 const filteredProducts = computed(() => {
   const search = searchText.value.trim().toLowerCase()
@@ -40,12 +44,25 @@ const filteredProducts = computed(() => {
     const matchesAvailability =
       !onlyAvailable.value || product.isAvailable
 
+    const matchesAllergens = excludedAllergens.value.every(
+      (allergen) => !product.allergens.includes(allergen),
+    )
+
+    const matchesVegetarian =
+      !onlyVegetarian.value || product.isVegetarian
+
+    const matchesVegan =
+      !onlyVegan.value || product.isVegan
+
     return (
       matchesSearch &&
       matchesCategory &&
       matchesMaxPrice &&
       matchesDiscount &&
-      matchesAvailability
+      matchesAvailability &&
+      matchesAllergens &&
+      matchesVegetarian &&
+      matchesVegan
     )
   })
 })
@@ -56,6 +73,9 @@ function resetFilters() {
   maxPrice.value = ''
   onlyDiscounted.value = false
   onlyAvailable.value = false
+  excludedAllergens.value = []
+  onlyVegetarian.value = false
+  onlyVegan.value = false
 }
 </script>
 
@@ -125,6 +145,40 @@ function resetFilters() {
           />
           Solo prodotti disponibili
         </label>
+
+        <label>
+          <input
+            v-model="onlyVegetarian"
+            type="checkbox"
+          />
+          Solo vegetariani
+        </label>
+
+        <label>
+          <input
+            v-model="onlyVegan"
+            type="checkbox"
+          />
+          Solo vegani
+        </label> 
+      </div>
+
+      <div class="allergen-filter">
+        <p class="filter-title">Escludi allergeni</p>
+
+        <div class="allergen-options">
+          <label
+            v-for="allergen in mockAllergens"
+            :key="allergen.id"
+          >
+            <input
+              v-model="excludedAllergens"
+              type="checkbox"
+              :value="allergen.name"
+            />
+            {{ allergen.label }}
+          </label>
+        </div>
       </div>
 
       <button type="button" class="btn filter-reset-button" @click="resetFilters">
