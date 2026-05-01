@@ -1,4 +1,6 @@
 @import './styles/base.css';
 @import './styles/layout.css';
 @import './styles/supermarkets.css';
+@import './styles/catalog.css';
+@import './styles/product-card.css';
 @import './styles/responsive.css';

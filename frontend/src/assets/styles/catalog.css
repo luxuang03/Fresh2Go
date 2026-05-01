@@ -1,0 +1,11 @@
+.catalog-summary {
+  margin: 20px 0;
+  color: var(--color-text-muted);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
