@@ -175,6 +175,25 @@ button {
   background-color: #f2a73b;
 }
 
+.supermarket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.supermarket-card h2 {
+  margin: 0 0 10px;
+  color: var(--color-primary);
+  font-size: 20px;
+}
+
+.supermarket-card p {
+  margin: 8px 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
 /* RESPONSIVE INIZIALE */
 
 /* Tablet e schermi medi */
