@@ -56,4 +56,16 @@
   .page-title {
     font-size: 26px;
   }
+
+  .cart-item {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-item-image {
+    width: 100%;
+  }
+
+  .cart-actions {
+    flex-direction: column;
+  }
 }
