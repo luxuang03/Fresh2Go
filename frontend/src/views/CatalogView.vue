@@ -1,9 +1,16 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
 import { mockCategories } from '../data/mockCategories'
 import { mockProducts } from '../data/mockProducts'
 import { mockAllergens } from '../data/mockAllergens'
+import { mockSupermarkets } from '../data/mockSupermarkets'
+
+const route = useRoute()
+const router = useRouter()
+
+const selectedSupermarketId = ref('')
 
 const searchText = ref('')
 const selectedCategoryId = ref('')
@@ -14,16 +21,70 @@ const excludedAllergens = ref([])
 const onlyVegetarian = ref(false)
 const onlyVegan = ref(false)
 
+function updateSelectedSupermarket() {
+  const supermarketIdFromUrl = route.query.supermarketId
+  const supermarketIdFromStorage = localStorage.getItem('selectedSupermarketId')
+
+  if (supermarketIdFromUrl) {
+    selectedSupermarketId.value = String(supermarketIdFromUrl)
+    localStorage.setItem('selectedSupermarketId', selectedSupermarketId.value)
+    return
+  }
+
+  if (supermarketIdFromStorage) {
+    selectedSupermarketId.value = supermarketIdFromStorage
+
+    router.replace({
+      path: '/catalog',
+      query: {
+        supermarketId: supermarketIdFromStorage,
+      },
+    })
+
+    return
+  }
+
+  selectedSupermarketId.value = ''
+}
+
+onMounted(() => {
+  updateSelectedSupermarket()
+})
+
+watch(
+  () => route.query.supermarketId,
+  () => {
+    updateSelectedSupermarket()
+  },
+)
+
+const selectedSupermarket = computed(() => {
+  return mockSupermarkets.find((supermarket) => {
+    return supermarket.id === Number(selectedSupermarketId.value)
+  })
+})
+
+const hasSelectedSupermarket = computed(() => {
+  return Boolean(selectedSupermarket.value)
+})
+
 const filteredProducts = computed(() => {
+  if (!hasSelectedSupermarket.value) {
+    return []
+  }
+
   const search = searchText.value.trim().toLowerCase()
   const selectedCategory = Number(selectedCategoryId.value)
   const selectedMaxPrice = Number(maxPrice.value)
+  const supermarketId = Number(selectedSupermarketId.value)
 
   return mockProducts.filter((product) => {
     const name = product.name.toLowerCase()
     const brand = product.brand.toLowerCase()
     const description = product.description.toLowerCase()
     const ingredients = product.ingredients.toLowerCase()
+
+    const matchesSupermarket = product.supermarketIds.includes(supermarketId)
 
     const matchesSearch =
       search === '' ||
@@ -55,6 +116,7 @@ const filteredProducts = computed(() => {
       !onlyVegan.value || product.isVegan
 
     return (
+      matchesSupermarket &&
       matchesSearch &&
       matchesCategory &&
       matchesMaxPrice &&
@@ -83,114 +145,144 @@ function resetFilters() {
   <main>
     <h1 class="page-title">Catalogo</h1>
 
-    <p class="page-description">
-      Sfoglia i prodotti disponibili nei supermercati Fresh2Go. In questa fase i dati
-      sono caricati da un catalogo locale temporaneo.
-    </p>
+    <section
+      v-if="!hasSelectedSupermarket"
+      class="card empty-catalog-message"
+    >
+      <h2>Prima scegli un supermercato</h2>
 
-    <section class="catalog-filters">
-      <div class="filter-field filter-field-large">
-        <label for="product-search">Cerca prodotto</label>
+      <p class="muted-text">
+        Il catalogo dipende dal punto vendita selezionato. Per questo motivo
+        devi prima scegliere uno dei supermercati Fresh2Go.
+      </p>
 
-        <input
-          id="product-search"
-          v-model="searchText"
-          type="text"
-          placeholder="Es. pasta, latte, mele..."
-        />
-      </div>
+      <RouterLink class="btn" to="/supermarkets">
+        Vai ai supermercati
+      </RouterLink>
+    </section>
 
-      <div class="filter-field">
-        <label for="category-filter">Categoria</label>
+    <template v-else>
+      <p class="page-description">
+        Prodotti disponibili presso
+        <strong>{{ selectedSupermarket.name }}</strong>.
+      </p>
 
-        <select id="category-filter" v-model="selectedCategoryId">
-          <option value="">Tutte le categorie</option>
+      <RouterLink class="text-link" to="/supermarkets">
+        Cambia supermercato
+      </RouterLink>
 
-          <option
-            v-for="category in mockCategories"
-            :key="category.id"
-            :value="category.id"
-          >
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
+      <section class="catalog-filters">
+        <div class="filter-field filter-field-large">
+          <label for="product-search">Cerca prodotto</label>
 
-      <div class="filter-field">
-        <label for="max-price-filter">Prezzo massimo</label>
+          <input
+            id="product-search"
+            v-model="searchText"
+            type="text"
+            placeholder="Es. pasta, latte, mele..."
+          />
+        </div>
 
-        <input
-          id="max-price-filter"
-          v-model="maxPrice"
-          type="number"
-          min="0"
-          step="0.50"
-          placeholder="Es. 5"
-        />
-      </div>
+        <div class="filter-field">
+          <label for="category-filter">Categoria</label>
 
-      <div class="filter-options">
-        <label>
-          <input v-model="onlyDiscounted" type="checkbox" />
-          Solo prodotti scontati
-        </label>
+          <select id="category-filter" v-model="selectedCategoryId">
+            <option value="">Tutte le categorie</option>
 
-        <label>
-          <input v-model="onlyAvailable" type="checkbox" />
-          Solo prodotti disponibili
-        </label>
+            <option
+              v-for="category in mockCategories"
+              :key="category.id"
+              :value="category.id"
+            >
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
 
-        <label>
-          <input v-model="onlyVegetarian" type="checkbox" />
-          Solo vegetariani
-        </label>
+        <div class="filter-field">
+          <label for="max-price-filter">Prezzo massimo</label>
 
-        <label>
-          <input v-model="onlyVegan" type="checkbox" />
-          Solo vegani
-        </label>
-      </div>
+          <input
+            id="max-price-filter"
+            v-model="maxPrice"
+            type="number"
+            min="0"
+            step="0.50"
+            placeholder="Es. 5"
+          />
+        </div>
 
-      <div class="allergen-filter">
-        <p class="filter-title">Escludi allergeni</p>
+        <div class="filter-options">
+          <label>
+            <input v-model="onlyDiscounted" type="checkbox" />
+            Solo prodotti scontati
+          </label>
 
-        <div class="allergen-options">
-          <label
-            v-for="allergen in mockAllergens"
-            :key="allergen.id"
-          >
-            <input
-              v-model="excludedAllergens"
-              type="checkbox"
-              :value="allergen.name"
-            />
-            {{ allergen.label }}
+          <label>
+            <input v-model="onlyAvailable" type="checkbox" />
+            Solo prodotti disponibili
+          </label>
+
+          <label>
+            <input v-model="onlyVegetarian" type="checkbox" />
+            Solo vegetariani
+          </label>
+
+          <label>
+            <input v-model="onlyVegan" type="checkbox" />
+            Solo vegani
           </label>
         </div>
-      </div>
 
-      <button type="button" class="btn filter-reset-button" @click="resetFilters">
-        Reimposta filtri
-      </button>
+        <div class="allergen-filter">
+          <p class="filter-title">Escludi allergeni</p>
 
-      <p class="catalog-summary muted-text">
-        Prodotti trovati:
-        <strong>{{ filteredProducts.length }}</strong>
-        su
-        <strong>{{ mockProducts.length }}</strong>
+          <div class="allergen-options">
+            <label
+              v-for="allergen in mockAllergens"
+              :key="allergen.id"
+            >
+              <input
+                v-model="excludedAllergens"
+                type="checkbox"
+                :value="allergen.name"
+              />
+              {{ allergen.label }}
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn filter-reset-button"
+          @click="resetFilters"
+        >
+          Reimposta filtri
+        </button>
+
+        <p class="catalog-summary muted-text">
+          Prodotti trovati:
+          <strong>{{ filteredProducts.length }}</strong>
+        </p>
+      </section>
+
+      <section
+        v-if="filteredProducts.length > 0"
+        class="products-grid"
+      >
+        <ProductCard
+          v-for="product in filteredProducts"
+          :key="product.id"
+          :product="product"
+        />
+      </section>
+
+      <p
+        v-else
+        class="card empty-catalog-message muted-text"
+      >
+        Nessun prodotto trovato per questo supermercato con i filtri selezionati.
       </p>
-    </section>
-
-    <section v-if="filteredProducts.length > 0" class="products-grid">
-      <ProductCard
-        v-for="product in filteredProducts"
-        :key="product.id"
-        :product="product"
-      />
-    </section>
-
-    <p v-else class="card empty-catalog-message muted-text">
-      Nessun prodotto trovato per questa ricerca.
-    </p>
+    </template>
   </main>
 </template>
