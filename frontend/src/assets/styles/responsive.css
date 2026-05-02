@@ -24,6 +24,14 @@
   .product-detail-info-grid {
     grid-template-columns: 1fr;
   }
+
+  .cart-page {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary {
+    order: -1;
+  }
 }
 
 @media screen and (max-width: 600px) {
@@ -65,7 +73,7 @@
     width: 100%;
   }
 
-  .cart-actions {
-    flex-direction: column;
+  .cart-item-controls {
+    justify-items: start;
   }
 }

@@ -1,6 +1,18 @@
 <script setup>
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { cart } from '../data/cart'
+import {
+  cart,
+  increaseQuantity,
+  decreaseQuantity,
+  removeFromCart,
+  getItemSubtotal,
+  getCartTotal,
+} from '../data/cart'
+
+const cartTotal = computed(() => {
+  return getCartTotal()
+})
 </script>
 
 <template>
@@ -23,42 +35,86 @@ import { cart } from '../data/cart'
       </RouterLink>
     </section>
 
-    <section v-else class="cart-list">
-      <article
-        v-for="item in cart.items"
-        :key="item.id"
-        class="card cart-item"
-      >
-        <div class="cart-item-image">
-          <span>{{ item.name.charAt(0) }}</span>
-        </div>
+    <section v-else class="cart-page">
+      <div class="cart-list">
+        <article
+          v-for="item in cart.items"
+          :key="item.id"
+          class="card cart-item"
+        >
+          <div class="cart-item-image">
+            <span>{{ item.name.charAt(0) }}</span>
+          </div>
 
-        <div class="cart-item-info">
-          <h2>{{ item.name }}</h2>
+          <div class="cart-item-info">
+            <h2>{{ item.name }}</h2>
 
-          <p class="muted-text">
-            {{ item.brand }}
-          </p>
+            <p class="muted-text">
+              {{ item.brand }}
+            </p>
 
-          <p>
-            Prezzo unitario: € {{ item.price.toFixed(2) }}
-          </p>
+            <p>
+              Prezzo unitario: € {{ item.price.toFixed(2) }}
+            </p>
 
-          <p>
-            Quantità: {{ item.quantity }}
-          </p>
-        </div>
-      </article>
+            <p>
+              Subtotale: € {{ getItemSubtotal(item).toFixed(2) }}
+            </p>
+          </div>
 
-      <div class="cart-actions">
-        <RouterLink to="/catalog" class="btn btn-secondary">
-          Continua la spesa
-        </RouterLink>
+          <div class="cart-item-controls">
+            <div class="quantity-controls">
+              <button
+                type="button"
+                class="quantity-button"
+                @click="decreaseQuantity(item.id)"
+              >
+                -
+              </button>
 
-        <RouterLink to="/cart/checkout" class="btn">
-          Vai al checkout
-        </RouterLink>
+              <span>{{ item.quantity }}</span>
+
+              <button
+                type="button"
+                class="quantity-button"
+                @click="increaseQuantity(item.id)"
+              >
+                +
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="remove-button"
+              @click="removeFromCart(item.id)"
+            >
+              Rimuovi
+            </button>
+          </div>
+        </article>
       </div>
+
+      <aside class="card cart-summary">
+        <h2>Riepilogo</h2>
+
+        <p>
+          Totale prodotti: {{ cart.items.length }}
+        </p>
+
+        <p class="cart-total">
+          Totale: € {{ cartTotal.toFixed(2) }}
+        </p>
+
+        <div class="cart-actions">
+          <RouterLink to="/catalog" class="btn btn-secondary">
+            Continua la spesa
+          </RouterLink>
+
+          <RouterLink to="/cart/checkout" class="btn">
+            Vai al checkout
+          </RouterLink>
+        </div>
+      </aside>
     </section>
   </main>
 </template>

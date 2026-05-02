@@ -1,51 +1,107 @@
 .cart-empty {
-    margin-top: 24px;
-  }
-  
-  .cart-empty h2 {
-    margin-top: 0;
-  }
-  
-  .cart-list {
-    display: grid;
-    gap: 16px;
-    margin-top: 24px;
-  }
-  
-  .cart-item {
-    display: grid;
-    grid-template-columns: 90px 1fr;
-    gap: 16px;
-    align-items: center;
-  }
-  
-  .cart-item-image {
-    width: 90px;
-    height: 90px;
-    border-radius: 12px;
-    background-color: var(--color-primary-light);
-    color: var(--color-primary-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .cart-item-image span {
-    font-size: 32px;
-    font-weight: bold;
-  }
-  
-  .cart-item-info h2 {
-    margin: 0 0 6px;
-    font-size: 20px;
-  }
-  
-  .cart-item-info p {
-    margin: 4px 0;
-  }
-  
-  .cart-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-  }
+  margin-top: 24px;
+}
+
+.cart-empty h2 {
+  margin-top: 0;
+}
+
+.cart-page {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  margin-top: 24px;
+  align-items: start;
+}
+
+.cart-list {
+  display: grid;
+  gap: 16px;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 90px 1fr 160px;
+  gap: 16px;
+  align-items: center;
+}
+
+.cart-item-image {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-item-image span {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.cart-item-info h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.cart-item-info p {
+  margin: 4px 0;
+}
+
+.cart-item-controls {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.quantity-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.remove-button {
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  color: var(--color-primary);
+}
+
+.cart-summary h2 {
+  margin-top: 0;
+}
+
+.cart-total {
+  margin-top: 16px;
+  color: var(--color-primary);
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.cart-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
