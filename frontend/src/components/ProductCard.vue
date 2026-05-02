@@ -1,9 +1,21 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   product: {
     type: Object,
     required: true,
   },
+})
+
+const productDetailLink = computed(() => {
+  const supermarketId = localStorage.getItem('selectedSupermarketId')
+
+  if (supermarketId) {
+    return `/catalog/${props.product.id}?supermarketId=${supermarketId}`
+  }
+
+  return `/catalog/${props.product.id}`
 })
 </script>
 
@@ -48,7 +60,7 @@ defineProps({
         € {{ product.price.toFixed(2) }}
       </strong>
 
-      <RouterLink :to="`/catalog/${product.id}`" class="btn product-link">
+      <RouterLink :to="productDetailLink" class="btn product-link">
         Dettaglio
       </RouterLink>
     </div>

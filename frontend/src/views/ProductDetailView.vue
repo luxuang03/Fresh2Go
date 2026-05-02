@@ -4,12 +4,49 @@ import { useRoute, RouterLink } from 'vue-router'
 import { mockProducts } from '../data/mockProducts'
 import { mockCategories } from '../data/mockCategories'
 import { mockAllergens } from '../data/mockAllergens'
+import { mockSupermarkets } from '../data/mockSupermarkets'
 
 const route = useRoute()
-const productId = Number(route.params.id)
+
+const productId = computed(() => {
+  return Number(route.params.id)
+})
 
 const product = computed(() => {
-  return mockProducts.find((item) => item.id === productId)
+  return mockProducts.find((item) => {
+    return item.id === productId.value
+  })
+})
+
+const selectedSupermarketId = computed(() => {
+  if (route.query.supermarketId) {
+    return Number(route.query.supermarketId)
+  }
+
+  const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
+  return Number(savedSupermarketId)
+})
+
+const selectedSupermarket = computed(() => {
+  return mockSupermarkets.find((supermarket) => {
+    return supermarket.id === selectedSupermarketId.value
+  })
+})
+
+const isProductAvailableInSelectedSupermarket = computed(() => {
+  if (!product.value || !selectedSupermarket.value) {
+    return false
+  }
+
+  return product.value.supermarketIds.includes(selectedSupermarket.value.id)
+})
+
+const catalogLink = computed(() => {
+  if (selectedSupermarket.value) {
+    return `/catalog?supermarketId=${selectedSupermarket.value.id}`
+  }
+
+  return '/catalog'
 })
 
 const categoryName = computed(() => {
@@ -52,7 +89,7 @@ const finalPrice = computed(() => {
 
 <template>
   <main>
-    <RouterLink to="/catalog" class="back-link">
+    <RouterLink :to="catalogLink" class="back-link">
       Torna al catalogo
     </RouterLink>
 
@@ -106,18 +143,33 @@ const finalPrice = computed(() => {
           </div>
 
           <div>
-            <h2>Disponibilità</h2>
+            <h2>Disponibilità generale</h2>
+
             <p v-if="product.isAvailable">
               Disponibile, {{ product.stockQuantity }} pezzi in stock
             </p>
+
             <p v-else>
               Non disponibile
             </p>
           </div>
 
           <div>
-            <h2>Supermercati</h2>
-            <p>{{ product.supermarketIds.length }} punti vendita</p>
+            <h2>Punto vendita scelto</h2>
+
+            <p v-if="selectedSupermarket && isProductAvailableInSelectedSupermarket">
+              Disponibile presso
+              <strong>{{ selectedSupermarket.name }}</strong>
+            </p>
+
+            <p v-else-if="selectedSupermarket">
+              Non disponibile presso
+              <strong>{{ selectedSupermarket.name }}</strong>
+            </p>
+
+            <p v-else>
+              Nessun supermercato selezionato.
+            </p>
           </div>
         </div>
 
@@ -172,9 +224,29 @@ const finalPrice = computed(() => {
           </div>
         </section>
 
-        <button type="button" class="btn product-detail-cart-button" disabled>
+        <RouterLink
+          v-if="!selectedSupermarket"
+          class="btn product-detail-cart-button"
+          to="/supermarkets"
+        >
+          Scegli un supermercato
+        </RouterLink>
+
+        <button
+          v-else
+          type="button"
+          class="btn product-detail-cart-button"
+          :disabled="!product.isAvailable || !isProductAvailableInSelectedSupermarket"
+        >
           Aggiunta al carrello non ancora disponibile
         </button>
+
+        <p
+          v-if="selectedSupermarket && !isProductAvailableInSelectedSupermarket"
+          class="muted-text"
+        >
+          Questo prodotto non può essere aggiunto perché non è disponibile nel supermercato scelto.
+        </p>
       </div>
     </section>
 
@@ -185,7 +257,7 @@ const finalPrice = computed(() => {
         Il prodotto richiesto non è presente nel catalogo locale.
       </p>
 
-      <RouterLink to="/catalog" class="btn">
+      <RouterLink :to="catalogLink" class="btn">
         Torna al catalogo
       </RouterLink>
     </section>
