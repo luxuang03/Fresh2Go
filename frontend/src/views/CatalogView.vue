@@ -44,9 +44,9 @@ const filteredProducts = computed(() => {
     const matchesAvailability =
       !onlyAvailable.value || product.isAvailable
 
-    const matchesAllergens = excludedAllergens.value.every(
-      (allergen) => !product.allergens.includes(allergen),
-    )
+    const matchesAllergens = excludedAllergens.value.every((allergen) => {
+      return !product.allergens.includes(allergen)
+    })
 
     const matchesVegetarian =
       !onlyVegetarian.value || product.isVegetarian
@@ -131,36 +131,24 @@ function resetFilters() {
 
       <div class="filter-options">
         <label>
-          <input
-            v-model="onlyDiscounted"
-            type="checkbox"
-          />
+          <input v-model="onlyDiscounted" type="checkbox" />
           Solo prodotti scontati
         </label>
 
         <label>
-          <input
-            v-model="onlyAvailable"
-            type="checkbox"
-          />
+          <input v-model="onlyAvailable" type="checkbox" />
           Solo prodotti disponibili
         </label>
 
         <label>
-          <input
-            v-model="onlyVegetarian"
-            type="checkbox"
-          />
+          <input v-model="onlyVegetarian" type="checkbox" />
           Solo vegetariani
         </label>
 
         <label>
-          <input
-            v-model="onlyVegan"
-            type="checkbox"
-          />
+          <input v-model="onlyVegan" type="checkbox" />
           Solo vegani
-        </label> 
+        </label>
       </div>
 
       <div class="allergen-filter">
@@ -185,7 +173,7 @@ function resetFilters() {
         Reimposta filtri
       </button>
 
-      <p class="catalog-summary">
+      <p class="catalog-summary muted-text">
         Prodotti trovati:
         <strong>{{ filteredProducts.length }}</strong>
         su
@@ -201,7 +189,7 @@ function resetFilters() {
       />
     </section>
 
-    <p v-else class="empty-catalog-message">
+    <p v-else class="card empty-catalog-message muted-text">
       Nessun prodotto trovato per questa ricerca.
     </p>
   </main>

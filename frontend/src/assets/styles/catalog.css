@@ -1,38 +1,40 @@
 .catalog-filters {
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 16px;
   margin: 20px 0 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-soft);
 
   display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  align-items: end;
 }
 
-.filter-field {
+.filter-field,
+.filter-options {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
-.filter-field-large {
-  grid-column: span 2;
+.filter-field-large,
+.allergen-filter,
+.catalog-summary {
+  grid-column: 1 / -1;
 }
 
 .filter-field label,
-.filter-options label {
+.filter-options label,
+.filter-title {
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
 .filter-field input,
 .filter-field select {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d6d6d6;
+  padding: 10px;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  font-size: 1rem;
   background-color: #ffffff;
 }
 
@@ -42,35 +44,21 @@
   border-color: var(--color-primary);
 }
 
-.filter-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .filter-options label,
 .allergen-options label {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 0;
-  color: var(--color-text);
-}
-
-.filter-options input,
-.allergen-options input {
-  width: auto;
 }
 
 .allergen-filter {
-  grid-column: 1 / -1;
   border-top: 1px solid #eeeeee;
   padding-top: 12px;
 }
 
-.filter-title {
-  font-weight: 600;
-  margin: 0 0 10px;
+.filter-title,
+.catalog-summary {
+  margin: 0;
 }
 
 .allergen-options {
@@ -83,12 +71,6 @@
   width: fit-content;
 }
 
-.catalog-summary {
-  grid-column: 1 / -1;
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -97,19 +79,5 @@
 }
 
 .empty-catalog-message {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  color: var(--color-text-muted);
   text-align: center;
-}
-
-@media screen and (max-width: 800px) {
-  .catalog-filters {
-    grid-template-columns: 1fr;
-  }
-
-  .filter-field-large {
-    grid-column: auto;
-  }
 }

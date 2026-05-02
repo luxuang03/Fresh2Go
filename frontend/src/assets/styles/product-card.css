@@ -1,18 +1,18 @@
 .product-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .product-image-placeholder {
-  height: 130px;
+  height: 120px;
   border-radius: 8px;
   background-color: var(--color-primary-light);
   color: var(--color-primary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 42px;
+  font-size: 40px;
   font-weight: bold;
 }
 
@@ -29,10 +29,14 @@
   font-size: 20px;
 }
 
-.product-info {
+.product-info,
+.product-footer {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+}
+
+.product-info {
   font-size: 14px;
 }
 
@@ -42,25 +46,9 @@
   gap: 8px;
 }
 
-.product-tag {
-  border-radius: 999px;
-  padding: 4px 8px;
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
-  font-size: 13px;
-}
-
-.discount-tag {
-  background-color: var(--color-accent);
-  color: var(--color-text);
-}
-
 .product-footer {
   margin-top: auto;
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
 }
 
 .product-price {
