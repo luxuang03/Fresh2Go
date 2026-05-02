@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { addToCart } from '../data/cart'
 
 const props = defineProps({
   product: {
@@ -17,6 +18,11 @@ const productDetailLink = computed(() => {
 
   return `/catalog/${props.product.id}`
 })
+
+function handleAddToCart() {
+  addToCart(props.product)
+  alert('Prodotto aggiunto al carrello')
+}
 </script>
 
 <template>
@@ -59,10 +65,21 @@ const productDetailLink = computed(() => {
       <strong class="product-price">
         € {{ product.price.toFixed(2) }}
       </strong>
-
-      <RouterLink :to="productDetailLink" class="btn product-link">
-        Dettaglio
-      </RouterLink>
+    
+      <div class="product-card-actions">
+        <RouterLink :to="productDetailLink" class="btn product-link">
+          Dettaglio
+        </RouterLink>
+      
+        <button
+          type="button"
+          class="btn"
+          :disabled="!product.isAvailable"
+          @click="handleAddToCart"
+        >
+          Aggiungi
+        </button>
+      </div>
     </div>
   </article>
 </template>

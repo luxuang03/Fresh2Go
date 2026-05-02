@@ -5,6 +5,7 @@ import { mockProducts } from '../data/mockProducts'
 import { mockCategories } from '../data/mockCategories'
 import { mockAllergens } from '../data/mockAllergens'
 import { mockSupermarkets } from '../data/mockSupermarkets'
+import { addToCart } from '../data/cart'
 
 const route = useRoute()
 
@@ -85,6 +86,15 @@ const finalPrice = computed(() => {
 
   return product.value.price - discountValue
 })
+
+function handleAddToCart() {
+  if (!product.value) {
+    return
+  }
+
+  addToCart(product.value)
+  alert('Prodotto aggiunto al carrello')
+}
 </script>
 
 <template>
@@ -237,8 +247,9 @@ const finalPrice = computed(() => {
           type="button"
           class="btn product-detail-cart-button"
           :disabled="!product.isAvailable || !isProductAvailableInSelectedSupermarket"
+          @click="handleAddToCart"
         >
-          Aggiunta al carrello non ancora disponibile
+          Aggiungi al carrello
         </button>
 
         <p

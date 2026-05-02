@@ -74,6 +74,10 @@
 
 .product-detail-cart-button {
   margin-top: 16px;
+  cursor: pointer;
+}
+
+.product-detail-cart-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }

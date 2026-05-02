@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { getCartCount } from '../data/cart'
 
 const catalogLink = computed(() => {
   const supermarketId = localStorage.getItem('selectedSupermarketId')
@@ -9,6 +10,10 @@ const catalogLink = computed(() => {
   }
 
   return '/catalog'
+})
+
+const cartCount = computed(() => {
+  return getCartCount()
 })
 </script>
 
@@ -24,7 +29,7 @@ const catalogLink = computed(() => {
         <RouterLink to="/supermarkets">Supermercati</RouterLink>
         <RouterLink :to="catalogLink">Catalogo</RouterLink>
         <RouterLink to="/recipes">Ricette</RouterLink>
-        <RouterLink to="/cart">Carrello</RouterLink>
+        <RouterLink to="/cart">Carrello ({{ cartCount }})</RouterLink>
         <RouterLink to="/login">Login</RouterLink>
         <RouterLink to="/profile">Profilo</RouterLink>
       </nav>
