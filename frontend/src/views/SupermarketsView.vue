@@ -1,9 +1,20 @@
 <script setup>
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { mockSupermarkets } from '../data/mockSupermarkets'
+import { clearCart } from '../data/cart'
 
-function saveSelectedSupermarket(supermarketId) {
+const router = useRouter()
+
+function selectSupermarket(supermarketId) {
+  const previousSupermarketId = localStorage.getItem('selectedSupermarketId')
+
+  if (previousSupermarketId && previousSupermarketId !== String(supermarketId)) {
+    clearCart()
+  }
+
   localStorage.setItem('selectedSupermarketId', supermarketId)
+
+  router.push('/catalog')
 }
 </script>
 
@@ -31,13 +42,13 @@ function saveSelectedSupermarket(supermarketId) {
           {{ supermarket.openingTime }} - {{ supermarket.closingTime }}
         </p>
 
-        <RouterLink
+        <button
           class="btn"
-          :to="`/catalog?supermarketId=${supermarket.id}`"
-          @click="saveSelectedSupermarket(supermarket.id)"
+          type="button"
+          @click="selectSupermarket(supermarket.id)"
         >
           Scegli supermercato
-        </RouterLink>
+        </button>
       </article>
     </section>
   </main>

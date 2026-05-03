@@ -1,13 +1,12 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
 import { mockCategories } from '../data/mockCategories'
 import { mockProducts } from '../data/mockProducts'
 import { mockAllergens } from '../data/mockAllergens'
 import { mockSupermarkets } from '../data/mockSupermarkets'
 
-const route = useRoute()
 const router = useRouter()
 
 const selectedSupermarketId = ref('')
@@ -21,42 +20,16 @@ const excludedAllergens = ref([])
 const onlyVegetarian = ref(false)
 const onlyVegan = ref(false)
 
-function updateSelectedSupermarket() {
-  const supermarketIdFromUrl = route.query.supermarketId
-  const supermarketIdFromStorage = localStorage.getItem('selectedSupermarketId')
-
-  if (supermarketIdFromUrl) {
-    selectedSupermarketId.value = String(supermarketIdFromUrl)
-    localStorage.setItem('selectedSupermarketId', selectedSupermarketId.value)
-    return
-  }
-
-  if (supermarketIdFromStorage) {
-    selectedSupermarketId.value = supermarketIdFromStorage
-
-    router.replace({
-      path: '/catalog',
-      query: {
-        supermarketId: supermarketIdFromStorage,
-      },
-    })
-
-    return
-  }
-
-  selectedSupermarketId.value = ''
-}
-
 onMounted(() => {
-  updateSelectedSupermarket()
-})
+  const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
+  
+  if (!savedSupermarketId) {
+    router.replace('/supermarkets')
+    return
+  }
 
-watch(
-  () => route.query.supermarketId,
-  () => {
-    updateSelectedSupermarket()
-  },
-)
+  selectedSupermarketId.value = savedSupermarketId
+})
 
 const selectedSupermarket = computed(() => {
   return mockSupermarkets.find((supermarket) => {

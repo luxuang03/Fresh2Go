@@ -95,3 +95,8 @@ export function getCartTotal() {
 export function getCartCount() {
   return cart.items.reduce((total, item) => total + item.quantity, 0)
 }
+
+export function clearCart() {
+  cart.items.splice(0, cart.items.length)
+  saveCart()
+}
