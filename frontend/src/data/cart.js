@@ -1,7 +1,27 @@
 import { reactive } from 'vue'
 
+const CART_STORAGE_KEY = 'fresh2go-cart'
+
+function loadCartItems() {
+  const savedCart = localStorage.getItem(CART_STORAGE_KEY)
+
+  if (!savedCart) {
+    return []
+  }
+
+  try {
+    return JSON.parse(savedCart)
+  } catch (error) {
+    return []
+  }
+}
+
+function saveCart() {
+  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart.items))
+}
+
 export const cart = reactive({
-  items: [],
+  items: loadCartItems(),
 })
 
 export function addToCart(product) {
@@ -19,6 +39,8 @@ export function addToCart(product) {
       quantity: 1,
     })
   }
+
+  saveCart()
 }
 
 export function increaseQuantity(productId) {
@@ -28,6 +50,7 @@ export function increaseQuantity(productId) {
 
   if (item) {
     item.quantity += 1
+    saveCart()
   }
 }
 
@@ -42,6 +65,7 @@ export function decreaseQuantity(productId) {
 
   if (item.quantity > 1) {
     item.quantity -= 1
+    saveCart()
   } else {
     removeFromCart(productId)
   }
@@ -54,6 +78,7 @@ export function removeFromCart(productId) {
 
   if (itemIndex !== -1) {
     cart.items.splice(itemIndex, 1)
+    saveCart()
   }
 }
 
