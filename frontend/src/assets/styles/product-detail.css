@@ -81,3 +81,32 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.servings-box {
+  background-color: #f7f7f7;
+  border-radius: var(--radius-card);
+  padding: 14px;
+  margin: 18px 0;
+}
+
+.servings-box p {
+  margin: 0 0 8px;
+}
+
+.servings-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.servings-controls strong {
+  min-width: 28px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.quantity-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -24,19 +24,19 @@ export const cart = reactive({
   items: loadCartItems(),
 })
 
-export function addToCart(product) {
+export function addToCart(product, quantityToAdd = 1) {
   const existingItem = cart.items.find((item) => item.id === product.id)
 
   if (existingItem) {
-    existingItem.quantity += 1
+    existingItem.quantity += quantityToAdd
   } else {
     cart.items.push({
       id: product.id,
       name: product.name,
       brand: product.brand,
       price: product.price,
-      image: product.image,
-      quantity: 1,
+      image: product.imageUrl || product.image,
+      quantity: quantityToAdd,
     })
   }
 
@@ -93,7 +93,9 @@ export function getCartTotal() {
 }
 
 export function getCartCount() {
-  return cart.items.reduce((total, item) => total + item.quantity, 0)
+  return cart.items.reduce((total, item) => {
+    return total + item.quantity
+  }, 0)
 }
 
 export function clearCart() {

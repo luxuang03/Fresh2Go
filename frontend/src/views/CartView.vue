@@ -8,10 +8,15 @@ import {
   removeFromCart,
   getItemSubtotal,
   getCartTotal,
+  getCartCount,
 } from '../data/cart'
 
 const cartTotal = computed(() => {
   return getCartTotal()
+})
+
+const cartCount = computed(() => {
+  return getCartCount()
 })
 </script>
 
@@ -98,7 +103,11 @@ const cartTotal = computed(() => {
         <h2>Riepilogo</h2>
 
         <p>
-          Totale prodotti: {{ cart.items.length }}
+          Prodotti diversi: {{ cart.items.length }}
+        </p>
+
+        <p>
+          Totale confezioni/prodotti: {{ cartCount }}
         </p>
 
         <p class="cart-total">

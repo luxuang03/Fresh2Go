@@ -12,6 +12,7 @@ const router = useRouter()
 const selectedSupermarketId = ref('')
 const cartMessage = ref('')
 const selectedIngredientIds = ref([])
+const selectedServings = ref(1)
 
 onMounted(() => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
@@ -92,21 +93,119 @@ const estimatedTotal = computed(() => {
       return total
     }
 
-    return total + getFinalPrice(ingredient.product)
+    return total + getFinalPrice(ingredient.product) * getProductUnitsNeeded(ingredient)
   }, 0)
 })
 
 const selectedTotal = computed(() => {
   return selectedAvailableIngredients.value.reduce((total, ingredient) => {
-    return total + getFinalPrice(ingredient.product)
+    return total + getFinalPrice(ingredient.product) * getProductUnitsNeeded(ingredient)
   }, 0)
 })
 
-watch(availableIngredients, () => {
-  selectedIngredientIds.value = availableIngredients.value.map((ingredient) => {
-    return ingredient.productId
-  })
-})
+watch(
+  recipe,
+  () => {
+    if (recipe.value) {
+      selectedServings.value = recipe.value.servings
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  availableIngredients,
+  () => {
+    selectedIngredientIds.value = availableIngredients.value.map((ingredient) => {
+      return ingredient.productId
+    })
+  },
+  { immediate: true },
+)
+
+function increaseServings() {
+  selectedServings.value += 1
+}
+
+function decreaseServings() {
+  if (selectedServings.value > 1) {
+    selectedServings.value -= 1
+  }
+}
+
+function getUpdatedQuantity(ingredient) {
+  if (!recipe.value) {
+    return ingredient.quantity
+  }
+
+  return (ingredient.quantity * selectedServings.value) / recipe.value.servings
+}
+
+function getProductUnitSize(product, ingredientUnit) {
+  const unitLabel = product.unitLabel.toLowerCase().replace(',', '.')
+  const unit = ingredientUnit.toLowerCase()
+  const numberMatch = unitLabel.match(/(\d+(\.\d+)?)/)
+  const number = numberMatch ? Number(numberMatch[1]) : 1
+
+  if (unit === 'g') {
+    if (unitLabel.includes('kg')) {
+      return number * 1000
+    }
+
+    if (unitLabel.includes('g')) {
+      return number
+    }
+  }
+
+  if (unit === 'ml') {
+    if (unitLabel.includes('ml')) {
+      return number
+    }
+
+    if (unitLabel.includes('l')) {
+      return number * 1000
+    }
+  }
+
+  if (unit === 'pezzi') {
+    if (unitLabel.includes('pezzi') || unitLabel.includes('pezzo')) {
+      return number
+    }
+
+    return 1
+  }
+
+  if (unit === 'vasetti') {
+    const packMatch = unitLabel.match(/(\d+)\s*x/)
+
+    if (packMatch) {
+      return Number(packMatch[1])
+    }
+
+    return 1
+  }
+
+  return 1
+}
+
+function getProductUnitsNeeded(ingredient) {
+  if (!ingredient.product) {
+    return 0
+  }
+
+  const updatedQuantity = getUpdatedQuantity(ingredient)
+  const productUnitSize = getProductUnitSize(ingredient.product, ingredient.unit)
+
+  return Math.max(1, Math.ceil(updatedQuantity / productUnitSize))
+}
+
+function formatQuantity(value) {
+  if (Number.isInteger(value)) {
+    return value
+  }
+
+  return value.toFixed(1).replace('.', ',')
+}
 
 function getFinalPrice(product) {
   if (!product.discountPercentage) {
@@ -139,7 +238,7 @@ function addIngredientsToCart() {
       price: getFinalPrice(ingredient.product),
     }
 
-    addToCart(productToAdd)
+    addToCart(productToAdd, getProductUnitsNeeded(ingredient))
   })
 
   cartMessage.value = 'Ingredienti selezionati aggiunti al carrello.'
@@ -167,8 +266,37 @@ function addIngredientsToCart() {
         </p>
 
         <div class="recipe-info">
-          <span>{{ recipe.servings }} porzioni</span>
+          <span>{{ selectedServings }} porzioni</span>
           <span>{{ recipe.ingredients.length }} ingredienti</span>
+        </div>
+
+        <div class="servings-box">
+          <p class="muted-text">Modifica porzioni</p>
+
+          <div class="servings-controls">
+            <button
+              type="button"
+              class="quantity-button"
+              @click="decreaseServings"
+              :disabled="selectedServings === 1"
+            >
+              -
+            </button>
+
+            <strong>{{ selectedServings }}</strong>
+
+            <button
+              type="button"
+              class="quantity-button"
+              @click="increaseServings"
+            >
+              +
+            </button>
+          </div>
+
+          <p class="muted-text">
+            Ricetta base per {{ recipe.servings }} porzioni.
+          </p>
         </div>
 
         <p v-if="selectedSupermarket" class="muted-text">
@@ -178,7 +306,7 @@ function addIngredientsToCart() {
 
         <div class="recipe-summary">
           <div class="card">
-            <p class="muted-text">Costo stimato ricetta</p>
+            <p class="muted-text">Costo prodotti necessari</p>
             <strong>€ {{ formatPrice(estimatedTotal) }}</strong>
           </div>
 
@@ -242,8 +370,17 @@ function addIngredientsToCart() {
                 <h3>{{ ingredient.name }}</h3>
 
                 <p>
-                  Quantità:
-                  <strong>{{ ingredient.quantity }} {{ ingredient.unit }}</strong>
+                  Quantità ricetta:
+                  <strong>
+                    {{ formatQuantity(getUpdatedQuantity(ingredient)) }}
+                    {{ ingredient.unit }}
+                  </strong>
+                </p>
+
+                <p v-if="ingredient.product" class="muted-text">
+                  Da aggiungere al carrello:
+                  {{ getProductUnitsNeeded(ingredient) }}
+                  confezione/prodotto
                 </p>
 
                 <p v-if="ingredient.isOptional" class="muted-text">
