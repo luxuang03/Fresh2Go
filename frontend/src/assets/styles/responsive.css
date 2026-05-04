@@ -13,7 +13,8 @@
   }
 
   .catalog-filters,
-  .product-detail {
+  .product-detail,
+  .recipe-detail {
     grid-template-columns: 1fr;
   }
 
@@ -31,6 +32,14 @@
 
   .cart-summary {
     order: -1;
+  }
+  
+  .ingredient-row {
+    flex-direction: column;
+  }
+
+  .ingredient-info {
+    align-items: flex-start;
   }
 }
 

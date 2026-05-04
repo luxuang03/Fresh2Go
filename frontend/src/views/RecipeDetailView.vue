@@ -62,23 +62,53 @@ const ingredientsWithProducts = computed(() => {
     }
   })
 })
+
+const recipeAllergens = computed(() => {
+  if (!recipe.value) {
+    return []
+  }
+
+  return recipe.value.allergens
+})
+
+const estimatedTotal = computed(() => {
+  return ingredientsWithProducts.value.reduce((total, ingredient) => {
+    if (!ingredient.product) {
+      return total
+    }
+
+    return total + getFinalPrice(ingredient.product)
+  }, 0)
+})
+
+function getFinalPrice(product) {
+  if (!product.discountPercentage) {
+    return product.price
+  }
+
+  return product.price - (product.price * product.discountPercentage) / 100
+}
+
+function formatPrice(value) {
+  return value.toFixed(2).replace('.', ',')
+}
 </script>
 
 <template>
-  <section class="page-section">
-    <RouterLink class="text-link" to="/recipes">
+  <section>
+    <RouterLink class="back-link" to="/recipes">
       Torna alle ricette
     </RouterLink>
 
     <div v-if="recipe" class="recipe-detail">
-      <div class="recipe-detail-image">
+      <div class="recipe-detail-image card">
         <span>{{ recipe.name.charAt(0) }}</span>
       </div>
 
-      <div class="recipe-detail-content">
+      <div class="recipe-detail-content card">
         <p class="recipe-type">{{ recipe.type }}</p>
 
-        <h1>{{ recipe.name }}</h1>
+        <h1 class="page-title">{{ recipe.name }}</h1>
 
         <p class="recipe-description">
           {{ recipe.description }}
@@ -90,8 +120,44 @@ const ingredientsWithProducts = computed(() => {
         </div>
 
         <p v-if="selectedSupermarket" class="muted-text">
-          Ingredienti disponibili presso
+          Ingredienti controllati presso
           <strong>{{ selectedSupermarket.name }}</strong>.
+        </p>
+
+        <div class="recipe-summary">
+          <div class="card">
+            <p class="muted-text">Costo stimato</p>
+            <strong>€ {{ formatPrice(estimatedTotal) }}</strong>
+          </div>
+
+          <div class="card">
+            <p class="muted-text">Allergeni</p>
+            <strong v-if="recipeAllergens.length > 0">
+              {{ recipeAllergens.length }}
+            </strong>
+            <strong v-else>Nessuno</strong>
+          </div>
+        </div>
+
+        <div v-if="recipeAllergens.length > 0" class="recipe-warning">
+          <h2>Attenzione allergeni</h2>
+
+          <p class="muted-text">
+            Questa ricetta contiene o può contenere:
+          </p>
+
+          <div class="recipe-allergens">
+            <span
+              v-for="allergen in recipeAllergens"
+              :key="allergen"
+            >
+              {{ allergen }}
+            </span>
+          </div>
+        </div>
+
+        <p v-else class="recipe-safe">
+          Questa ricetta non contiene allergeni segnalati.
         </p>
 
         <h2>Ingredienti</h2>
@@ -115,23 +181,19 @@ const ingredientsWithProducts = computed(() => {
               </p>
             </div>
 
-            <div class="ingredient-product">
-              <RouterLink
-                v-if="ingredient.product"
-                class="text-link"
-                :to="`/catalog/${ingredient.product.id}`"
-              >
-                Vedi prodotto
-              </RouterLink>
+            <div class="ingredient-info">
+              <p v-if="ingredient.product">
+                € {{ formatPrice(getFinalPrice(ingredient.product)) }}
+              </p>
 
               <span
                 v-if="ingredient.isAvailableHere"
-                class="ingredient-available"
+                class="tag"
               >
                 Disponibile
               </span>
 
-              <span v-else class="ingredient-unavailable">
+              <span v-else class="tag tag-unavailable">
                 Non disponibile
               </span>
             </div>

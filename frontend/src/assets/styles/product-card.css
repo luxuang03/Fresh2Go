@@ -1,7 +1,8 @@
 .product-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  height: 100%;
 }
 
 .product-image-placeholder {
@@ -9,11 +10,25 @@
   border-radius: 8px;
   background-color: var(--color-primary-light);
   color: var(--color-primary-dark);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 40px;
   font-weight: bold;
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.product-card-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .product-brand,
@@ -23,39 +38,105 @@
   color: var(--color-text-muted);
 }
 
-.product-name {
-  margin: 0;
-  color: var(--color-primary);
-  font-size: 20px;
+.product-brand {
+  min-height: 22px;
 }
 
-.product-info,
-.product-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
+.product-name {
+  margin: 0 0 8px;
+  color: var(--color-primary);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.product-description {
+  line-height: 1.35;
+  margin-bottom: 12px;
 }
 
 .product-info {
+  margin-bottom: 12px;
   font-size: 14px;
 }
 
 .product-tags {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+
+  min-height: 32px;
+  margin-top: auto;
+  margin-bottom: 16px;
 }
 
 .product-footer {
-  margin-top: auto;
-  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.product-price-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .product-price {
   font-size: 20px;
+  line-height: 1.1;
 }
 
-.product-link {
-  padding: 8px 12px;
+.product-detail-link {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.product-detail-link:hover {
+  color: var(--color-primary);
+}
+
+.product-card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.product-availability {
+  color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.product-unavailable {
+  color: #b71c1c;
+}
+
+.product-add-button {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.product-card-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media screen and (max-width: 600px) {
+  .product-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-card-actions {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .product-price-area {
+    align-items: flex-start;
+  }
 }
