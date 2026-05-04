@@ -4,11 +4,13 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { mockRecipes } from '../data/mockRecipes'
 import { mockProducts } from '../data/mockProducts'
 import { mockSupermarkets } from '../data/mockSupermarkets'
+import { addToCart } from '../data/cart'
 
 const route = useRoute()
 const router = useRouter()
 
 const selectedSupermarketId = ref('')
+const cartMessage = ref('')
 
 onMounted(() => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
@@ -71,6 +73,12 @@ const recipeAllergens = computed(() => {
   return recipe.value.allergens
 })
 
+const availableIngredients = computed(() => {
+  return ingredientsWithProducts.value.filter((ingredient) => {
+    return ingredient.product && ingredient.isAvailableHere
+  })
+})
+
 const estimatedTotal = computed(() => {
   return ingredientsWithProducts.value.reduce((total, ingredient) => {
     if (!ingredient.product) {
@@ -91,6 +99,26 @@ function getFinalPrice(product) {
 
 function formatPrice(value) {
   return value.toFixed(2).replace('.', ',')
+}
+
+function addIngredientsToCart() {
+  cartMessage.value = ''
+
+  if (availableIngredients.value.length === 0) {
+    cartMessage.value = 'Nessun ingrediente disponibile da aggiungere al carrello.'
+    return
+  }
+
+  availableIngredients.value.forEach((ingredient) => {
+    const productToAdd = {
+      ...ingredient.product,
+      price: getFinalPrice(ingredient.product),
+    }
+
+    addToCart(productToAdd)
+  })
+
+  cartMessage.value = 'Ingredienti disponibili aggiunti al carrello.'
 }
 </script>
 
@@ -199,6 +227,24 @@ function formatPrice(value) {
             </div>
           </div>
         </div>
+
+        <div class="recipe-cart-actions">
+          <button
+            type="button"
+            class="btn"
+            @click="addIngredientsToCart"
+          >
+            Aggiungi ingredienti al carrello
+          </button>
+
+          <RouterLink to="/cart" class="btn btn-secondary">
+            Vai al carrello
+          </RouterLink>
+        </div>
+
+        <p v-if="cartMessage" class="recipe-cart-message">
+          {{ cartMessage }}
+        </p>
       </div>
     </div>
 
