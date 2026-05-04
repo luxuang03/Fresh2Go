@@ -113,3 +113,22 @@
   color: var(--color-primary);
   font-weight: 600;
 }
+
+.ingredient-select-row {
+  cursor: pointer;
+}
+
+.ingredient-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ingredient-main input {
+  margin-top: 4px;
+}
+
+.ingredient-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

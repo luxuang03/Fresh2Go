@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { mockRecipes } from '../data/mockRecipes'
 import { mockProducts } from '../data/mockProducts'
@@ -11,6 +11,7 @@ const router = useRouter()
 
 const selectedSupermarketId = ref('')
 const cartMessage = ref('')
+const selectedIngredientIds = ref([])
 
 onMounted(() => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
@@ -79,6 +80,12 @@ const availableIngredients = computed(() => {
   })
 })
 
+const selectedAvailableIngredients = computed(() => {
+  return availableIngredients.value.filter((ingredient) => {
+    return selectedIngredientIds.value.includes(ingredient.productId)
+  })
+})
+
 const estimatedTotal = computed(() => {
   return ingredientsWithProducts.value.reduce((total, ingredient) => {
     if (!ingredient.product) {
@@ -87,6 +94,18 @@ const estimatedTotal = computed(() => {
 
     return total + getFinalPrice(ingredient.product)
   }, 0)
+})
+
+const selectedTotal = computed(() => {
+  return selectedAvailableIngredients.value.reduce((total, ingredient) => {
+    return total + getFinalPrice(ingredient.product)
+  }, 0)
+})
+
+watch(availableIngredients, () => {
+  selectedIngredientIds.value = availableIngredients.value.map((ingredient) => {
+    return ingredient.productId
+  })
 })
 
 function getFinalPrice(product) {
@@ -109,7 +128,12 @@ function addIngredientsToCart() {
     return
   }
 
-  availableIngredients.value.forEach((ingredient) => {
+  if (selectedAvailableIngredients.value.length === 0) {
+    cartMessage.value = 'Seleziona almeno un ingrediente disponibile da aggiungere.'
+    return
+  }
+
+  selectedAvailableIngredients.value.forEach((ingredient) => {
     const productToAdd = {
       ...ingredient.product,
       price: getFinalPrice(ingredient.product),
@@ -118,7 +142,7 @@ function addIngredientsToCart() {
     addToCart(productToAdd)
   })
 
-  cartMessage.value = 'Ingredienti disponibili aggiunti al carrello.'
+  cartMessage.value = 'Ingredienti selezionati aggiunti al carrello.'
 }
 </script>
 
@@ -154,8 +178,13 @@ function addIngredientsToCart() {
 
         <div class="recipe-summary">
           <div class="card">
-            <p class="muted-text">Costo stimato</p>
+            <p class="muted-text">Costo stimato ricetta</p>
             <strong>€ {{ formatPrice(estimatedTotal) }}</strong>
+          </div>
+
+          <div class="card">
+            <p class="muted-text">Costo selezionato</p>
+            <strong>€ {{ formatPrice(selectedTotal) }}</strong>
           </div>
 
           <div class="card">
@@ -190,23 +219,37 @@ function addIngredientsToCart() {
 
         <h2>Ingredienti</h2>
 
+        <p class="muted-text">
+          Deseleziona gli ingredienti che hai già a casa.
+        </p>
+
         <div class="ingredients-list">
-          <div
+          <label
             v-for="ingredient in ingredientsWithProducts"
             :key="ingredient.productId"
-            class="ingredient-row"
+            class="ingredient-row ingredient-select-row"
+            :class="{ 'ingredient-disabled': !ingredient.isAvailableHere }"
           >
-            <div>
-              <h3>{{ ingredient.name }}</h3>
+            <div class="ingredient-main">
+              <input
+                type="checkbox"
+                :value="ingredient.productId"
+                v-model="selectedIngredientIds"
+                :disabled="!ingredient.isAvailableHere"
+              />
 
-              <p>
-                Quantità:
-                <strong>{{ ingredient.quantity }} {{ ingredient.unit }}</strong>
-              </p>
+              <div>
+                <h3>{{ ingredient.name }}</h3>
 
-              <p v-if="ingredient.isOptional" class="muted-text">
-                Ingrediente opzionale
-              </p>
+                <p>
+                  Quantità:
+                  <strong>{{ ingredient.quantity }} {{ ingredient.unit }}</strong>
+                </p>
+
+                <p v-if="ingredient.isOptional" class="muted-text">
+                  Ingrediente opzionale
+                </p>
+              </div>
             </div>
 
             <div class="ingredient-info">
@@ -225,7 +268,7 @@ function addIngredientsToCart() {
                 Non disponibile
               </span>
             </div>
-          </div>
+          </label>
         </div>
 
         <div class="recipe-cart-actions">
@@ -234,7 +277,7 @@ function addIngredientsToCart() {
             class="btn"
             @click="addIngredientsToCart"
           >
-            Aggiungi ingredienti al carrello
+            Aggiungi ingredienti selezionati
           </button>
 
           <RouterLink to="/cart" class="btn btn-secondary">
