@@ -27,7 +27,8 @@
 }
 
 .form-field input,
-.form-field textarea {
+.form-field textarea,
+.form-field select {
   width: 100%;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -70,7 +71,76 @@
 }
 
 .form-field input:focus,
-.form-field textarea:focus {
+.form-field textarea:focus,
+.form-field select:focus {
   outline: 2px solid var(--color-primary-light);
   border-color: var(--color-primary);
+}
+
+.checkout-section {
+  display: grid;
+  gap: 16px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.checkout-section h3 {
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.pickup-supermarket-box {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px;
+  background-color: #f9f9f9;
+}
+
+.pickup-supermarket-box p {
+  margin: 0;
+}
+
+.pickup-slots-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pickup-slot {
+  width: 96px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 7px 6px;
+  background-color: #ffffff;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.pickup-slot span {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pickup-slot:hover {
+  border-color: var(--color-primary);
+}
+
+.pickup-slot-selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
+
+.pickup-slot-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #eeeeee;
+}
+
+.pickup-slot-disabled:hover {
+  border-color: var(--color-border);
 }
