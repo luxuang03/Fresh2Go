@@ -23,9 +23,52 @@ const checkoutData = reactive({
   notes: '',
 })
 
+const checkoutErrors = reactive({
+  name: '',
+  email: '',
+  phone: '',
+})
+
 const checkoutMessage = ref('')
 
+function isEmailValid(email) {
+  return email.includes('@') && email.includes('.')
+}
+
+function validateCheckoutData() {
+  checkoutErrors.name = ''
+  checkoutErrors.email = ''
+  checkoutErrors.phone = ''
+  checkoutMessage.value = ''
+
+  if (checkoutData.name.trim() === '') {
+    checkoutErrors.name = 'Inserisci nome e cognome.'
+  }
+
+  if (checkoutData.email.trim() === '') {
+    checkoutErrors.email = 'Inserisci un indirizzo email.'
+  } else if (!isEmailValid(checkoutData.email)) {
+    checkoutErrors.email = 'Inserisci un indirizzo email valido.'
+  }
+
+  if (checkoutData.phone.trim() === '') {
+    checkoutErrors.phone = 'Inserisci un numero di telefono.'
+  }
+
+  return (
+    checkoutErrors.name === '' &&
+    checkoutErrors.email === '' &&
+    checkoutErrors.phone === ''
+  )
+}
+
 function saveCheckoutData() {
+  const isValid = validateCheckoutData()
+
+  if (!isValid) {
+    return
+  }
+
   checkoutMessage.value = 'Dati inseriti correttamente. Nella prossima fase verrà aggiunta la conferma ordine.'
 }
 </script>
@@ -54,7 +97,7 @@ function saveCheckoutData() {
       <div class="card checkout-form-card">
         <h2>Dati per il ritiro</h2>
 
-        <form class="checkout-form" @submit.prevent="saveCheckoutData">
+        <form class="checkout-form" @submit.prevent="saveCheckoutData" novalidate>
           <div class="form-field">
             <label for="name">Nome e cognome</label>
             <input
@@ -62,8 +105,11 @@ function saveCheckoutData() {
               v-model="checkoutData.name"
               type="text"
               placeholder="Es. Mario Rossi"
-              required
             >
+
+            <p v-if="checkoutErrors.name" class="form-error">
+              {{ checkoutErrors.name }}
+            </p>
           </div>
 
           <div class="form-field">
@@ -73,8 +119,11 @@ function saveCheckoutData() {
               v-model="checkoutData.email"
               type="email"
               placeholder="Es. mario@email.com"
-              required
             >
+
+            <p v-if="checkoutErrors.email" class="form-error">
+              {{ checkoutErrors.email }}
+            </p>
           </div>
 
           <div class="form-field">
@@ -84,8 +133,11 @@ function saveCheckoutData() {
               v-model="checkoutData.phone"
               type="tel"
               placeholder="Es. 3331234567"
-              required
             >
+
+            <p v-if="checkoutErrors.phone" class="form-error">
+              {{ checkoutErrors.phone }}
+            </p>
           </div>
 
           <div class="form-field">
