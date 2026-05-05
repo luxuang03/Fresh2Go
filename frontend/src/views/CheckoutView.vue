@@ -1,12 +1,22 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import {cart, getCartTotal, getCartCount, getItemSubtotal } from '../data/cart'
+import {
+  cart,
+  clearCart,
+  getCartTotal,
+  getCartCount,
+  getItemSubtotal,
+} from '../data/cart'
 import { mockSupermarkets } from '../data/mockSupermarkets'
 
 const router = useRouter()
 
 const selectedSupermarketId = ref('')
+const checkoutMessage = ref('')
+const orderConfirmed = ref(false)
+
+const confirmedOrder = ref(null)
 
 const cartTotal = computed(() => {
   return getCartTotal()
@@ -56,8 +66,6 @@ const checkoutErrors = reactive({
   pickupDate: '',
   pickupSlot: '',
 })
-
-const checkoutMessage = ref('')
 
 onMounted(() => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
@@ -123,14 +131,39 @@ function validateCheckoutData() {
   )
 }
 
-function saveCheckoutData() {
+function confirmOrder() {
   const isValid = validateCheckoutData()
 
   if (!isValid) {
     return
   }
 
-  checkoutMessage.value = 'Dati e fascia di ritiro inseriti correttamente. Nella prossima fase verrà aggiunta la conferma ordine.'
+  if (cart.items.length === 0) {
+    checkoutMessage.value = 'Il carrello è vuoto.'
+    return
+  }
+
+  confirmedOrder.value = {
+    customerName: checkoutData.name,
+    customerEmail: checkoutData.email,
+    pickupDate: checkoutData.pickupDate,
+    pickupSlot: checkoutData.pickupSlot,
+    supermarketName: selectedSupermarket.value.name,
+    items: cart.items.map((item) => {
+      return {
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        subtotal: getItemSubtotal(item),
+      }
+    }),
+    totalItems: cartCount.value,
+    totalPrice: cartTotal.value,
+  }
+
+  clearCart()
+  orderConfirmed.value = true
 }
 </script>
 
@@ -142,7 +175,63 @@ function saveCheckoutData() {
       Controlla il riepilogo della spesa e scegli quando ritirare l'ordine.
     </p>
 
-    <section v-if="cart.items.length === 0" class="card cart-empty">
+    <section v-if="orderConfirmed && confirmedOrder" class="card checkout-confirmation">
+      <h2>Ordine confermato</h2>
+
+      <p>
+        Grazie {{ confirmedOrder.customerName }}, il tuo ordine è stato confermato correttamente.
+      </p>
+
+      <p>
+        Potrai ritirare la spesa presso
+        <strong>{{ confirmedOrder.supermarketName }}</strong>
+        il giorno
+        <strong>{{ confirmedOrder.pickupDate }}</strong>
+        nella fascia
+        <strong>{{ confirmedOrder.pickupSlot }}</strong>.
+      </p>
+
+      <div class="confirmed-order-box">
+        <h3>Riepilogo ordine</h3>
+
+        <div
+          v-for="item in confirmedOrder.items"
+          :key="item.id"
+          class="checkout-item"
+        >
+          <div>
+            <strong>{{ item.name }}</strong>
+            <p class="muted-text">
+              {{ item.quantity }} x € {{ item.price.toFixed(2) }}
+            </p>
+          </div>
+
+          <span>
+            € {{ item.subtotal.toFixed(2) }}
+          </span>
+        </div>
+
+        <p>
+          Totale prodotti: {{ confirmedOrder.totalItems }}
+        </p>
+
+        <p class="cart-total">
+          Totale pagato: € {{ confirmedOrder.totalPrice.toFixed(2) }}
+        </p>
+      </div>
+
+      <div class="cart-actions">
+        <RouterLink to="/catalog" class="btn">
+          Torna al catalogo
+        </RouterLink>
+
+        <RouterLink to="/" class="btn btn-secondary">
+          Torna alla home
+        </RouterLink>
+      </div>
+    </section>
+
+    <section v-else-if="cart.items.length === 0" class="card cart-empty">
       <h2>Il carrello è vuoto</h2>
 
       <p class="muted-text">
@@ -158,7 +247,7 @@ function saveCheckoutData() {
       <div class="card checkout-form-card">
         <h2>Dati per il ritiro</h2>
 
-        <form class="checkout-form" @submit.prevent="saveCheckoutData" novalidate>
+        <form class="checkout-form" @submit.prevent="confirmOrder" novalidate>
           <div class="form-field">
             <label for="name">Nome e cognome</label>
             <input
@@ -281,7 +370,7 @@ function saveCheckoutData() {
           </div>
 
           <button type="submit" class="btn">
-            Conferma dati
+            Conferma ordine
           </button>
 
           <p v-if="checkoutMessage" class="checkout-message">

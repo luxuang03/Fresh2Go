@@ -144,3 +144,31 @@
 .pickup-slot-disabled:hover {
   border-color: var(--color-border);
 }
+
+.checkout-confirmation {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  border: 1px solid var(--color-primary-light);
+}
+
+.checkout-confirmation h2 {
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.checkout-confirmation p {
+  margin: 0;
+}
+
+.confirmed-order-box {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+}
+
+.confirmed-order-box h3 {
+  margin: 0;
+  color: var(--color-primary);
+}
