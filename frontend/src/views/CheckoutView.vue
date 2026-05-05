@@ -9,6 +9,7 @@ import {
   getItemSubtotal,
 } from '../data/cart'
 import { mockSupermarkets } from '../data/mockSupermarkets'
+import { addOrder } from '../data/mockOrders'
 
 const router = useRouter()
 
@@ -143,12 +144,18 @@ function confirmOrder() {
     return
   }
 
-  confirmedOrder.value = {
+  const newOrder = {
+    id: Date.now(),
     customerName: checkoutData.name,
     customerEmail: checkoutData.email,
+    customerPhone: checkoutData.phone,
+    notes: checkoutData.notes,
     pickupDate: checkoutData.pickupDate,
     pickupSlot: checkoutData.pickupSlot,
+    supermarketId: selectedSupermarket.value.id,
     supermarketName: selectedSupermarket.value.name,
+    status: 'Confermato',
+    createdAt: new Date().toISOString(),
     items: cart.items.map((item) => {
       return {
         id: item.id,
@@ -161,6 +168,10 @@ function confirmOrder() {
     totalItems: cartCount.value,
     totalPrice: cartTotal.value,
   }
+
+  addOrder(newOrder)
+
+  confirmedOrder.value = newOrder
 
   clearCart()
   orderConfirmed.value = true
@@ -221,10 +232,14 @@ function confirmOrder() {
       </div>
 
       <div class="cart-actions">
-        <RouterLink to="/catalog" class="btn">
+        <RouterLink to="/orders" class="btn">
+          Vai agli ordini
+        </RouterLink>
+      
+        <RouterLink to="/catalog" class="btn btn-secondary">
           Torna al catalogo
         </RouterLink>
-
+      
         <RouterLink to="/" class="btn btn-secondary">
           Torna alla home
         </RouterLink>
