@@ -14,8 +14,13 @@
 
   .catalog-filters,
   .product-detail,
-  .recipe-detail {
+  .recipe-detail,
+  .checkout-page {
     grid-template-columns: 1fr;
+  }
+
+  .checkout-summary {
+    order: -1;
   }
 
   .filter-field-large {
