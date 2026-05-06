@@ -20,6 +20,7 @@ const cartCount = computed(() => {
         <RouterLink to="/catalog">Catalogo</RouterLink>
         <RouterLink to="/recipes">Ricette</RouterLink>
         <RouterLink to="/cart">Carrello ({{ cartCount }})</RouterLink>
+        <RouterLink to="/register">Registrati</RouterLink>
         <RouterLink to="/login">Login</RouterLink>
         <RouterLink to="/profile">Profilo</RouterLink>
       </nav>

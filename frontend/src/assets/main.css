@@ -6,7 +6,8 @@
 @import './styles/supermarkets.css';
 @import './styles/cart.css';
 @import './styles/checkout.css';
-@import './styles/responsive.css';
 @import './styles/recipes.css';
 @import './styles/recipe-detail.css';
 @import './styles/orders.css';
+@import './styles/auth.css';
+@import './styles/responsive.css';
