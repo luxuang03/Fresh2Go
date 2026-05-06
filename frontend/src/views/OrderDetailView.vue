@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { getOrderById } from '../data/mockOrders'
+import { isLoggedIn } from '../data/auth'
 
 const route = useRoute()
 
@@ -20,12 +21,28 @@ function formatDate(dateValue) {
       ← Torna agli ordini
     </RouterLink>
 
-    <section v-if="!order" class="card orders-empty">
+    <section v-if="!isLoggedIn" class="card orders-empty">
+      <h1>Accesso richiesto</h1>
+
+      <p class="muted-text">
+        Effettua il login per visualizzare il dettaglio dell'ordine.
+      </p>
+
+      <RouterLink to="/login" class="btn">
+        Vai al login
+      </RouterLink>
+    </section>
+
+    <section v-else-if="!order" class="card orders-empty">
       <h1>Ordine non trovato</h1>
 
       <p class="muted-text">
         L'ordine richiesto non è presente nello storico locale.
       </p>
+
+      <RouterLink to="/orders" class="btn">
+        Torna allo storico ordini
+      </RouterLink>
     </section>
 
     <section v-else>

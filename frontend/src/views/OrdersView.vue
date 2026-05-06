@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getOrders } from '../data/mockOrders'
+import { isLoggedIn } from '../data/auth'
 
 const orders = ref([])
 
@@ -16,13 +17,25 @@ function formatDate(dateValue) {
 
 <template>
   <main>
-    <h1 class="page-title">Ordini</h1>
+    <h1 class="page-title">Storico ordini</h1>
 
     <p class="page-description">
       Qui trovi lo storico degli ordini confermati durante la simulazione.
     </p>
 
-    <section v-if="orders.length === 0" class="card orders-empty">
+    <section v-if="!isLoggedIn" class="card orders-empty">
+      <h2>Accesso richiesto</h2>
+
+      <p class="muted-text">
+        Effettua il login per visualizzare lo storico degli ordini.
+      </p>
+
+      <RouterLink to="/login" class="btn">
+        Vai al login
+      </RouterLink>
+    </section>
+
+    <section v-else-if="orders.length === 0" class="card orders-empty">
       <h2>Nessun ordine presente</h2>
 
       <p class="muted-text">
@@ -55,6 +68,16 @@ function formatDate(dateValue) {
         </div>
 
         <div class="order-info-grid">
+          <p>
+            <strong>Cliente:</strong>
+            {{ order.customerName }}
+          </p>
+
+          <p>
+            <strong>Email:</strong>
+            {{ order.customerEmail }}
+          </p>
+
           <p>
             <strong>Supermercato:</strong>
             {{ order.supermarketName }}
