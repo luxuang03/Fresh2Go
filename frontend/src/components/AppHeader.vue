@@ -1,10 +1,19 @@
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { getCartCount } from '../data/cart'
+import { currentUser, isLoggedIn, logoutUser } from '../data/auth'
+
+const router = useRouter()
 
 const cartCount = computed(() => {
   return getCartCount()
 })
+
+function handleLogout() {
+  logoutUser()
+  router.push('/')
+}
 </script>
 
 <template>
@@ -20,9 +29,21 @@ const cartCount = computed(() => {
         <RouterLink to="/catalog">Catalogo</RouterLink>
         <RouterLink to="/recipes">Ricette</RouterLink>
         <RouterLink to="/cart">Carrello ({{ cartCount }})</RouterLink>
-        <RouterLink to="/register">Registrati</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/profile">Profilo</RouterLink>
+
+        <template v-if="!isLoggedIn">
+          <RouterLink to="/register">Registrati</RouterLink>
+          <RouterLink to="/login">Login</RouterLink>
+        </template>
+
+        <template v-else>
+          <RouterLink to="/profile">
+            {{ currentUser.fullName }}
+          </RouterLink>
+
+          <button class="nav-button" type="button" @click="handleLogout">
+            Logout
+          </button>
+        </template>
       </nav>
     </div>
   </header>
