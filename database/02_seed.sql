@@ -2,6 +2,8 @@
 -- Dati iniziali:
 -- categorie, allergeni, supermercati
 
+DELETE FROM recipe_ingredients;
+DELETE FROM recipes;
 DELETE FROM product_allergens;
 DELETE FROM supermarket_products;
 DELETE FROM products;
@@ -9,6 +11,8 @@ DELETE FROM supermarkets;
 DELETE FROM allergens;
 DELETE FROM categories;
 
+ALTER SEQUENCE recipe_ingredients_id_seq RESTART WITH 1;
+ALTER SEQUENCE recipes_id_seq RESTART WITH 1;
 ALTER SEQUENCE products_id_seq RESTART WITH 1;
 ALTER SEQUENCE supermarkets_id_seq RESTART WITH 1;
 ALTER SEQUENCE allergens_id_seq RESTART WITH 1;
@@ -220,3 +224,65 @@ VALUES
 (18, 2),
 (19, 5),
 (19, 6);
+
+-- Ricette mock
+INSERT INTO recipes (
+    id,
+    name,
+    recipe_type,
+    description,
+    servings,
+    image_url
+)
+VALUES
+(1, 'Pasta al pomodoro', 'primo', 'Un primo semplice con spaghetti e condimento al pomodoro.', 2, ''),
+(2, 'Risotto con piselli', 'primo', 'Risotto leggero preparato con riso Carnaroli e piselli.', 2, ''),
+(3, 'Pollo con piselli', 'secondo', 'Secondo piatto semplice con petto di pollo e contorno di piselli.', 2, ''),
+(4, 'Salmone al forno', 'secondo', 'Filetti di salmone da cuocere al forno con un contorno semplice.', 2, ''),
+(5, 'Burger vegetale con insalata', 'secondo', 'Piatto vegetariano e vegano con burger vegetale e insalata mista.', 2, ''),
+(6, 'Insalata con pane integrale', 'contorno', 'Contorno veloce con insalata mista e pane integrale.', 2, ''),
+(7, 'Yogurt con banana', 'dolce', 'Dolce semplice con yogurt bianco e banana a fette.', 2, ''),
+(8, 'Gelato con cioccolato fondente', 'dolce', 'Dessert veloce con gelato alla vaniglia e cioccolato fondente.', 2, '');
+
+SELECT setval('recipes_id_seq', (SELECT MAX(id) FROM recipes));
+
+-- Ingredienti delle ricette mock
+INSERT INTO recipe_ingredients (
+    recipe_id,
+    product_id,
+    quantity,
+    unit,
+    is_optional
+)
+VALUES
+-- Pasta al pomodoro
+(1, 4, 250, 'g', FALSE),
+
+-- Risotto con piselli
+(2, 5, 180, 'g', FALSE),
+(2, 13, 150, 'g', FALSE),
+
+-- Pollo con piselli
+(3, 10, 300, 'g', FALSE),
+(3, 13, 150, 'g', FALSE),
+
+-- Salmone al forno
+(4, 11, 300, 'g', FALSE),
+
+-- Burger vegetale con insalata
+(5, 12, 2, 'pezzi', FALSE),
+(5, 3, 1, 'busta', FALSE),
+
+-- Insalata con pane integrale
+(6, 3, 1, 'busta', FALSE),
+(6, 6, 100, 'g', TRUE),
+
+-- Yogurt con banana
+(7, 8, 2, 'vasetti', FALSE),
+(7, 2, 2, 'pezzi', FALSE),
+
+-- Gelato con cioccolato fondente
+(8, 15, 250, 'g', FALSE),
+(8, 19, 50, 'g', TRUE);
+
+SELECT setval('recipe_ingredients_id_seq', (SELECT MAX(id) FROM recipe_ingredients));

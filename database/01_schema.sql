@@ -2,6 +2,8 @@
 -- Tabelle iniziali:
 -- users, supermarkets, categories, products, allergens
 
+DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS product_allergens;
 DROP TABLE IF EXISTS supermarket_products;
 DROP TABLE IF EXISTS products;
@@ -131,4 +133,42 @@ CREATE TABLE product_allergens (
     allergen_id BIGINT REFERENCES allergens(id) ON DELETE CASCADE,
 
     PRIMARY KEY (product_id, allergen_id)
+);
+
+-- Tabella recipes
+-- Salva le ricette mostrate nella sezione ricette
+CREATE TABLE recipes (
+    id BIGSERIAL PRIMARY KEY,
+
+    name VARCHAR(150) NOT NULL,
+    recipe_type VARCHAR(30) NOT NULL,
+    description TEXT,
+
+    servings INTEGER DEFAULT 2 CHECK (servings > 0),
+
+    image_url TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (
+        recipe_type IN ('primo', 'secondo', 'contorno', 'dolce')
+    )
+);
+
+-- Tabella recipe_ingredients
+-- Collega ogni ricetta ai prodotti usati come ingredienti
+CREATE TABLE recipe_ingredients (
+    id BIGSERIAL PRIMARY KEY,
+
+    recipe_id BIGINT REFERENCES recipes(id) ON DELETE CASCADE,
+    product_id BIGINT REFERENCES products(id) ON DELETE RESTRICT,
+
+    quantity NUMERIC(10,2) NOT NULL CHECK (quantity > 0),
+    unit VARCHAR(30) NOT NULL,
+
+    is_optional BOOLEAN DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
