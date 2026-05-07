@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS product_allergens;
 DROP TABLE IF EXISTS supermarket_products;
+DROP TABLE IF EXISTS pickup_slots;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS allergens;
@@ -171,4 +172,27 @@ CREATE TABLE recipe_ingredients (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabella pickup_slots
+-- Salva le fasce orarie di ritiro per ogni supermercato
+CREATE TABLE pickup_slots (
+    id BIGSERIAL PRIMARY KEY,
+
+    supermarket_id BIGINT REFERENCES supermarkets(id) ON DELETE CASCADE,
+
+    slot_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+
+    max_orders INTEGER DEFAULT 10 CHECK (max_orders > 0),
+    current_orders INTEGER DEFAULT 0 CHECK (current_orders >= 0),
+
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (end_time > start_time),
+    CHECK (current_orders <= max_orders)
 );

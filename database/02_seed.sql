@@ -6,17 +6,52 @@ DELETE FROM recipe_ingredients;
 DELETE FROM recipes;
 DELETE FROM product_allergens;
 DELETE FROM supermarket_products;
+DELETE FROM pickup_slots;
 DELETE FROM products;
 DELETE FROM supermarkets;
 DELETE FROM allergens;
 DELETE FROM categories;
+DELETE FROM users;
 
+ALTER SEQUENCE users_id_seq RESTART WITH 1;
+ALTER SEQUENCE pickup_slots_id_seq RESTART WITH 1;
 ALTER SEQUENCE recipe_ingredients_id_seq RESTART WITH 1;
 ALTER SEQUENCE recipes_id_seq RESTART WITH 1;
 ALTER SEQUENCE products_id_seq RESTART WITH 1;
 ALTER SEQUENCE supermarkets_id_seq RESTART WITH 1;
 ALTER SEQUENCE allergens_id_seq RESTART WITH 1;
 ALTER SEQUENCE categories_id_seq RESTART WITH 1;
+
+-- Utenti demo
+-- Per ora sono usati solo come dati di test.
+-- Le password reali verranno gestite più avanti con bcrypt.
+INSERT INTO users (
+    id,
+    username,
+    email,
+    password_hash,
+    full_name,
+    phone
+)
+VALUES
+(
+    1,
+    'mario.rossi',
+    'mario.rossi@example.com',
+    'demo_hash_mario',
+    'Mario Rossi',
+    '3331234567'
+),
+(
+    2,
+    'giulia.bianchi',
+    'giulia.bianchi@example.com',
+    'demo_hash_giulia',
+    'Giulia Bianchi',
+    '3337654321'
+);
+
+SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 -- Categorie prodotti
 INSERT INTO categories (id, name, description, parent_id)
@@ -286,3 +321,53 @@ VALUES
 (8, 19, 50, 'g', TRUE);
 
 SELECT setval('recipe_ingredients_id_seq', (SELECT MAX(id) FROM recipe_ingredients));
+
+-- Slot di ritiro demo
+-- Usiamo CURRENT_DATE e CURRENT_DATE + 1 per mantenere il seed riutilizzabile.
+INSERT INTO pickup_slots (
+    supermarket_id,
+    slot_date,
+    start_time,
+    end_time,
+    max_orders,
+    current_orders,
+    is_active
+)
+VALUES
+-- Fresh2Go Market Centro - oggi
+(1, CURRENT_DATE, '09:00', '10:00', 10, 2, TRUE),
+(1, CURRENT_DATE, '10:00', '11:00', 10, 10, TRUE),
+(1, CURRENT_DATE, '16:00', '17:00', 10, 4, TRUE),
+(1, CURRENT_DATE, '17:00', '18:00', 10, 0, FALSE),
+
+-- Fresh2Go Market Centro - domani
+(1, CURRENT_DATE + 1, '09:00', '10:00', 10, 1, TRUE),
+(1, CURRENT_DATE + 1, '10:00', '11:00', 10, 3, TRUE),
+(1, CURRENT_DATE + 1, '16:00', '17:00', 10, 0, TRUE),
+(1, CURRENT_DATE + 1, '17:00', '18:00', 10, 8, TRUE),
+
+-- Fresh2Go Express Nord - oggi
+(2, CURRENT_DATE, '09:00', '10:00', 8, 1, TRUE),
+(2, CURRENT_DATE, '10:00', '11:00', 8, 8, TRUE),
+(2, CURRENT_DATE, '16:00', '17:00', 8, 2, TRUE),
+(2, CURRENT_DATE, '17:00', '18:00', 8, 0, TRUE),
+
+-- Fresh2Go Express Nord - domani
+(2, CURRENT_DATE + 1, '09:00', '10:00', 8, 0, TRUE),
+(2, CURRENT_DATE + 1, '10:00', '11:00', 8, 4, TRUE),
+(2, CURRENT_DATE + 1, '16:00', '17:00', 8, 8, TRUE),
+(2, CURRENT_DATE + 1, '17:00', '18:00', 8, 1, TRUE),
+
+-- Fresh2Go Bio Sud - oggi
+(3, CURRENT_DATE, '09:00', '10:00', 6, 0, TRUE),
+(3, CURRENT_DATE, '10:00', '11:00', 6, 6, TRUE),
+(3, CURRENT_DATE, '16:00', '17:00', 6, 2, TRUE),
+(3, CURRENT_DATE, '17:00', '18:00', 6, 0, FALSE),
+
+-- Fresh2Go Bio Sud - domani
+(3, CURRENT_DATE + 1, '09:00', '10:00', 6, 1, TRUE),
+(3, CURRENT_DATE + 1, '10:00', '11:00', 6, 0, TRUE),
+(3, CURRENT_DATE + 1, '16:00', '17:00', 6, 5, TRUE),
+(3, CURRENT_DATE + 1, '17:00', '18:00', 6, 6, TRUE);
+
+SELECT setval('pickup_slots_id_seq', (SELECT MAX(id) FROM pickup_slots));
