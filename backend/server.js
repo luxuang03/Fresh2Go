@@ -2,6 +2,9 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 const pool = require('./db')
+const apiRoutes = require('./routes')
+const notFoundHandler = require('./middleware/notFoundHandler')
+const errorHandler = require('./middleware/errorHandler')
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -29,6 +32,11 @@ app.get('/api/db-test', async (req, res) => {
     })
   }
 })
+
+app.use('/api', apiRoutes)
+
+app.use(notFoundHandler)
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server avviato sulla porta ${PORT}`)
