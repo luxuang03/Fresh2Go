@@ -1,14 +1,186 @@
-function getProducts(req, res) {
-  res.json({
-    message: 'Lista prodotti da implementare',
-  })
+const pool = require('../db')
+
+async function getProducts(req, res, next) {
+  try {
+    const {
+      supermarketId,
+      categoryId,
+      search,
+      minPrice,
+      maxPrice,
+      onlyDiscounted,
+      onlyAvailable,
+      vegetarian,
+      vegan,
+    } = req.query
+
+    const values = []
+    const conditions = []
+
+    let query = `
+      SELECT
+        p.id,
+        p.name,
+        p.brand,
+        p.description,
+        p.ingredients,
+        p.price,
+        sp.local_price,
+        COALESCE(sp.local_price, p.price) AS final_price,
+        p.discount_percentage,
+        p.image_url,
+        p.unit_label,
+        p.is_vegetarian,
+        p.is_vegan,
+        c.id AS category_id,
+        c.name AS category_name,
+        sp.supermarket_id,
+        sp.stock_quantity,
+        sp.is_available
+      FROM products p
+      LEFT JOIN categories c
+        ON p.category_id = c.id
+      LEFT JOIN supermarket_products sp
+        ON p.id = sp.product_id
+    `
+
+    if (supermarketId) {
+      values.push(supermarketId)
+      conditions.push(`sp.supermarket_id = $${values.length}`)
+    }
+
+    if (categoryId) {
+      values.push(categoryId)
+      conditions.push(`p.category_id = $${values.length}`)
+    }
+
+    if (search) {
+      values.push(`%${search}%`)
+      conditions.push(`
+        (
+          p.name ILIKE $${values.length}
+          OR p.brand ILIKE $${values.length}
+          OR p.description ILIKE $${values.length}
+          OR p.ingredients ILIKE $${values.length}
+        )
+      `)
+    }
+
+    if (minPrice) {
+      values.push(minPrice)
+      conditions.push(`COALESCE(sp.local_price, p.price) >= $${values.length}`)
+    }
+
+    if (maxPrice) {
+      values.push(maxPrice)
+      conditions.push(`COALESCE(sp.local_price, p.price) <= $${values.length}`)
+    }
+
+    if (onlyDiscounted === 'true') {
+      conditions.push(`p.discount_percentage > 0`)
+    }
+
+    if (onlyAvailable === 'true') {
+      conditions.push(`sp.is_available = TRUE`)
+      conditions.push(`sp.stock_quantity > 0`)
+    }
+
+    if (vegetarian === 'true') {
+      conditions.push(`p.is_vegetarian = TRUE`)
+    }
+
+    if (vegan === 'true') {
+      conditions.push(`p.is_vegan = TRUE`)
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`
+    }
+
+    query += ` ORDER BY p.id, sp.supermarket_id`
+
+    const result = await pool.query(query, values)
+
+    res.json(result.rows)
+  } catch (error) {
+    next(error)
+  }
 }
 
-function getProductById(req, res) {
-  res.json({
-    message: 'Dettaglio prodotto da implementare',
-    productId: req.params.id,
-  })
+async function getProductById(req, res, next) {
+  try {
+    const { id } = req.params
+    const { supermarketId } = req.query
+
+    const values = [id]
+
+    let productQuery = `
+      SELECT
+        p.id,
+        p.name,
+        p.brand,
+        p.description,
+        p.ingredients,
+        p.price,
+        sp.local_price,
+        COALESCE(sp.local_price, p.price) AS final_price,
+        p.discount_percentage,
+        p.image_url,
+        p.unit_label,
+        p.is_vegetarian,
+        p.is_vegan,
+        c.id AS category_id,
+        c.name AS category_name,
+        sp.supermarket_id,
+        sp.stock_quantity,
+        sp.is_available
+      FROM products p
+      LEFT JOIN categories c
+        ON p.category_id = c.id
+      LEFT JOIN supermarket_products sp
+        ON p.id = sp.product_id
+      WHERE p.id = $1
+    `
+
+    if (supermarketId) {
+      values.push(supermarketId)
+      productQuery += ` AND sp.supermarket_id = $2`
+    }
+
+    productQuery += ` ORDER BY sp.supermarket_id LIMIT 1`
+
+    const productResult = await pool.query(productQuery, values)
+
+    if (productResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Prodotto non trovato',
+      })
+    }
+
+    const allergenResult = await pool.query(
+      `
+        SELECT
+          a.id,
+          a.name,
+          a.label,
+          a.description
+        FROM allergens a
+        INNER JOIN product_allergens pa
+          ON a.id = pa.allergen_id
+        WHERE pa.product_id = $1
+        ORDER BY a.id
+      `,
+      [id],
+    )
+
+    const product = productResult.rows[0]
+
+    product.allergens = allergenResult.rows
+
+    res.json(product)
+  } catch (error) {
+    next(error)
+  }
 }
 
 module.exports = {
