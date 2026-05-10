@@ -2,6 +2,8 @@
 -- Dati iniziali:
 -- categorie, allergeni, supermercati
 
+DELETE FROM order_items;
+DELETE FROM orders;
 DELETE FROM recipe_ingredients;
 DELETE FROM recipes;
 DELETE FROM product_allergens;
@@ -14,6 +16,8 @@ DELETE FROM categories;
 DELETE FROM users;
 
 ALTER SEQUENCE users_id_seq RESTART WITH 1;
+ALTER SEQUENCE orders_id_seq RESTART WITH 1;
+ALTER SEQUENCE order_items_id_seq RESTART WITH 1;
 ALTER SEQUENCE pickup_slots_id_seq RESTART WITH 1;
 ALTER SEQUENCE recipe_ingredients_id_seq RESTART WITH 1;
 ALTER SEQUENCE recipes_id_seq RESTART WITH 1;

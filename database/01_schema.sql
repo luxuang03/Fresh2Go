@@ -2,6 +2,8 @@
 -- Tabelle iniziali:
 -- users, supermarkets, categories, products, allergens
 
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS recipe_ingredients;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS product_allergens;
@@ -195,4 +197,45 @@ CREATE TABLE pickup_slots (
 
     CHECK (end_time > start_time),
     CHECK (current_orders <= max_orders)
+);
+
+-- Tabella orders
+-- Salva gli ordini confermati dagli utenti
+CREATE TABLE orders (
+    id BIGSERIAL PRIMARY KEY,
+
+    user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    supermarket_id BIGINT REFERENCES supermarkets(id) ON DELETE SET NULL,
+    pickup_slot_id BIGINT REFERENCES pickup_slots(id) ON DELETE SET NULL,
+
+    customer_name VARCHAR(120) NOT NULL,
+    customer_email VARCHAR(120) NOT NULL,
+
+    total_price NUMERIC(10,2) NOT NULL CHECK (total_price >= 0),
+
+    status VARCHAR(30) DEFAULT 'confirmed',
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (
+        status IN ('pending', 'confirmed', 'cancelled', 'completed')
+    )
+);
+
+-- Tabella order_items
+-- Salva i prodotti collegati a un ordine
+CREATE TABLE order_items (
+    id BIGSERIAL PRIMARY KEY,
+
+    order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+    product_id BIGINT REFERENCES products(id) ON DELETE SET NULL,
+
+    product_name VARCHAR(150) NOT NULL,
+
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    unit_price NUMERIC(10,2) NOT NULL CHECK (unit_price >= 0),
+    subtotal NUMERIC(10,2) NOT NULL CHECK (subtotal >= 0),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
