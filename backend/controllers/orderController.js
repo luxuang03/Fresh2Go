@@ -1,7 +1,14 @@
 const pool = require('../db')
 
-async function createOrder(req, res) {
+function createError(message, statusCode) {
+  const error = new Error(message)
+  error.statusCode = statusCode
+  return error
+}
+
+async function createOrder(req, res, next) {
   const client = await pool.connect()
+  let transactionStarted = false
 
   try {
     const {
@@ -14,15 +21,11 @@ async function createOrder(req, res) {
     } = req.body
 
     if (!supermarketId || !pickupSlotId || !customerName || !customerEmail) {
-      return res.status(400).json({
-        message: 'Dati ordine mancanti',
-      })
+      throw createError('Dati ordine mancanti', 400)
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({
-        message: 'Il carrello è vuoto',
-      })
+      throw createError('Il carrello è vuoto', 400)
     }
 
     let totalPrice = 0
@@ -32,15 +35,14 @@ async function createOrder(req, res) {
       const unitPrice = Number(item.unitPrice)
 
       if (!item.productId || !item.productName || quantity <= 0 || unitPrice < 0) {
-        return res.status(400).json({
-          message: 'Prodotto non valido nel carrello',
-        })
+        throw createError('Prodotto non valido nel carrello', 400)
       }
 
       totalPrice += quantity * unitPrice
     }
 
     await client.query('BEGIN')
+    transactionStarted = true
 
     const slotResult = await client.query(
       `
@@ -52,29 +54,20 @@ async function createOrder(req, res) {
     )
 
     if (slotResult.rows.length === 0) {
-      await client.query('ROLLBACK')
-
-      return res.status(404).json({
-        message: 'Slot di ritiro non trovato',
-      })
+      throw createError('Slot di ritiro non trovato', 404)
     }
 
     const slot = slotResult.rows[0]
 
     if (Number(slot.supermarket_id) !== Number(supermarketId)) {
-      await client.query('ROLLBACK')
-
-      return res.status(400).json({
-        message: 'Lo slot scelto non appartiene al supermercato selezionato',
-      })
+      throw createError(
+        'Lo slot scelto non appartiene al supermercato selezionato',
+        400,
+      )
     }
 
     if (!slot.is_active || slot.current_orders >= slot.max_orders) {
-      await client.query('ROLLBACK')
-
-      return res.status(400).json({
-        message: 'Slot di ritiro non disponibile',
-      })
+      throw createError('Slot di ritiro non disponibile', 400)
     }
 
     const orderResult = await client.query(
@@ -147,26 +140,22 @@ async function createOrder(req, res) {
       order,
     })
   } catch (error) {
-    await client.query('ROLLBACK')
-
-    console.error('Errore creazione ordine:', error)
-
-    res.status(500).json({
-      message: 'Errore durante la creazione dell ordine',
-    })
+    if (transactionStarted) {
+      await client.query('ROLLBACK')
+    }
+  
+    next(error)
   } finally {
     client.release()
   }
 }
 
-async function getMyOrders(req, res) {
+async function getMyOrders(req, res, next) {
   try {
     const userId = req.query.userId
 
     if (!userId) {
-      return res.status(400).json({
-        message: 'userId mancante',
-      })
+      throw createError('userId mancante', 400)
     }
 
     const result = await pool.query(
@@ -193,15 +182,11 @@ async function getMyOrders(req, res) {
 
     res.json(result.rows)
   } catch (error) {
-    console.error('Errore recupero ordini:', error)
-
-    res.status(500).json({
-      message: 'Errore durante il recupero degli ordini',
-    })
+    next(error)
   }
 }
 
-async function getOrderById(req, res) {
+async function getOrderById(req, res, next) {
   try {
     const orderId = req.params.id
 
@@ -228,9 +213,7 @@ async function getOrderById(req, res) {
     )
 
     if (orderResult.rows.length === 0) {
-      return res.status(404).json({
-        message: 'Ordine non trovato',
-      })
+      throw createError('Ordine non trovato', 404)
     }
 
     const itemsResult = await pool.query(
@@ -254,11 +237,7 @@ async function getOrderById(req, res) {
       items: itemsResult.rows,
     })
   } catch (error) {
-    console.error('Errore recupero dettaglio ordine:', error)
-
-    res.status(500).json({
-      message: 'Errore durante il recupero del dettaglio ordine',
-    })
+    next(error)
   }
 }
 
