@@ -58,6 +58,84 @@ async function register(req, res, next) {
   }
 }
 
+async function login(req, res, next) {
+  try {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+      throw createError('Email e password sono obbligatorie', 400)
+    }
+
+    const result = await pool.query(
+      `
+      SELECT id, username, email, password_hash, full_name, phone
+      FROM users
+      WHERE email = $1
+      `,
+      [email],
+    )
+
+    if (result.rows.length === 0) {
+      throw createError('Credenziali non valide', 401)
+    }
+
+    const user = result.rows[0]
+
+    const passwordIsValid = await bcrypt.compare(password, user.password_hash)
+
+    if (!passwordIsValid) {
+      throw createError('Credenziali non valide', 401)
+    }
+
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: user.full_name,
+      phone: user.phone,
+    }
+
+    res.json({
+      message: 'Login effettuato correttamente',
+      user: req.session.user,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+function logout(req, res, next) {
+  req.session.destroy((error) => {
+    if (error) {
+      next(error)
+      return
+    }
+
+    res.clearCookie('connect.sid')
+
+    res.json({
+      message: 'Logout effettuato correttamente',
+    })
+  })
+}
+
+function me(req, res, next) {
+  try {
+    if (!req.session.user) {
+      throw createError('Utente non autenticato', 401)
+    }
+
+    res.json({
+      user: req.session.user,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   register,
+  login,
+  logout,
+  me,
 }
