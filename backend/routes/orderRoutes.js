@@ -7,8 +7,10 @@ const {
   getOrderById,
 } = require('../controllers/orderController')
 
-router.post('/', createOrder)
-router.get('/me', getMyOrders)
-router.get('/:id', getOrderById)
+const { requireAuth } = require('../middleware/authMiddleware')
+
+router.post('/', requireAuth, createOrder)
+router.get('/me', requireAuth, getMyOrders)
+router.get('/:id', requireAuth, getOrderById)
 
 module.exports = router

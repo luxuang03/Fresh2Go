@@ -11,8 +11,9 @@ async function createOrder(req, res, next) {
   let transactionStarted = false
 
   try {
+    const userId = req.session.user.id
+
     const {
-      userId,
       supermarketId,
       pickupSlotId,
       customerName,
@@ -85,7 +86,7 @@ async function createOrder(req, res, next) {
       RETURNING *
       `,
       [
-        userId || null,
+        userId,
         supermarketId,
         pickupSlotId,
         customerName,
@@ -143,7 +144,7 @@ async function createOrder(req, res, next) {
     if (transactionStarted) {
       await client.query('ROLLBACK')
     }
-  
+
     next(error)
   } finally {
     client.release()
@@ -152,11 +153,7 @@ async function createOrder(req, res, next) {
 
 async function getMyOrders(req, res, next) {
   try {
-    const userId = req.query.userId
-
-    if (!userId) {
-      throw createError('userId mancante', 400)
-    }
+    const userId = req.session.user.id
 
     const result = await pool.query(
       `
@@ -188,6 +185,7 @@ async function getMyOrders(req, res, next) {
 
 async function getOrderById(req, res, next) {
   try {
+    const userId = req.session.user.id
     const orderId = req.params.id
 
     const orderResult = await pool.query(
@@ -207,9 +205,9 @@ async function getOrderById(req, res, next) {
       FROM orders o
       LEFT JOIN supermarkets s ON o.supermarket_id = s.id
       LEFT JOIN pickup_slots ps ON o.pickup_slot_id = ps.id
-      WHERE o.id = $1
+      WHERE o.id = $1 AND o.user_id = $2
       `,
-      [orderId],
+      [orderId, userId],
     )
 
     if (orderResult.rows.length === 0) {
