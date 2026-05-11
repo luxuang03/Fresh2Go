@@ -8,6 +8,7 @@ const supermarketRoutes = require('./supermarketRoutes')
 const pickupSlotRoutes = require('./pickupSlotRoutes')
 const recipeRoutes = require('./recipeRoutes')
 const orderRoutes = require('./orderRoutes')
+const authRoutes = require('./authRoutes')
 
 router.use('/products', productRoutes)
 router.use('/categories', categoryRoutes)
@@ -16,5 +17,6 @@ router.use('/supermarkets', supermarketRoutes)
 router.use('/pickup-slots', pickupSlotRoutes)
 router.use('/recipes', recipeRoutes)
 router.use('/orders', orderRoutes)
+router.use('/auth', authRoutes)
 
 module.exports = router
