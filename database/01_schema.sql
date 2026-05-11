@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS allergens;
 DROP TABLE IF EXISTS supermarkets;
+DROP TABLE IF EXISTS "session";
 DROP TABLE IF EXISTS users;
 
 -- Tabella users
@@ -239,3 +240,18 @@ CREATE TABLE order_items (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Tabella session
+-- Salva le sessioni utente gestite da express-session
+CREATE TABLE "session" (
+    "sid" VARCHAR NOT NULL COLLATE "default",
+    "sess" JSON NOT NULL,
+    "expire" TIMESTAMP(6) NOT NULL
+);
+
+ALTER TABLE "session"
+ADD CONSTRAINT "session_pkey"
+PRIMARY KEY ("sid");
+
+CREATE INDEX "IDX_session_expire"
+ON "session" ("expire");
