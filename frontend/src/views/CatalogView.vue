@@ -1,15 +1,25 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
-import { mockCategories } from '../data/mockCategories'
-import { mockProducts } from '../data/mockProducts'
-import { mockAllergens } from '../data/mockAllergens'
-import { mockSupermarkets } from '../data/mockSupermarkets'
+import {
+  getAllergens,
+  getCategories,
+  getProducts,
+  getSupermarkets,
+} from '../services/api'
 
 const router = useRouter()
-
+const route = useRoute()
 const selectedSupermarketId = ref('')
+
+const products = ref([])
+const categories = ref([])
+const allergens = ref([])
+const supermarkets = ref([])
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const searchText = ref('')
 const selectedCategoryId = ref('')
@@ -20,87 +30,106 @@ const excludedAllergens = ref([])
 const onlyVegetarian = ref(false)
 const onlyVegan = ref(false)
 
-onMounted(() => {
+onMounted(async () => {
+  const supermarketIdFromUrl = route.query.supermarketId
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
-  
-  if (!savedSupermarketId) {
-    router.replace('/supermarkets')
+
+  const currentSupermarketId = supermarketIdFromUrl || savedSupermarketId
+
+  if (!currentSupermarketId) {
+    selectedSupermarketId.value = ''
+    await loadInitialData()
     return
   }
 
-  selectedSupermarketId.value = savedSupermarketId
+  selectedSupermarketId.value = currentSupermarketId
+  localStorage.setItem('selectedSupermarketId', currentSupermarketId)
+
+  await loadInitialData()
+  await loadProducts()
 })
 
 const selectedSupermarket = computed(() => {
-  return mockSupermarkets.find((supermarket) => {
-    return supermarket.id === Number(selectedSupermarketId.value)
+  return supermarkets.value.find((supermarket) => {
+    return Number(supermarket.id) === Number(selectedSupermarketId.value)
   })
 })
 
 const hasSelectedSupermarket = computed(() => {
-  return Boolean(selectedSupermarket.value)
+  return Boolean(selectedSupermarketId.value)
+})
+
+const selectedSupermarketName = computed(() => {
+  if (selectedSupermarket.value) {
+    return selectedSupermarket.value.name
+  }
+
+  return 'supermercato selezionato'
 })
 
 const filteredProducts = computed(() => {
-  if (!hasSelectedSupermarket.value) {
-    return []
-  }
-
-  const search = searchText.value.trim().toLowerCase()
-  const selectedCategory = Number(selectedCategoryId.value)
-  const selectedMaxPrice = Number(maxPrice.value)
-  const supermarketId = Number(selectedSupermarketId.value)
-
-  return mockProducts.filter((product) => {
-    const name = product.name.toLowerCase()
-    const brand = product.brand.toLowerCase()
-    const description = product.description.toLowerCase()
-    const ingredients = product.ingredients.toLowerCase()
-
-    const matchesSupermarket = product.supermarketIds.includes(supermarketId)
-
-    const matchesSearch =
-      search === '' ||
-      name.includes(search) ||
-      brand.includes(search) ||
-      description.includes(search) ||
-      ingredients.includes(search)
-
-    const matchesCategory =
-      selectedCategoryId.value === '' || product.categoryId === selectedCategory
-
-    const matchesMaxPrice =
-      maxPrice.value === '' || product.price <= selectedMaxPrice
-
-    const matchesDiscount =
-      !onlyDiscounted.value || product.discountPercentage > 0
-
-    const matchesAvailability =
-      !onlyAvailable.value || product.isAvailable
-
-    const matchesAllergens = excludedAllergens.value.every((allergen) => {
-      return !product.allergens.includes(allergen)
-    })
-
-    const matchesVegetarian =
-      !onlyVegetarian.value || product.isVegetarian
-
-    const matchesVegan =
-      !onlyVegan.value || product.isVegan
-
-    return (
-      matchesSupermarket &&
-      matchesSearch &&
-      matchesCategory &&
-      matchesMaxPrice &&
-      matchesDiscount &&
-      matchesAvailability &&
-      matchesAllergens &&
-      matchesVegetarian &&
-      matchesVegan
-    )
-  })
+  return products.value
 })
+
+watch(
+  [
+    searchText,
+    selectedCategoryId,
+    maxPrice,
+    onlyDiscounted,
+    onlyAvailable,
+    excludedAllergens,
+    onlyVegetarian,
+    onlyVegan,
+  ],
+  () => {
+    if (selectedSupermarketId.value) {
+      loadProducts()
+    }
+  },
+)
+
+async function loadInitialData() {
+  errorMessage.value = ''
+
+  try {
+    const [categoriesData, allergensData, supermarketsData] = await Promise.all([
+      getCategories(),
+      getAllergens(),
+      getSupermarkets(),
+    ])
+
+    categories.value = categoriesData
+    allergens.value = allergensData
+    supermarkets.value = supermarketsData
+  } catch (error) {
+    errorMessage.value = error.message
+  }
+}
+
+async function loadProducts() {
+  errorMessage.value = ''
+  isLoading.value = true
+
+  try {
+    products.value = await getProducts({
+      supermarketId: selectedSupermarketId.value,
+      categoryId: selectedCategoryId.value,
+      search: searchText.value.trim(),
+      maxPrice: maxPrice.value,
+      onlyDiscounted: onlyDiscounted.value,
+      onlyAvailable: onlyAvailable.value,
+      excludeAllergens: excludedAllergens.value,
+      vegetarian: onlyVegetarian.value && !onlyVegan.value,
+      vegan: onlyVegan.value,
+    })
+  } catch (error) {
+    errorMessage.value = error.message
+    products.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
 function resetFilters() {
   searchText.value = ''
@@ -137,12 +166,16 @@ function resetFilters() {
     <template v-else>
       <p class="page-description">
         Prodotti disponibili presso
-        <strong>{{ selectedSupermarket.name }}</strong>.
+        <strong>{{ selectedSupermarketName }}</strong>.
       </p>
 
       <RouterLink class="text-link" to="/supermarkets">
         Cambia supermercato
       </RouterLink>
+
+      <p v-if="errorMessage" class="card empty-catalog-message">
+        {{ errorMessage }}
+      </p>
 
       <section class="catalog-filters">
         <div class="filter-field filter-field-large">
@@ -163,7 +196,7 @@ function resetFilters() {
             <option value="">Tutte le categorie</option>
 
             <option
-              v-for="category in mockCategories"
+              v-for="category in categories"
               :key="category.id"
               :value="category.id"
             >
@@ -212,7 +245,7 @@ function resetFilters() {
 
           <div class="allergen-options">
             <label
-              v-for="allergen in mockAllergens"
+              v-for="allergen in allergens"
               :key="allergen.id"
             >
               <input
@@ -220,7 +253,8 @@ function resetFilters() {
                 type="checkbox"
                 :value="allergen.name"
               />
-              {{ allergen.label }}
+
+              {{ allergen.label || allergen.name }}
             </label>
           </div>
         </div>
@@ -239,8 +273,12 @@ function resetFilters() {
         </p>
       </section>
 
+      <p v-if="isLoading" class="card empty-catalog-message muted-text">
+        Caricamento prodotti...
+      </p>
+
       <section
-        v-if="filteredProducts.length > 0"
+        v-else-if="filteredProducts.length > 0"
         class="products-grid"
       >
         <ProductCard

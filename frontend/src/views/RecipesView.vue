@@ -1,12 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { mockRecipes } from '../data/mockRecipes'
 import { mockProducts } from '../data/mockProducts'
 import { mockSupermarkets } from '../data/mockSupermarkets'
 import RecipeCard from '../components/RecipeCard.vue'
-
-const router = useRouter()
 
 const selectedSupermarketId = ref('')
 
@@ -19,7 +17,7 @@ onMounted(() => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
 
   if (!savedSupermarketId) {
-    router.replace('/supermarkets')
+    selectedSupermarketId.value = ''
     return
   }
 
@@ -69,60 +67,82 @@ const filteredRecipes = computed(() => {
 </script>
 
 <template>
-  <section class="page-section">
-    <div class="page-header">
-      <h1>Ricette</h1>
+  <main>
+    <h1 class="page-title">Ricette</h1>
 
-      <p v-if="selectedSupermarket">
+    <section
+      v-if="!selectedSupermarketId"
+      class="card empty-catalog-message"
+    >
+      <h2>Prima scegli un supermercato</h2>
+
+      <p class="muted-text">
+        Le ricette dipendono dai prodotti disponibili nel punto vendita selezionato.
+        Per questo motivo devi prima scegliere uno dei supermercati Fresh2Go.
+      </p>
+
+      <RouterLink class="btn" to="/supermarkets">
+        Vai ai supermercati
+      </RouterLink>
+    </section>
+
+    <template v-else>
+      <p class="page-description">
         Ricette preparabili con i prodotti disponibili presso
         <strong>{{ selectedSupermarket.name }}</strong>.
       </p>
 
-      <p v-else>
-        Prima scegli un supermercato per vedere le ricette disponibili.
+      <RouterLink class="text-link" to="/supermarkets">
+        Cambia supermercato
+      </RouterLink>
+
+      <section class="recipe-filters">
+        <div class="filter-field">
+          <label for="recipe-search">Cerca ricetta</label>
+
+          <input
+            id="recipe-search"
+            v-model="searchText"
+            type="text"
+            placeholder="Es. pasta, pollo, yogurt..."
+          />
+        </div>
+
+        <div class="filter-field">
+          <label for="recipe-type">Tipo ricetta</label>
+
+          <select id="recipe-type" v-model="selectedType">
+            <option value="">Tutte</option>
+
+            <option
+              v-for="type in recipeTypes"
+              :key="type"
+              :value="type"
+            >
+              {{ type }}
+            </option>
+          </select>
+        </div>
+      </section>
+
+      <p class="results-count">
+        Ricette trovate: {{ filteredRecipes.length }}
       </p>
-    </div>
 
-    <RouterLink class="text-link" to="/supermarkets">
-      Cambia supermercato
-    </RouterLink>
-
-    <div class="recipe-filters">
-      <div class="filter-field">
-        <label for="recipe-search">Cerca ricetta</label>
-        <input
-          id="recipe-search"
-          v-model="searchText"
-          type="text"
-          placeholder="Es. pasta, pollo, yogurt..."
+      <section
+        v-if="filteredRecipes.length > 0"
+        class="recipes-grid"
+      >
+        <RecipeCard
+          v-for="recipe in filteredRecipes"
+          :key="recipe.id"
+          :recipe="recipe"
         />
-      </div>
+      </section>
 
-      <div class="filter-field">
-        <label for="recipe-type">Tipo ricetta</label>
-        <select id="recipe-type" v-model="selectedType">
-          <option value="">Tutte</option>
-          <option v-for="type in recipeTypes" :key="type" :value="type">
-            {{ type }}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <p class="results-count">
-      Ricette trovate: {{ filteredRecipes.length }}
-    </p>
-
-    <div v-if="filteredRecipes.length > 0" class="recipes-grid">
-      <RecipeCard
-        v-for="recipe in filteredRecipes"
-        :key="recipe.id"
-        :recipe="recipe"
-      />
-    </div>
-
-    <p v-else class="empty-message">
-      Nessuna ricetta trovata per questo supermercato con i filtri selezionati.
-    </p>
-  </section>
+      <p v-else class="empty-message">
+        Nessuna ricetta trovata per questo supermercato con i filtri selezionati.
+      </p>
+    </template>
+  </main>
 </template>

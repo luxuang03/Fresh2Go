@@ -18,6 +18,38 @@ async function apiRequest(url, options = {}) {
   return data
 }
 
+function getList(data, key) {
+  if (Array.isArray(data)) {
+    return data
+  }
+
+  return data?.[key] || []
+}
+
+function buildQueryString(filters) {
+  const params = new URLSearchParams()
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === '' || value === false || value === null || value === undefined) {
+      return
+    }
+
+    if (Array.isArray(value)) {
+      if (value.length > 0) {
+        params.append(key, value.join(','))
+      }
+
+      return
+    }
+
+    params.append(key, value)
+  })
+
+  const queryString = params.toString()
+
+  return queryString ? `?${queryString}` : ''
+}
+
 export function getApi(url) {
   return apiRequest(url)
 }
@@ -40,4 +72,44 @@ export function deleteApi(url) {
   return apiRequest(url, {
     method: 'DELETE',
   })
+}
+
+export async function getProducts(filters = {}) {
+  const queryString = buildQueryString(filters)
+  const data = await getApi(`/api/products${queryString}`)
+
+  return getList(data, 'products')
+}
+
+export async function getProductById(id) {
+  return getApi(`/api/products/${id}`)
+}
+
+export async function getCategories() {
+  const data = await getApi('/api/categories')
+
+  return getList(data, 'categories')
+}
+
+export async function getAllergens() {
+  const data = await getApi('/api/allergens')
+
+  return getList(data, 'allergens')
+}
+
+export async function getSupermarkets() {
+  const data = await getApi('/api/supermarkets')
+
+  return getList(data, 'supermarkets')
+}
+
+export async function getRecipes(filters = {}) {
+  const queryString = buildQueryString(filters)
+  const data = await getApi(`/api/recipes${queryString}`)
+
+  return getList(data, 'recipes')
+}
+
+export async function getRecipeById(id) {
+  return getApi(`/api/recipes/${id}`)
 }

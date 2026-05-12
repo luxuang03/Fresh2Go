@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { addToCart } from '../data/cart'
 
 const props = defineProps({
@@ -19,8 +20,28 @@ const productDetailLink = computed(() => {
   return `/catalog/${props.product.id}`
 })
 
+const productPrice = computed(() => {
+  if (props.product.finalPrice !== undefined && props.product.finalPrice !== null) {
+    return Number(props.product.finalPrice)
+  }
+
+  const price = Number(props.product.price)
+  const discount = Number(props.product.discountPercentage)
+
+  if (!discount) {
+    return price
+  }
+
+  return price - (price * discount) / 100
+})
+
 function handleAddToCart() {
-  addToCart(props.product)
+  const productToAdd = {
+    ...props.product,
+    price: productPrice.value,
+  }
+
+  addToCart(productToAdd)
   alert('Prodotto aggiunto al carrello')
 }
 </script>
@@ -68,7 +89,7 @@ function handleAddToCart() {
       <div class="product-footer">
         <div class="product-price-area">
           <strong class="product-price">
-            € {{ product.price.toFixed(2) }}
+            € {{ productPrice.toFixed(2) }}
           </strong>
 
           <RouterLink :to="productDetailLink" class="product-detail-link">
