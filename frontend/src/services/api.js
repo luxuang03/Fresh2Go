@@ -113,3 +113,40 @@ export async function getRecipes(filters = {}) {
 export async function getRecipeById(id) {
   return getApi(`/api/recipes/${id}`)
 }
+
+export async function getCurrentUser() {
+  return getApi('/api/auth/me')
+}
+
+export async function loginRequest(credentials) {
+  return postApi('/api/auth/login', credentials)
+}
+
+export async function registerRequest(userData) {
+  return postApi('/api/auth/register', userData)
+}
+
+export async function logoutRequest() {
+  return postApi('/api/auth/logout', {})
+}
+
+export async function getPickupSlots(filters = {}) {
+  const queryString = buildQueryString(filters)
+  const data = await getApi(`/api/pickup-slots${queryString}`)
+
+  return getList(data, 'pickupSlots')
+}
+
+export async function createOrder(orderData) {
+  return postApi('/api/orders', orderData)
+}
+
+export async function getMyOrders() {
+  const data = await getApi('/api/orders/me')
+
+  return getList(data, 'orders')
+}
+
+export async function getOrderDetail(id) {
+  return getApi(`/api/orders/${id}`)
+}

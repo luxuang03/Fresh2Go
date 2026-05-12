@@ -1,17 +1,66 @@
 <script setup>
-import { computed } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
-import { getOrderById } from '../data/mockOrders'
-import { isLoggedIn } from '../data/auth'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { checkCurrentUser } from '../data/auth'
+import { getOrderDetail } from '../services/api'
 
 const route = useRoute()
+const router = useRouter()
 
-const order = computed(() => {
-  return getOrderById(route.params.id)
+const order = ref(null)
+const items = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+
+onMounted(async () => {
+  try {
+    const user = await checkCurrentUser()
+
+    if (!user) {
+      router.replace({
+        path: '/login',
+        query: {
+          redirect: `/orders/${route.params.id}`,
+        },
+      })
+      return
+    }
+
+    const data = await getOrderDetail(route.params.id)
+
+    order.value = data.order
+    items.value = data.items
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
+})
+
+const totalItems = computed(() => {
+  return items.value.reduce((total, item) => {
+    return total + Number(item.quantity)
+  }, 0)
 })
 
 function formatDate(dateValue) {
+  if (!dateValue) {
+    return 'Data non disponibile'
+  }
+
   return new Date(dateValue).toLocaleDateString('it-IT')
+}
+
+function formatTime(timeValue) {
+  if (!timeValue) {
+    return ''
+  }
+
+  return timeValue.slice(0, 5)
+}
+
+function formatPrice(value) {
+  return Number(value).toFixed(2)
 }
 </script>
 
@@ -21,23 +70,19 @@ function formatDate(dateValue) {
       ← Torna agli ordini
     </RouterLink>
 
-    <section v-if="!isLoggedIn" class="card orders-empty">
-      <h1>Accesso richiesto</h1>
+    <section v-if="isLoading" class="card orders-empty">
+      <h1>Caricamento ordine...</h1>
 
       <p class="muted-text">
-        Effettua il login per visualizzare il dettaglio dell'ordine.
+        Stiamo recuperando il dettaglio dell'ordine dal server.
       </p>
-
-      <RouterLink to="/login" class="btn">
-        Vai al login
-      </RouterLink>
     </section>
 
-    <section v-else-if="!order" class="card orders-empty">
+    <section v-else-if="errorMessage" class="card orders-empty">
       <h1>Ordine non trovato</h1>
 
       <p class="muted-text">
-        L'ordine richiesto non è presente nello storico locale.
+        {{ errorMessage }}
       </p>
 
       <RouterLink to="/orders" class="btn">
@@ -72,28 +117,18 @@ function formatDate(dateValue) {
           </p>
 
           <p>
-            <strong>Telefono:</strong>
-            {{ order.customerPhone }}
-          </p>
-
-          <p>
             <strong>Supermercato:</strong>
             {{ order.supermarketName }}
           </p>
 
           <p>
             <strong>Data ritiro:</strong>
-            {{ order.pickupDate }}
+            {{ formatDate(order.pickupDate) }}
           </p>
 
           <p>
             <strong>Fascia oraria:</strong>
-            {{ order.pickupSlot }}
-          </p>
-
-          <p v-if="order.notes">
-            <strong>Note:</strong>
-            {{ order.notes }}
+            {{ formatTime(order.startTime) }} - {{ formatTime(order.endTime) }}
           </p>
         </section>
 
@@ -102,20 +137,20 @@ function formatDate(dateValue) {
 
           <div class="order-items-list">
             <div
-              v-for="item in order.items"
+              v-for="item in items"
               :key="item.id"
               class="order-item-row"
             >
               <div>
-                <strong>{{ item.name }}</strong>
+                <strong>{{ item.productName }}</strong>
 
                 <p class="muted-text">
-                  {{ item.quantity }} x € {{ item.price.toFixed(2) }}
+                  {{ item.quantity }} x € {{ formatPrice(item.unitPrice) }}
                 </p>
               </div>
 
               <span>
-                € {{ item.subtotal.toFixed(2) }}
+                € {{ formatPrice(item.subtotal) }}
               </span>
             </div>
           </div>
@@ -123,11 +158,11 @@ function formatDate(dateValue) {
           <hr>
 
           <p>
-            Prodotti totali: {{ order.totalItems }}
+            Prodotti totali: {{ totalItems }}
           </p>
 
           <p class="cart-total">
-            Totale ordine: € {{ order.totalPrice.toFixed(2) }}
+            Totale ordine: € {{ formatPrice(order.totalPrice) }}
           </p>
         </section>
       </div>

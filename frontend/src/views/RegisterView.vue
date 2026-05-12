@@ -5,17 +5,27 @@ import { registerUser } from '../data/auth'
 
 const router = useRouter()
 
+const username = ref('')
 const fullName = ref('')
 const email = ref('')
 const phone = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const errorMessage = ref('')
+const successMessage = ref('')
+const isLoading = ref(false)
 
-function handleRegister() {
+async function handleRegister() {
   errorMessage.value = ''
+  successMessage.value = ''
 
-  if (!fullName.value || !email.value || !password.value || !confirmPassword.value) {
+  if (
+    !username.value ||
+    !fullName.value ||
+    !email.value ||
+    !password.value ||
+    !confirmPassword.value
+  ) {
     errorMessage.value = 'Compila tutti i campi obbligatori.'
     return
   }
@@ -25,13 +35,27 @@ function handleRegister() {
     return
   }
 
-  registerUser({
-    fullName: fullName.value,
-    email: email.value,
-    phone: phone.value,
-  })
+  try {
+    isLoading.value = true
 
-  router.push('/profile')
+    await registerUser({
+      username: username.value,
+      fullName: fullName.value,
+      email: email.value,
+      phone: phone.value,
+      password: password.value,
+    })
+
+    successMessage.value = 'Registrazione completata. Ora puoi effettuare il login.'
+
+    setTimeout(() => {
+      router.push('/login')
+    }, 800)
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -41,13 +65,24 @@ function handleRegister() {
       <div class="auth-card card">
         <div class="auth-intro">
           <h1 class="page-title">Crea un account</h1>
+
           <p class="page-description">
-            Registrati per salvare i tuoi dati, confermare gli ordini e consultare lo storico
-            della spesa.
+            Registrati per confermare gli ordini e consultare lo storico della spesa.
           </p>
         </div>
 
         <form class="auth-form" @submit.prevent="handleRegister">
+          <div class="form-row">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              v-model="username"
+              type="text"
+              name="username"
+              placeholder="mariorossi"
+            />
+          </div>
+
           <div class="form-row">
             <label for="fullName">Nome completo</label>
             <input
@@ -107,7 +142,13 @@ function handleRegister() {
             {{ errorMessage }}
           </p>
 
-          <button class="btn auth-button" type="submit">Registrati</button>
+          <p v-if="successMessage" class="checkout-message">
+            {{ successMessage }}
+          </p>
+
+          <button class="btn auth-button" type="submit" :disabled="isLoading">
+            {{ isLoading ? 'Registrazione in corso...' : 'Registrati' }}
+          </button>
 
           <p class="auth-link-text">
             Hai già un account?

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import {
   cart,
@@ -8,8 +8,12 @@ import {
   getCartCount,
   getItemSubtotal,
 } from '../data/cart'
-import { mockSupermarkets } from '../data/mockSupermarkets'
-import { addOrder } from '../data/mockOrders'
+import { checkCurrentUser, currentUser } from '../data/auth'
+import {
+  createOrder,
+  getPickupSlots,
+  getSupermarkets,
+} from '../services/api'
 
 const router = useRouter()
 
@@ -18,6 +22,11 @@ const checkoutMessage = ref('')
 const orderConfirmed = ref(false)
 
 const confirmedOrder = ref(null)
+
+const supermarkets = ref([])
+const pickupSlots = ref([])
+const isLoadingSlots = ref(false)
+const isSubmittingOrder = ref(false)
 
 const cartTotal = computed(() => {
   return getCartTotal()
@@ -28,17 +37,13 @@ const cartCount = computed(() => {
 })
 
 const selectedSupermarket = computed(() => {
-  return mockSupermarkets.find((supermarket) => {
-    return supermarket.id === Number(selectedSupermarketId.value)
+  return supermarkets.value.find((supermarket) => {
+    return Number(supermarket.id) === Number(selectedSupermarketId.value)
   })
 })
 
 const visiblePickupSlots = computed(() => {
-  if (!selectedSupermarket.value) {
-    return []
-  }
-
-  return selectedSupermarket.value.pickupSlots
+  return pickupSlots.value
 })
 
 function getTodayDate() {
@@ -68,7 +73,23 @@ const checkoutErrors = reactive({
   pickupSlot: '',
 })
 
-onMounted(() => {
+onMounted(async () => {
+  const user = await checkCurrentUser()
+
+  if (!user) {
+    router.replace({
+      path: '/login',
+      query: {
+        redirect: '/cart/checkout',
+      },
+    })
+    return
+  }
+
+  checkoutData.name = user.fullName || ''
+  checkoutData.email = user.email || ''
+  checkoutData.phone = user.phone || ''
+
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
 
   if (!savedSupermarketId) {
@@ -77,18 +98,54 @@ onMounted(() => {
   }
 
   selectedSupermarketId.value = savedSupermarketId
+
+  try {
+    supermarkets.value = await getSupermarkets()
+    await loadPickupSlots()
+  } catch (error) {
+    checkoutMessage.value = error.message
+  }
 })
+
+async function loadPickupSlots() {
+  if (!selectedSupermarketId.value || !checkoutData.pickupDate) {
+    return
+  }
+
+  try {
+    isLoadingSlots.value = true
+    checkoutMessage.value = ''
+
+    pickupSlots.value = await getPickupSlots({
+      supermarketId: selectedSupermarketId.value,
+      date: checkoutData.pickupDate,
+    })
+
+    checkoutData.pickupSlot = ''
+  } catch (error) {
+    checkoutMessage.value = error.message
+  } finally {
+    isLoadingSlots.value = false
+  }
+}
+
+watch(
+  () => checkoutData.pickupDate,
+  () => {
+    loadPickupSlots()
+  },
+)
 
 function isEmailValid(email) {
   return email.includes('@') && email.includes('.')
 }
 
 function selectPickupSlot(slot) {
-  if (!slot.available) {
+  if (!slot.isAvailable) {
     return
   }
 
-  checkoutData.pickupSlot = slot.label
+  checkoutData.pickupSlot = slot.id
   checkoutErrors.pickupSlot = ''
   checkoutMessage.value = ''
 }
@@ -132,7 +189,19 @@ function validateCheckoutData() {
   )
 }
 
-function confirmOrder() {
+const selectedPickupSlotLabel = computed(() => {
+  const slot = pickupSlots.value.find((pickupSlot) => {
+    return Number(pickupSlot.id) === Number(checkoutData.pickupSlot)
+  })
+
+  if (!slot) {
+    return ''
+  }
+
+  return `${slot.startTime.slice(0, 5)} - ${slot.endTime.slice(0, 5)}`
+})
+
+async function confirmOrder() {
   const isValid = validateCheckoutData()
 
   if (!isValid) {
@@ -144,37 +213,62 @@ function confirmOrder() {
     return
   }
 
-  const newOrder = {
-    id: Date.now(),
-    customerName: checkoutData.name,
-    customerEmail: checkoutData.email,
-    customerPhone: checkoutData.phone,
-    notes: checkoutData.notes,
-    pickupDate: checkoutData.pickupDate,
-    pickupSlot: checkoutData.pickupSlot,
-    supermarketId: selectedSupermarket.value.id,
-    supermarketName: selectedSupermarket.value.name,
-    status: 'Confermato',
-    createdAt: new Date().toISOString(),
-    items: cart.items.map((item) => {
-      return {
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        subtotal: getItemSubtotal(item),
-      }
-    }),
-    totalItems: cartCount.value,
-    totalPrice: cartTotal.value,
+  if (!currentUser.value) {
+    router.replace({
+      path: '/login',
+      query: {
+        redirect: '/cart/checkout',
+      },
+    })
+    return
   }
 
-  addOrder(newOrder)
+  const orderData = {
+    supermarketId: selectedSupermarket.value.id,
+    pickupSlotId: checkoutData.pickupSlot,
+    customerName: checkoutData.name,
+    customerEmail: checkoutData.email,
+    items: cart.items.map((item) => {
+      return {
+        productId: item.id,
+        productName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      }
+    }),
+  }
 
-  confirmedOrder.value = newOrder
+  try {
+    isSubmittingOrder.value = true
+    checkoutMessage.value = ''
 
-  clearCart()
-  orderConfirmed.value = true
+    const data = await createOrder(orderData)
+
+    confirmedOrder.value = {
+      ...data.order,
+      supermarketName: selectedSupermarket.value.name,
+      pickupDate: checkoutData.pickupDate,
+      pickupSlot: selectedPickupSlotLabel.value,
+      items: cart.items.map((item) => {
+        return {
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: getItemSubtotal(item),
+        }
+      }),
+      totalItems: cartCount.value,
+      totalPrice: cartTotal.value,
+    }
+
+    clearCart()
+    orderConfirmed.value = true
+  } catch (error) {
+    checkoutMessage.value = error.message
+  } finally {
+    isSubmittingOrder.value = false
+  }
 }
 </script>
 
@@ -347,20 +441,26 @@ function confirmOrder() {
             <div class="form-field">
               <label>Fascia oraria</label>
 
-              <div class="pickup-slots-grid">
+              <p v-if="isLoadingSlots" class="muted-text">
+                Caricamento fasce orarie...
+              </p>
+              
+              <div v-else class="pickup-slots-grid">
                 <button
                   v-for="slot in visiblePickupSlots"
-                  :key="slot.label"
+                  :key="slot.id"
                   type="button"
                   class="pickup-slot"
                   :class="{
-                    'pickup-slot-selected': checkoutData.pickupSlot === slot.label,
-                    'pickup-slot-disabled': !slot.available,
+                    'pickup-slot-selected': Number(checkoutData.pickupSlot) === Number(slot.id),
+                    'pickup-slot-disabled': !slot.isAvailable,
                   }"
-                  :disabled="!slot.available"
+                  :disabled="!slot.isAvailable"
                   @click="selectPickupSlot(slot)"
                 >
-                  <span>{{ slot.label }}</span>
+                  <span>
+                    {{ slot.startTime.slice(0, 5) }} - {{ slot.endTime.slice(0, 5) }}
+                  </span>
                 </button>
               </div>
 
@@ -384,8 +484,8 @@ function confirmOrder() {
             ></textarea>
           </div>
 
-          <button type="submit" class="btn">
-            Conferma ordine
+          <button type="submit" class="btn" :disabled="isSubmittingOrder">
+            {{ isSubmittingOrder ? 'Conferma in corso...' : 'Conferma ordine' }}
           </button>
 
           <p v-if="checkoutMessage" class="checkout-message">

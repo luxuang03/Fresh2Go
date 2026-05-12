@@ -1,15 +1,17 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { loginUser } from '../data/auth'
 
 const router = useRouter()
+const route = useRoute()
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
+const isLoading = ref(false)
 
-function handleLogin() {
+async function handleLogin() {
   errorMessage.value = ''
 
   if (!email.value || !password.value) {
@@ -17,8 +19,18 @@ function handleLogin() {
     return
   }
 
-  loginUser(email.value)
-  router.push('/profile')
+  try {
+    isLoading.value = true
+
+    await loginUser(email.value, password.value)
+
+    const redirectPath = route.query.redirect || '/profile'
+    router.push(redirectPath)
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -28,8 +40,9 @@ function handleLogin() {
       <div class="auth-card card">
         <div class="auth-intro">
           <h1 class="page-title">Accedi</h1>
+
           <p class="page-description">
-            Accedi al tuo account per gestire il profilo e visualizzare lo storico degli ordini.
+            Accedi al tuo account per confermare gli ordini e visualizzare lo storico.
           </p>
         </div>
 
@@ -60,7 +73,9 @@ function handleLogin() {
             {{ errorMessage }}
           </p>
 
-          <button class="btn auth-button" type="submit">Accedi</button>
+          <button class="btn auth-button" type="submit" :disabled="isLoading">
+            {{ isLoading ? 'Accesso in corso...' : 'Accedi' }}
+          </button>
 
           <p class="auth-link-text">
             Non hai ancora un account?

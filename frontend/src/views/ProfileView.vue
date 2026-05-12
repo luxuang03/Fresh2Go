@@ -1,18 +1,56 @@
 <script setup>
-import { computed } from 'vue'
-import { currentUser, isLoggedIn } from '../data/auth'
-import { getOrders } from '../data/mockOrders'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { checkCurrentUser, currentUser, isLoggedIn } from '../data/auth'
+import { getMyOrders } from '../services/api'
 
-const orders = computed(() => {
-  return getOrders()
-})
+const router = useRouter()
+
+const orders = ref([])
+const isLoadingOrders = ref(false)
+const errorMessage = ref('')
 
 const recentOrders = computed(() => {
   return orders.value.slice(0, 3)
 })
 
+onMounted(async () => {
+  const user = await checkCurrentUser()
+
+  if (!user) {
+    return
+  }
+
+  await loadRecentOrders()
+})
+
+async function loadRecentOrders() {
+  try {
+    isLoadingOrders.value = true
+    errorMessage.value = ''
+
+    orders.value = await getMyOrders()
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoadingOrders.value = false
+  }
+}
+
+async function goToLogin() {
+  router.push('/login')
+}
+
 function formatDate(dateValue) {
+  if (!dateValue) {
+    return 'Data non disponibile'
+  }
+
   return new Date(dateValue).toLocaleDateString('it-IT')
+}
+
+function formatPrice(value) {
+  return Number(value).toFixed(2)
 }
 </script>
 
@@ -30,9 +68,9 @@ function formatDate(dateValue) {
           Devi effettuare il login per visualizzare il profilo.
         </p>
 
-        <RouterLink to="/login" class="btn">
+        <button type="button" class="btn" @click="goToLogin">
           Vai al login
-        </RouterLink>
+        </button>
       </div>
 
       <div v-else class="profile-layout">
@@ -42,7 +80,7 @@ function formatDate(dateValue) {
           <div class="profile-info">
             <p>
               <strong>Nome:</strong>
-              {{ currentUser.fullName }}
+              {{ currentUser.fullName || 'Non inserito' }}
             </p>
 
             <p>
@@ -52,7 +90,7 @@ function formatDate(dateValue) {
 
             <p>
               <strong>Telefono:</strong>
-              {{ currentUser.phone }}
+              {{ currentUser.phone || 'Non inserito' }}
             </p>
           </div>
 
@@ -72,7 +110,19 @@ function formatDate(dateValue) {
             </RouterLink>
           </div>
 
-          <div v-if="recentOrders.length === 0" class="profile-empty">
+          <div v-if="isLoadingOrders" class="profile-empty">
+            <p class="muted-text">
+              Caricamento ordini recenti...
+            </p>
+          </div>
+
+          <div v-else-if="errorMessage" class="profile-empty">
+            <p class="muted-text">
+              {{ errorMessage }}
+            </p>
+          </div>
+
+          <div v-else-if="recentOrders.length === 0" class="profile-empty">
             <p class="muted-text">
               Non hai ancora effettuato ordini.
             </p>
@@ -96,7 +146,7 @@ function formatDate(dateValue) {
                 </p>
 
                 <p>
-                  Totale: € {{ order.totalPrice.toFixed(2) }}
+                  Totale: € {{ formatPrice(order.totalPrice) }}
                 </p>
               </div>
 

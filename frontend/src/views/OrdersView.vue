@@ -1,17 +1,59 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import { getOrders } from '../data/mockOrders'
-import { isLoggedIn } from '../data/auth'
+import { onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { checkCurrentUser } from '../data/auth'
+import { getMyOrders } from '../services/api'
+
+const router = useRouter()
 
 const orders = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
 
-onMounted(() => {
-  orders.value = getOrders()
+onMounted(async () => {
+  try {
+    const user = await checkCurrentUser()
+
+    if (!user) {
+      router.replace({
+        path: '/login',
+        query: {
+          redirect: '/orders',
+        },
+      })
+      return
+    }
+
+    orders.value = await getMyOrders()
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
 })
 
 function formatDate(dateValue) {
+  if (!dateValue) {
+    return 'Data non disponibile'
+  }
+
   return new Date(dateValue).toLocaleDateString('it-IT')
+}
+
+function formatPickup(order) {
+  if (!order.pickupDate || !order.startTime || !order.endTime) {
+    return 'Ritiro non disponibile'
+  }
+
+  const date = formatDate(order.pickupDate)
+  const start = order.startTime.slice(0, 5)
+  const end = order.endTime.slice(0, 5)
+
+  return `${date} - ${start}/${end}`
+}
+
+function formatPrice(value) {
+  return Number(value).toFixed(2)
 }
 </script>
 
@@ -20,18 +62,26 @@ function formatDate(dateValue) {
     <h1 class="page-title">Storico ordini</h1>
 
     <p class="page-description">
-      Qui trovi lo storico degli ordini confermati durante la simulazione.
+      Qui trovi lo storico degli ordini confermati con il tuo account.
     </p>
 
-    <section v-if="!isLoggedIn" class="card orders-empty">
-      <h2>Accesso richiesto</h2>
+    <section v-if="isLoading" class="card orders-empty">
+      <h2>Caricamento ordini...</h2>
 
       <p class="muted-text">
-        Effettua il login per visualizzare lo storico degli ordini.
+        Stiamo recuperando lo storico dal server.
+      </p>
+    </section>
+
+    <section v-else-if="errorMessage" class="card orders-empty">
+      <h2>Errore</h2>
+
+      <p class="muted-text">
+        {{ errorMessage }}
       </p>
 
-      <RouterLink to="/login" class="btn">
-        Vai al login
+      <RouterLink to="/catalog" class="btn">
+        Torna al catalogo
       </RouterLink>
     </section>
 
@@ -85,17 +135,12 @@ function formatDate(dateValue) {
 
           <p>
             <strong>Ritiro:</strong>
-            {{ order.pickupDate }} - {{ order.pickupSlot }}
-          </p>
-
-          <p>
-            <strong>Prodotti:</strong>
-            {{ order.totalItems }}
+            {{ formatPickup(order) }}
           </p>
 
           <p>
             <strong>Totale:</strong>
-            € {{ order.totalPrice.toFixed(2) }}
+            € {{ formatPrice(order.totalPrice) }}
           </p>
         </div>
 
