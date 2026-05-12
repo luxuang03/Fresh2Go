@@ -10,6 +10,7 @@ async function getProducts(req, res, next) {
       maxPrice,
       onlyDiscounted,
       onlyAvailable,
+      excludeAllergens,
       vegetarian,
       vegan,
     } = req.query
@@ -24,19 +25,19 @@ async function getProducts(req, res, next) {
         p.brand,
         p.description,
         p.ingredients,
-        p.price,
-        sp.local_price,
-        COALESCE(sp.local_price, p.price) AS final_price,
-        p.discount_percentage,
-        p.image_url,
-        p.unit_label,
-        p.is_vegetarian,
-        p.is_vegan,
-        c.id AS category_id,
-        c.name AS category_name,
-        sp.supermarket_id,
-        sp.stock_quantity,
-        sp.is_available
+        COALESCE(sp.local_price, p.price) AS price,
+        p.price AS "originalPrice",
+        sp.local_price AS "localPrice",
+        p.discount_percentage AS "discountPercentage",
+        p.image_url AS "imageUrl",
+        p.unit_label AS "unitLabel",
+        p.is_vegetarian AS "isVegetarian",
+        p.is_vegan AS "isVegan",
+        c.id AS "categoryId",
+        c.name AS "categoryName",
+        sp.supermarket_id AS "supermarketId",
+        sp.stock_quantity AS "stockQuantity",
+        sp.is_available AS "isAvailable"
       FROM products p
       LEFT JOIN categories c
         ON p.category_id = c.id
@@ -85,6 +86,28 @@ async function getProducts(req, res, next) {
       conditions.push(`sp.stock_quantity > 0`)
     }
 
+    if (excludeAllergens) {
+      const allergens = excludeAllergens
+        .split(',')
+        .map((allergen) => allergen.trim().toLowerCase())
+        .filter((allergen) => allergen !== '')
+
+      if (allergens.length > 0) {
+        values.push(allergens)
+
+        conditions.push(`
+          NOT EXISTS (
+            SELECT 1
+            FROM product_allergens pa
+            INNER JOIN allergens a
+              ON pa.allergen_id = a.id
+            WHERE pa.product_id = p.id
+              AND LOWER(a.name) = ANY($${values.length})
+          )
+        `)
+      }
+    }
+
     if (vegetarian === 'true') {
       conditions.push(`p.is_vegetarian = TRUE`)
     }
@@ -121,19 +144,19 @@ async function getProductById(req, res, next) {
         p.brand,
         p.description,
         p.ingredients,
-        p.price,
-        sp.local_price,
-        COALESCE(sp.local_price, p.price) AS final_price,
-        p.discount_percentage,
-        p.image_url,
-        p.unit_label,
-        p.is_vegetarian,
-        p.is_vegan,
-        c.id AS category_id,
-        c.name AS category_name,
-        sp.supermarket_id,
-        sp.stock_quantity,
-        sp.is_available
+        COALESCE(sp.local_price, p.price) AS price,
+        p.price AS "originalPrice",
+        sp.local_price AS "localPrice",
+        p.discount_percentage AS "discountPercentage",
+        p.image_url AS "imageUrl",
+        p.unit_label AS "unitLabel",
+        p.is_vegetarian AS "isVegetarian",
+        p.is_vegan AS "isVegan",
+        c.id AS "categoryId",
+        c.name AS "categoryName",
+        sp.supermarket_id AS "supermarketId",
+        sp.stock_quantity AS "stockQuantity",
+        sp.is_available AS "isAvailable"
       FROM products p
       LEFT JOIN categories c
         ON p.category_id = c.id

@@ -21,19 +21,19 @@ async function getPickupSlots(req, res, next) {
     const query = `
       SELECT
         ps.id,
-        ps.supermarket_id,
-        s.name AS supermarket_name,
-        ps.slot_date,
-        ps.start_time,
-        ps.end_time,
-        ps.max_orders,
-        ps.current_orders,
-        ps.is_active,
+        ps.supermarket_id AS "supermarketId",
+        s.name AS "supermarketName",
+        ps.slot_date AS "slotDate",
+        ps.start_time AS "startTime",
+        ps.end_time AS "endTime",
+        ps.max_orders AS "maxOrders",
+        ps.current_orders AS "currentOrders",
+        ps.is_active AS "isActive",
         CASE
           WHEN ps.is_active = FALSE THEN FALSE
           WHEN ps.current_orders >= ps.max_orders THEN FALSE
           ELSE TRUE
-        END AS is_available
+        END AS "isAvailable"
       FROM pickup_slots ps
       JOIN supermarkets s
         ON ps.supermarket_id = s.id

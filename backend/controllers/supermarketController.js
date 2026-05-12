@@ -8,9 +8,9 @@ async function getSupermarkets(req, res, next) {
         name,
         address,
         city,
-        opening_time,
-        closing_time,
-        is_active
+        opening_time AS "openingTime",
+        closing_time AS "closingTime",
+        is_active AS "isActive"
       FROM supermarkets
       WHERE is_active = TRUE
       ORDER BY id
@@ -35,9 +35,9 @@ async function getSupermarketById(req, res, next) {
         city,
         latitude,
         longitude,
-        opening_time,
-        closing_time,
-        is_active
+        opening_time AS "openingTime",
+        closing_time AS "closingTime",
+        is_active AS "isActive"
       FROM supermarkets
       WHERE id = $1
       `,

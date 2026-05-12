@@ -47,7 +47,12 @@ async function createOrder(req, res, next) {
 
     const slotResult = await client.query(
       `
-      SELECT id, supermarket_id, max_orders, current_orders, is_active
+      SELECT
+        id,
+        supermarket_id,
+        max_orders,
+        current_orders,
+        is_active
       FROM pickup_slots
       WHERE id = $1
       `,
@@ -83,7 +88,16 @@ async function createOrder(req, res, next) {
         status
       )
       VALUES ($1, $2, $3, $4, $5, $6, 'confirmed')
-      RETURNING *
+      RETURNING
+        id,
+        user_id AS "userId",
+        supermarket_id AS "supermarketId",
+        pickup_slot_id AS "pickupSlotId",
+        customer_name AS "customerName",
+        customer_email AS "customerEmail",
+        total_price AS "totalPrice",
+        status,
+        created_at AS "createdAt"
       `,
       [
         userId,
@@ -159,18 +173,20 @@ async function getMyOrders(req, res, next) {
       `
       SELECT
         o.id,
-        o.customer_name,
-        o.customer_email,
-        o.total_price,
+        o.customer_name AS "customerName",
+        o.customer_email AS "customerEmail",
+        o.total_price AS "totalPrice",
         o.status,
-        o.created_at,
-        s.name AS supermarket_name,
-        ps.slot_date,
-        ps.start_time,
-        ps.end_time
+        o.created_at AS "createdAt",
+        s.name AS "supermarketName",
+        ps.slot_date AS "pickupDate",
+        ps.start_time AS "startTime",
+        ps.end_time AS "endTime"
       FROM orders o
-      LEFT JOIN supermarkets s ON o.supermarket_id = s.id
-      LEFT JOIN pickup_slots ps ON o.pickup_slot_id = ps.id
+      LEFT JOIN supermarkets s
+        ON o.supermarket_id = s.id
+      LEFT JOIN pickup_slots ps
+        ON o.pickup_slot_id = ps.id
       WHERE o.user_id = $1
       ORDER BY o.created_at DESC
       `,
@@ -192,19 +208,21 @@ async function getOrderById(req, res, next) {
       `
       SELECT
         o.id,
-        o.user_id,
-        o.customer_name,
-        o.customer_email,
-        o.total_price,
+        o.user_id AS "userId",
+        o.customer_name AS "customerName",
+        o.customer_email AS "customerEmail",
+        o.total_price AS "totalPrice",
         o.status,
-        o.created_at,
-        s.name AS supermarket_name,
-        ps.slot_date,
-        ps.start_time,
-        ps.end_time
+        o.created_at AS "createdAt",
+        s.name AS "supermarketName",
+        ps.slot_date AS "pickupDate",
+        ps.start_time AS "startTime",
+        ps.end_time AS "endTime"
       FROM orders o
-      LEFT JOIN supermarkets s ON o.supermarket_id = s.id
-      LEFT JOIN pickup_slots ps ON o.pickup_slot_id = ps.id
+      LEFT JOIN supermarkets s
+        ON o.supermarket_id = s.id
+      LEFT JOIN pickup_slots ps
+        ON o.pickup_slot_id = ps.id
       WHERE o.id = $1 AND o.user_id = $2
       `,
       [orderId, userId],
@@ -218,10 +236,10 @@ async function getOrderById(req, res, next) {
       `
       SELECT
         id,
-        product_id,
-        product_name,
+        product_id AS "productId",
+        product_name AS "productName",
         quantity,
-        unit_price,
+        unit_price AS "unitPrice",
         subtotal
       FROM order_items
       WHERE order_id = $1

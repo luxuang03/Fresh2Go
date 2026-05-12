@@ -21,11 +21,11 @@ async function getRecipes(req, res, next) {
       SELECT
         r.id,
         r.name,
-        r.recipe_type,
+        r.recipe_type AS type,
         r.description,
         r.servings,
-        r.image_url,
-        COUNT(ri.id) AS ingredients_count
+        r.image_url AS "imageUrl",
+        COUNT(ri.id) AS "ingredientsCount"
       FROM recipes r
       LEFT JOIN recipe_ingredients ri
         ON r.id = ri.recipe_id
@@ -57,10 +57,10 @@ async function getRecipeById(req, res, next) {
       SELECT
         id,
         name,
-        recipe_type,
+        recipe_type AS type,
         description,
         servings,
-        image_url
+        image_url AS "imageUrl"
       FROM recipes
       WHERE id = $1
       `,
@@ -77,15 +77,15 @@ async function getRecipeById(req, res, next) {
       `
       SELECT
         ri.id,
-        ri.product_id,
-        p.name AS product_name,
+        ri.product_id AS "productId",
+        p.name AS "productName",
         p.brand,
         p.price,
-        p.discount_percentage,
-        p.unit_label,
+        p.discount_percentage AS "discountPercentage",
+        p.unit_label AS "unitLabel",
         ri.quantity,
         ri.unit,
-        ri.is_optional
+        ri.is_optional AS "isOptional"
       FROM recipe_ingredients ri
       JOIN products p
         ON ri.product_id = p.id

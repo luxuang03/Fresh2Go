@@ -44,7 +44,13 @@ async function register(req, res, next) {
         phone
       )
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, username, email, full_name, phone, created_at
+      RETURNING
+        id,
+        username,
+        email,
+        full_name AS "fullName",
+        phone,
+        created_at AS "createdAt"
       `,
       [username, email, passwordHash, fullName || null, phone || null],
     )
@@ -68,7 +74,13 @@ async function login(req, res, next) {
 
     const result = await pool.query(
       `
-      SELECT id, username, email, password_hash, full_name, phone
+      SELECT
+        id,
+        username,
+        email,
+        password_hash,
+        full_name,
+        phone
       FROM users
       WHERE email = $1
       `,

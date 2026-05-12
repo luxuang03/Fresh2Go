@@ -7,7 +7,7 @@ async function getCategories(req, res, next) {
         id,
         name,
         description,
-        parent_id
+        parent_id AS "parentId"
       FROM categories
       ORDER BY id
     `)
