@@ -81,8 +81,10 @@ export async function getProducts(filters = {}) {
   return getList(data, 'products')
 }
 
-export async function getProductById(id) {
-  return getApi(`/api/products/${id}`)
+export async function getProductById(id, filters = {}) {
+  const queryString = buildQueryString(filters)
+
+  return getApi(`/api/products/${id}${queryString}`)
 }
 
 export async function getCategories() {
@@ -110,8 +112,10 @@ export async function getRecipes(filters = {}) {
   return getList(data, 'recipes')
 }
 
-export async function getRecipeById(id) {
-  return getApi(`/api/recipes/${id}`)
+export async function getRecipeById(id, filters = {}) {
+  const queryString = buildQueryString(filters)
+
+  return getApi(`/api/recipes/${id}${queryString}`)
 }
 
 export async function getCurrentUser() {

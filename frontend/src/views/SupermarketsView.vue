@@ -1,9 +1,19 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { mockSupermarkets } from '../data/mockSupermarkets'
+import { getSupermarkets } from '../services/api' 
 import { clearCart } from '../data/cart'
 
 const router = useRouter()
+const supermarkets = ref([]) 
+
+onMounted(async () => {
+  try {
+    supermarkets.value = await getSupermarkets()
+  } catch (error) {
+    console.error('Errore nel caricamento dei supermercati:', error)
+  }
+})
 
 function selectSupermarket(supermarketId) {
   const previousSupermarketId = localStorage.getItem('selectedSupermarketId')
@@ -14,7 +24,12 @@ function selectSupermarket(supermarketId) {
 
   localStorage.setItem('selectedSupermarketId', supermarketId)
 
-  router.push('/catalog')
+  router.push({
+    path: '/catalog',
+    query: {
+      supermarketId: supermarketId,
+    },
+  })
 }
 </script>
 
@@ -29,7 +44,7 @@ function selectSupermarket(supermarketId) {
 
     <section class="supermarket-grid">
       <article
-        v-for="supermarket in mockSupermarkets"
+        v-for="supermarket in supermarkets"
         :key="supermarket.id"
         class="card supermarket-card"
       >

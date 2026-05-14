@@ -1,20 +1,22 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { mockRecipes } from '../data/mockRecipes'
-import { mockProducts } from '../data/mockProducts'
-import { mockSupermarkets } from '../data/mockSupermarkets'
+import { getRecipeById, getSupermarkets } from '../services/api'
 import { addToCart } from '../data/cart'
 
 const route = useRoute()
 const router = useRouter()
 
+const recipe = ref(null)
+const supermarkets = ref([])
 const selectedSupermarketId = ref('')
 const cartMessage = ref('')
 const selectedIngredientIds = ref([])
 const selectedServings = ref(1)
+const isLoading = ref(true)
+const errorMessage = ref('')
 
-onMounted(() => {
+onMounted(async () => {
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
 
   if (!savedSupermarketId) {
@@ -23,52 +25,65 @@ onMounted(() => {
   }
 
   selectedSupermarketId.value = savedSupermarketId
-})
 
-const recipeId = computed(() => {
-  return Number(route.params.id)
-})
+  try {
+    const [recipeData, supermarketData] = await Promise.all([
+      getRecipeById(route.params.id, {
+        supermarketId: selectedSupermarketId.value,
+      }),
+      getSupermarkets(),
+    ])
 
-const recipe = computed(() => {
-  return mockRecipes.find((item) => {
-    return item.id === recipeId.value
-  })
+    recipe.value = recipeData
+    supermarkets.value = supermarketData
+  } catch (error) {
+    console.error('Errore nel caricamento della ricetta:', error)
+    errorMessage.value = 'Ricetta non trovata'
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const selectedSupermarket = computed(() => {
-  return mockSupermarkets.find((supermarket) => {
+  return supermarkets.value.find((supermarket) => {
     return supermarket.id === Number(selectedSupermarketId.value)
   })
 })
 
 const ingredientsWithProducts = computed(() => {
-  if (!recipe.value) {
+  if (!recipe.value || !recipe.value.ingredients) {
     return []
   }
 
-  const supermarketId = Number(selectedSupermarketId.value)
-
   return recipe.value.ingredients.map((ingredient) => {
-    const product = mockProducts.find((item) => {
-      return item.id === ingredient.productId
-    })
+    const product = ingredient.product || {
+      id: ingredient.productId,
+      name: ingredient.productName,
+      price: ingredient.price,
+      finalPrice: ingredient.finalPrice,
+      unitLabel: ingredient.unitLabel,
+      isAvailable: ingredient.isAvailable,
+      stockQuantity: ingredient.stockQuantity,
+      discountPercentage: ingredient.discountPercentage,
+    }
 
     const isAvailableHere =
       product &&
-      product.isAvailable &&
-      product.stockQuantity > 0 &&
-      product.supermarketIds.includes(supermarketId)
+      (product.isAvailable === true || product.isAvailable === 'true') &&
+      Number(product.stockQuantity) > 0
 
     return {
       ...ingredient,
       product,
+      productId: ingredient.productId || product.id,
+      name: ingredient.name || ingredient.productName || product.name,
       isAvailableHere,
     }
   })
 })
 
 const recipeAllergens = computed(() => {
-  if (!recipe.value) {
+  if (!recipe.value || !recipe.value.allergens) {
     return []
   }
 
@@ -142,6 +157,10 @@ function getUpdatedQuantity(ingredient) {
 }
 
 function getProductUnitSize(product, ingredientUnit) {
+  if (!product.unitLabel) {
+    return 1
+  }
+
   const unitLabel = product.unitLabel.toLowerCase().replace(',', '.')
   const unit = ingredientUnit.toLowerCase()
   const numberMatch = unitLabel.match(/(\d+(\.\d+)?)/)
@@ -204,19 +223,23 @@ function formatQuantity(value) {
     return value
   }
 
-  return value.toFixed(1).replace('.', ',')
+  return Number(value).toFixed(1).replace('.', ',')
 }
 
 function getFinalPrice(product) {
-  if (!product.discountPercentage) {
-    return product.price
+  if (product.finalPrice !== undefined && product.finalPrice !== null) {
+    return Number(product.finalPrice)
   }
 
-  return product.price - (product.price * product.discountPercentage) / 100
+  if (!product.discountPercentage) {
+    return Number(product.price)
+  }
+
+  return Number(product.price) - (Number(product.price) * Number(product.discountPercentage)) / 100
 }
 
 function formatPrice(value) {
-  return value.toFixed(2).replace('.', ',')
+  return Number(value).toFixed(2).replace('.', ',')
 }
 
 function addIngredientsToCart() {
@@ -236,6 +259,7 @@ function addIngredientsToCart() {
     const productToAdd = {
       ...ingredient.product,
       price: getFinalPrice(ingredient.product),
+      supermarketId: Number(selectedSupermarketId.value),
     }
 
     addToCart(productToAdd, getProductUnitsNeeded(ingredient))
@@ -251,13 +275,17 @@ function addIngredientsToCart() {
       Torna alle ricette
     </RouterLink>
 
-    <div v-if="recipe" class="recipe-detail">
+    <p v-if="isLoading" class="muted-text">
+      Caricamento ricetta...
+    </p>
+
+    <div v-else-if="recipe" class="recipe-detail">
       <div class="recipe-detail-image card">
         <span>{{ recipe.name.charAt(0) }}</span>
       </div>
 
       <div class="recipe-detail-content card">
-        <p class="recipe-type">{{ recipe.type }}</p>
+        <p class="recipe-type">{{ recipe.recipeType || recipe.type }}</p>
 
         <h1 class="page-title">{{ recipe.name }}</h1>
 
@@ -267,7 +295,7 @@ function addIngredientsToCart() {
 
         <div class="recipe-info">
           <span>{{ selectedServings }} porzioni</span>
-          <span>{{ recipe.ingredients.length }} ingredienti</span>
+          <span>{{ ingredientsWithProducts.length }} ingredienti</span>
         </div>
 
         <div class="servings-box">
@@ -301,7 +329,7 @@ function addIngredientsToCart() {
 
         <p v-if="selectedSupermarket" class="muted-text">
           Ingredienti controllati presso
-          <strong>{{ selectedSupermarket.name }}</strong>.
+          <strong>{{ selectedSupermarket?.name }}</strong>.
         </p>
 
         <div class="recipe-summary">
@@ -429,7 +457,7 @@ function addIngredientsToCart() {
     </div>
 
     <div v-else class="empty-message">
-      Ricetta non trovata.
+      {{ errorMessage || 'Ricetta non trovata.' }}
     </div>
   </section>
 </template>

@@ -1,9 +1,31 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   recipe: {
     type: Object,
     required: true,
   },
+})
+
+const recipeType = computed(() => {
+  return props.recipe.recipeType || props.recipe.type || 'ricetta'
+})
+
+const ingredientsCount = computed(() => {
+  if (props.recipe.ingredientsCount !== undefined) {
+    return Number(props.recipe.ingredientsCount)
+  }
+
+  if (!props.recipe.ingredients) {
+    return 0
+  }
+
+  return props.recipe.ingredients.length
+})
+
+const allergens = computed(() => {
+  return props.recipe.allergens || []
 })
 </script>
 
@@ -14,7 +36,7 @@ defineProps({
     </div>
 
     <div class="recipe-content">
-      <p class="recipe-type">{{ recipe.type }}</p>
+      <p class="recipe-type">{{ recipeType }}</p>
 
       <h3>{{ recipe.name }}</h3>
 
@@ -24,11 +46,14 @@ defineProps({
 
       <div class="recipe-info">
         <span>{{ recipe.servings }} porzioni</span>
-        <span>{{ recipe.ingredients.length }} ingredienti</span>
+        <span>{{ ingredientsCount }} ingredienti</span>
       </div>
 
-      <div v-if="recipe.allergens.length > 0" class="recipe-allergens">
-        <span v-for="allergen in recipe.allergens" :key="allergen">
+      <div v-if="allergens.length > 0" class="recipe-allergens">
+        <span
+          v-for="allergen in allergens"
+          :key="allergen"
+        >
           {{ allergen }}
         </span>
       </div>
@@ -37,7 +62,10 @@ defineProps({
         Nessun allergene indicato
       </p>
 
-      <RouterLink class="btn-secondary" :to="`/recipes/${recipe.id}`">
+      <RouterLink
+        class="btn-secondary"
+        :to="`/recipes/${recipe.id}`"
+      >
         Vedi ricetta
       </RouterLink>
     </div>
