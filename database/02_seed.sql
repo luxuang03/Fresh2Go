@@ -1,7 +1,4 @@
--- Fresh2Go - Seed database
--- Dati iniziali:
--- categorie, allergeni, supermercati
-
+-- Fresh2Go - Seed database finale
 DELETE FROM order_items;
 DELETE FROM orders;
 DELETE FROM recipe_ingredients;
@@ -27,39 +24,13 @@ ALTER SEQUENCE allergens_id_seq RESTART WITH 1;
 ALTER SEQUENCE categories_id_seq RESTART WITH 1;
 
 -- Utenti demo
--- Per ora sono usati solo come dati di test.
--- Le password reali verranno gestite più avanti con bcrypt.
-INSERT INTO users (
-    id,
-    username,
-    email,
-    password_hash,
-    full_name,
-    phone
-)
-VALUES
-(
-    1,
-    'mario.rossi',
-    'mario.rossi@example.com',
-    'demo_hash_mario',
-    'Mario Rossi',
-    '3331234567'
-),
-(
-    2,
-    'giulia.bianchi',
-    'giulia.bianchi@example.com',
-    'demo_hash_giulia',
-    'Giulia Bianchi',
-    '3337654321'
-);
-
+INSERT INTO users (id, username, email, password_hash, full_name, phone) VALUES
+(1, 'mario.rossi', 'mario.rossi@example.com', 'demo_hash_mario', 'Mario Rossi', '3331234567'),
+(2, 'giulia.bianchi', 'giulia.bianchi@example.com', 'demo_hash_giulia', 'Giulia Bianchi', '3337654321');
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
 -- Categorie prodotti
-INSERT INTO categories (id, name, description, parent_id)
-VALUES
+INSERT INTO categories (id, name, description, parent_id) VALUES
 (1, 'Frutta e verdura', 'Prodotti freschi, ortaggi e frutta di stagione.', NULL),
 (2, 'Pasta, riso e cereali', 'Pasta, riso, farine, cereali e prodotti simili.', NULL),
 (3, 'Latticini e uova', 'Latte, formaggi, yogurt, burro e uova.', NULL),
@@ -68,13 +39,10 @@ VALUES
 (6, 'Bevande', 'Acqua, succhi, bibite e bevande varie.', NULL),
 (7, 'Dolci e snack', 'Biscotti, merendine, cioccolato, snack dolci e salati.', NULL),
 (8, 'Prodotti per la casa e igiene', 'Detersivi, carta, prodotti per pulizia e igiene personale.', NULL);
-
--- Dopo aver inserito ID manuali, aggiorniamo la sequenza.
 SELECT setval('categories_id_seq', (SELECT MAX(id) FROM categories));
 
 -- Allergeni
-INSERT INTO allergens (id, name, label, description)
-VALUES
+INSERT INTO allergens (id, name, label, description) VALUES
 (1, 'glutine', 'Glutine', 'Presente in grano, orzo, segale e prodotti derivati.'),
 (2, 'latte', 'Latte', 'Presente in latte, formaggi, burro, yogurt e derivati.'),
 (3, 'uova', 'Uova', 'Presente in uova e prodotti che le contengono.'),
@@ -86,292 +54,383 @@ VALUES
 (9, 'sedano', 'Sedano', 'Presente in sedano e preparazioni che lo contengono.'),
 (10, 'senape', 'Senape', 'Presente in senape e salse derivate.'),
 (11, 'sesamo', 'Sesamo', 'Presente in semi di sesamo e prodotti derivati.');
-
 SELECT setval('allergens_id_seq', (SELECT MAX(id) FROM allergens));
 
 -- Supermercati
-INSERT INTO supermarkets (
-    id,
-    name,
-    address,
-    city,
-    latitude,
-    longitude,
-    opening_time,
-    closing_time,
-    is_active
-)
-VALUES
-(
-    1,
-    'Fresh2Go Market Centro',
-    'Via Roma 25',
-    'Roma',
-    NULL,
-    NULL,
-    '08:00',
-    '20:00',
-    TRUE
-),
-(
-    2,
-    'Fresh2Go Express Nord',
-    'Via Flaminia 180',
-    'Roma',
-    NULL,
-    NULL,
-    '07:30',
-    '21:00',
-    TRUE
-),
-(
-    3,
-    'Fresh2Go Bio Sud',
-    'Via Appia Nuova 420',
-    'Roma',
-    NULL,
-    NULL,
-    '08:30',
-    '19:30',
-    TRUE
-);
-
+INSERT INTO supermarkets (id, name, address, city, latitude, longitude, opening_time, closing_time, is_active) VALUES
+(1, 'Fresh2Go Market Centro', 'Via Roma 25', 'Roma', NULL, NULL, '08:00', '20:00', TRUE),
+(2, 'Fresh2Go Express Nord', 'Via Flaminia 180', 'Roma', NULL, NULL, '07:30', '21:00', TRUE),
+(3, 'Fresh2Go Bio Sud', 'Via Appia Nuova 420', 'Roma', NULL, NULL, '08:30', '19:30', TRUE);
 SELECT setval('supermarkets_id_seq', (SELECT MAX(id) FROM supermarkets));
 
--- Prodotti
-INSERT INTO products (
-    id,
-    category_id,
-    name,
-    brand,
-    description,
-    ingredients,
-    price,
-    discount_percentage,
-    image_url,
-    unit_label,
-    is_vegetarian,
-    is_vegan
-)
-VALUES
-(1, 1, 'Mele Golden', 'Fresh2Go', 'Mele Golden fresche, dolci e croccanti.', 'Mele', 2.49, 0, '', 'kg', TRUE, TRUE),
-(2, 1, 'Banane', 'Fresh2Go', 'Banane mature al punto giusto.', 'Banane', 1.89, 10, '', 'kg', TRUE, TRUE),
-(3, 1, 'Insalata mista', 'Orto Pronto', 'Insalata pronta da lavare e condire.', 'Lattuga, radicchio, carote', 1.99, 0, '', 'busta', TRUE, TRUE),
-(4, 2, 'Pasta spaghetti', 'Granoro', 'Spaghetti di semola di grano duro.', 'Semola di grano duro, acqua', 1.29, 0, '', '500 g', TRUE, TRUE),
-(5, 2, 'Riso Carnaroli', 'Riserva Verde', 'Riso ideale per risotti.', 'Riso Carnaroli', 2.79, 5, '', '1 kg', TRUE, TRUE),
-(6, 2, 'Pane integrale', 'Forno Fresco', 'Pane integrale confezionato.', 'Farina integrale, acqua, lievito, sale', 2.19, 0, '', '400 g', TRUE, TRUE),
-(7, 3, 'Latte parzialmente scremato', 'LatteRoma', 'Latte fresco parzialmente scremato.', 'Latte', 1.59, 0, '', '1 l', TRUE, FALSE),
-(8, 3, 'Yogurt bianco', 'LatteRoma', 'Yogurt bianco naturale.', 'Latte, fermenti lattici', 1.25, 15, '', '2 x 125 g', TRUE, FALSE),
-(9, 3, 'Uova fresche', 'Aia Verde', 'Confezione da 6 uova fresche.', 'Uova', 2.69, 0, '', '6 pezzi', TRUE, FALSE),
-(10, 4, 'Petto di pollo', 'Carni Scelte', 'Petto di pollo a fette.', 'Carne di pollo', 6.49, 8, '', '500 g', FALSE, FALSE),
-(11, 4, 'Filetti di salmone', 'Mare Vivo', 'Filetti di salmone fresco.', 'Salmone', 9.99, 0, '', '300 g', FALSE, FALSE),
-(12, 4, 'Burger vegetale', 'Green Food', 'Burger vegetale a base di soia.', 'Proteine di soia, verdure, spezie', 3.99, 10, '', '2 pezzi', TRUE, TRUE),
-(13, 5, 'Piselli surgelati', 'Orto Gelo', 'Piselli fini surgelati.', 'Piselli', 2.29, 0, '', '450 g', TRUE, TRUE),
-(14, 5, 'Pizza margherita surgelata', 'Forno Gelo', 'Pizza margherita surgelata pronta da cuocere.', 'Farina, pomodoro, mozzarella, olio', 3.49, 20, '', '1 pezzo', TRUE, FALSE),
-(15, 5, 'Gelato alla vaniglia', 'Dolce Neve', 'Gelato alla vaniglia in vaschetta.', 'Latte, panna, zucchero, vaniglia', 4.29, 0, '', '500 g', TRUE, FALSE),
-(16, 6, 'Acqua naturale', 'Fonte Chiara', 'Acqua naturale in bottiglia.', 'Acqua minerale naturale', 0.39, 0, '', '1.5 l', TRUE, TRUE),
-(17, 6, 'Succo d’arancia', 'Fruit Joy', 'Succo d’arancia senza zuccheri aggiunti.', 'Succo d’arancia', 1.89, 5, '', '1 l', TRUE, TRUE),
-(18, 7, 'Biscotti al cacao', 'Dolce Mattino', 'Biscotti al cacao per colazione.', 'Farina, cacao, zucchero, uova', 2.49, 0, '', '350 g', TRUE, FALSE),
-(19, 7, 'Cioccolato fondente', 'Cacao Nero', 'Tavoletta di cioccolato fondente 70%.', 'Cacao, zucchero, burro di cacao', 1.99, 10, '', '100 g', TRUE, TRUE),
-(20, 7, 'Patatine classiche', 'Snack Più', 'Patatine croccanti leggermente salate.', 'Patate, olio di semi, sale', 1.69, 0, '', '150 g', TRUE, TRUE),
-(21, 8, 'Detersivo piatti', 'Casa Pulita', 'Detersivo liquido per piatti al limone.', '', 1.79, 0, '', '500 ml', FALSE, FALSE),
-(22, 8, 'Carta igienica', 'Soft Casa', 'Carta igienica morbida a 3 veli.', '', 3.49, 12, '', '4 rotoli', FALSE, FALSE);
-
+-- Prodotti finali
+INSERT INTO products (id, category_id, name, brand, description, ingredients, price, discount_percentage, image_url, unit_label, is_vegetarian, is_vegan) VALUES
+(1, 1, 'Mele Golden', 'Fresh2Go', 'Mele Golden fresche, dolci e croccanti.', 'Mele Golden', 2.49, 0, '/images/products/mele-golden.png', 'kg', TRUE, TRUE),
+(2, 1, 'Banane', 'Fresh2Go', 'Banane mature al punto giusto, adatte anche per dolci e frullati.', 'Banane', 1.89, 10, '/images/products/banane.png', 'kg', TRUE, TRUE),
+(3, 1, 'Insalata mista', 'Orto Pronto', 'Insalata pronta con lattuga, radicchio e carote.', 'Lattuga, radicchio, carote', 1.99, 0, '/images/products/insalata-mista.png', 'busta', TRUE, TRUE),
+(4, 1, 'Pomodori ciliegino', 'Orto Pronto', 'Pomodori ciliegino dolci, ideali per sughi, insalate e contorni.', 'Pomodori ciliegino', 2.69, 0, '/images/products/pomodori-ciliegino.png', '500 g', TRUE, TRUE),
+(5, 1, 'Carote', 'Fresh2Go', 'Carote fresche in confezione, adatte per contorni e ricette leggere.', 'Carote', 1.39, 0, '/images/products/carote.png', 'kg', TRUE, TRUE),
+(6, 1, 'Zucchine', 'Fresh2Go', 'Zucchine fresche, ottime grigliate o in padella.', 'Zucchine', 2.19, 5, '/images/products/zucchine.png', 'kg', TRUE, TRUE),
+(7, 1, 'Patate', 'Fresh2Go', 'Patate gialle adatte per forno, purè e contorni.', 'Patate', 1.79, 0, '/images/products/patate.png', 'kg', TRUE, TRUE),
+(8, 2, 'Pasta spaghetti', 'Granoro', 'Spaghetti di semola di grano duro.', 'Semola di grano duro, acqua', 1.29, 0, '/images/products/pasta-spaghetti.png', '500 g', TRUE, TRUE),
+(9, 2, 'Penne rigate', 'Granoro', 'Penne rigate di semola di grano duro, adatte a sughi semplici.', 'Semola di grano duro, acqua', 1.25, 0, '/images/products/penne-rigate.png', '500 g', TRUE, TRUE),
+(10, 2, 'Riso Carnaroli', 'Riserva Verde', 'Riso Carnaroli ideale per risotti.', 'Riso Carnaroli', 2.79, 5, '/images/products/riso-carnaroli.png', '1 kg', TRUE, TRUE),
+(11, 2, 'Pane integrale', 'Forno Fresco', 'Pane integrale confezionato, utile per panini e contorni.', 'Farina integrale, acqua, lievito, sale, semi di sesamo', 2.19, 0, '/images/products/pane-integrale.png', '400 g', TRUE, TRUE),
+(12, 2, 'Farina tipo 00', 'Molino Chiaro', 'Farina di grano tenero per dolci, pane e preparazioni base.', 'Farina di grano tenero tipo 00', 1.09, 0, '/images/products/farina-tipo-00.png', '1 kg', TRUE, TRUE),
+(13, 2, 'Cereali corn flakes', 'Dolce Mattino', 'Cereali per la colazione a base di mais e malto.', 'Mais, zucchero, malto d''orzo, sale', 2.59, 10, '/images/products/cereali-corn-flakes.png', '375 g', TRUE, TRUE),
+(14, 2, 'Cous cous', 'Mediterraneo', 'Cous cous di semola di grano duro, pronto in pochi minuti.', 'Semola di grano duro', 1.89, 0, '/images/products/cous-cous.png', '500 g', TRUE, TRUE),
+(15, 3, 'Latte parzialmente scremato', 'LatteRoma', 'Latte fresco parzialmente scremato.', 'Latte', 1.59, 0, '/images/products/latte-parzialmente-scremato.png', '1 l', TRUE, FALSE),
+(16, 3, 'Yogurt bianco', 'LatteRoma', 'Yogurt bianco naturale in vasetti.', 'Latte, fermenti lattici', 1.25, 15, '/images/products/yogurt-bianco.png', '2 x 125 g', TRUE, FALSE),
+(17, 3, 'Uova fresche', 'Aia Verde', 'Confezione da 6 uova fresche.', 'Uova', 2.69, 0, '/images/products/uova-fresche.png', '6 pezzi', TRUE, FALSE),
+(18, 3, 'Mozzarella', 'Caseificio Sole', 'Mozzarella fresca in confezione singola.', 'Latte, sale, caglio, fermenti lattici', 1.49, 0, '/images/products/mozzarella.png', '125 g', TRUE, FALSE),
+(19, 3, 'Parmigiano grattugiato', 'Caseificio Sole', 'Parmigiano grattugiato, comodo per pasta e risotti.', 'Latte, sale, caglio', 2.99, 5, '/images/products/parmigiano-grattugiato.png', '100 g', TRUE, FALSE),
+(20, 3, 'Mascarpone', 'Caseificio Sole', 'Mascarpone cremoso per dolci e dessert.', 'Crema di latte, latte', 2.79, 0, '/images/products/mascarpone.png', '250 g', TRUE, FALSE),
+(21, 3, 'Feta', 'Grecia Mia', 'Formaggio feta in confezione, ideale per insalate.', 'Latte di pecora e capra, sale, fermenti lattici', 2.49, 0, '/images/products/feta.png', '200 g', TRUE, FALSE),
+(22, 4, 'Petto di pollo', 'Carni Scelte', 'Petto di pollo a fette, adatto per secondi semplici.', 'Carne di pollo', 6.49, 8, '/images/products/petto-di-pollo.png', '500 g', FALSE, FALSE),
+(23, 4, 'Filetti di salmone', 'Mare Vivo', 'Filetti di salmone fresco da cuocere al forno o in padella.', 'Salmone', 9.99, 0, '/images/products/filetti-di-salmone.png', '300 g', FALSE, FALSE),
+(24, 4, 'Burger vegetale', 'Green Food', 'Burger vegetale a base di soia e verdure.', 'Proteine di soia, verdure, senape, spezie', 3.99, 10, '/images/products/burger-vegetale.png', '2 pezzi', TRUE, TRUE),
+(25, 4, 'Tofu naturale', 'Green Food', 'Tofu naturale a base di soia, adatto a piatti vegetariani e vegani.', 'Soia, acqua, sale', 2.59, 0, '/images/products/tofu-naturale.png', '200 g', TRUE, TRUE),
+(26, 4, 'Tonno al naturale', 'Mare Vivo', 'Tonno al naturale in lattina.', 'Tonno, acqua, sale', 2.29, 0, '/images/products/tonno-al-naturale.png', '160 g', FALSE, FALSE),
+(27, 4, 'Gamberi sgusciati', 'Mare Vivo', 'Gamberi sgusciati pronti per primi e secondi piatti.', 'Gamberi', 5.99, 12, '/images/products/gamberi-sgusciati.png', '250 g', FALSE, FALSE),
+(28, 4, 'Pancetta affumicata', 'Salumi Casa', 'Pancetta affumicata a cubetti, adatta per primi piatti.', 'Carne suina, sale, aromi', 2.39, 0, '/images/products/pancetta-affumicata.png', '150 g', FALSE, FALSE),
+(29, 5, 'Piselli surgelati', 'Orto Gelo', 'Piselli fini surgelati.', 'Piselli', 2.29, 0, '/images/products/piselli-surgelati.png', '450 g', TRUE, TRUE),
+(30, 5, 'Pizza margherita surgelata', 'Forno Gelo', 'Pizza margherita surgelata pronta da cuocere.', 'Farina, pomodoro, mozzarella, olio', 3.49, 20, '/images/products/pizza-margherita-surgelata.png', '1 pezzo', TRUE, FALSE),
+(31, 5, 'Gelato alla vaniglia', 'Dolce Neve', 'Gelato alla vaniglia in vaschetta.', 'Latte, panna, zucchero, vaniglia, uova', 4.29, 0, '/images/products/gelato-alla-vaniglia.png', '500 g', TRUE, FALSE),
+(32, 5, 'Spinaci surgelati', 'Orto Gelo', 'Spinaci surgelati in cubetti, comodi per contorni e ripieni.', 'Spinaci', 2.09, 0, '/images/products/spinaci-surgelati.png', '450 g', TRUE, TRUE),
+(33, 5, 'Minestrone surgelato', 'Orto Gelo', 'Minestrone surgelato con verdure miste.', 'Carote, patate, zucchine, sedano, fagiolini', 2.79, 5, '/images/products/minestrone-surgelato.png', '600 g', TRUE, TRUE),
+(34, 5, 'Bastoncini di pesce', 'Mare Gelo', 'Bastoncini di pesce panati surgelati.', 'Pesce, farina di frumento, olio, sale', 3.59, 10, '/images/products/bastoncini-di-pesce.png', '300 g', FALSE, FALSE),
+(35, 5, 'Frutti di bosco surgelati', 'Dolce Neve', 'Frutti di bosco surgelati per yogurt, pancake e dolci.', 'Mirtilli, lamponi, more, ribes', 3.99, 0, '/images/products/frutti-di-bosco-surgelati.png', '300 g', TRUE, TRUE),
+(36, 6, 'Acqua naturale', 'Fonte Chiara', 'Acqua naturale in bottiglia.', 'Acqua minerale naturale', 0.39, 0, '/images/products/acqua-naturale.png', '1.5 l', TRUE, TRUE),
+(37, 6, 'Succo d’arancia', 'Fruit Joy', 'Succo d’arancia senza zuccheri aggiunti.', 'Succo d’arancia', 1.89, 5, '/images/products/succo-d-arancia.png', '1 l', TRUE, TRUE),
+(38, 6, 'Tè alla pesca', 'Fresh Drink', 'Tè freddo alla pesca in bottiglia.', 'Acqua, zucchero, estratto di tè, succo di pesca', 1.49, 0, '/images/products/te-alla-pesca.png', '1.5 l', TRUE, TRUE),
+(39, 6, 'Latte di avena', 'Bio Natura', 'Bevanda vegetale all’avena.', 'Acqua, avena, olio di semi, sale', 2.19, 0, '/images/products/latte-di-avena.png', '1 l', TRUE, TRUE),
+(40, 6, 'Cola', 'Fresh Drink', 'Bibita gassata gusto cola.', 'Acqua, zucchero, anidride carbonica, aromi', 1.39, 15, '/images/products/cola.png', '1.5 l', TRUE, TRUE),
+(41, 6, 'Acqua frizzante', 'Fonte Chiara', 'Acqua minerale frizzante in bottiglia.', 'Acqua minerale, anidride carbonica', 0.45, 0, '/images/products/acqua-frizzante.png', '1.5 l', TRUE, TRUE),
+(42, 6, 'Succo di mela', 'Fruit Joy', 'Succo di mela in brick, adatto alla colazione.', 'Succo di mela', 1.79, 0, '/images/products/succo-di-mela.png', '1 l', TRUE, TRUE),
+(43, 7, 'Biscotti al cacao', 'Dolce Mattino', 'Biscotti al cacao per colazione.', 'Farina, cacao, zucchero, latte, uova', 2.49, 0, '/images/products/biscotti-al-cacao.png', '350 g', TRUE, FALSE),
+(44, 7, 'Cioccolato fondente', 'Cacao Nero', 'Tavoletta di cioccolato fondente 70%.', 'Cacao, zucchero, burro di cacao', 1.99, 10, '/images/products/cioccolato-fondente.png', '100 g', TRUE, TRUE),
+(45, 7, 'Patatine classiche', 'Snack Più', 'Patatine croccanti leggermente salate.', 'Patate, olio di semi, sale', 1.69, 0, '/images/products/patatine-classiche.png', '150 g', TRUE, TRUE),
+(46, 7, 'Crackers salati', 'Snack Più', 'Crackers salati confezionati in monoporzioni.', 'Farina di frumento, olio, sale, semi di sesamo', 1.89, 0, '/images/products/crackers-salati.png', '250 g', TRUE, TRUE),
+(47, 7, 'Marmellata di albicocche', 'Dolce Casa', 'Marmellata di albicocche per colazione e dolci.', 'Albicocche, zucchero, succo di limone', 2.59, 5, '/images/products/marmellata-di-albicocche.png', '350 g', TRUE, TRUE),
+(48, 7, 'Nocciole sgusciate', 'Frutta Secca Più', 'Nocciole sgusciate in confezione.', 'Nocciole', 3.49, 0, '/images/products/nocciole-sgusciate.png', '150 g', TRUE, TRUE),
+(49, 7, 'Savoiardi', 'Dolce Casa', 'Biscotti savoiardi per dolci al cucchiaio.', 'Farina, zucchero, uova', 2.29, 0, '/images/products/savoiardi.png', '300 g', TRUE, FALSE),
+(50, 8, 'Detersivo piatti', 'Casa Pulita', 'Detersivo liquido per piatti al limone.', '', 1.79, 0, '/images/products/detersivo-piatti.png', '500 ml', FALSE, FALSE),
+(51, 8, 'Carta igienica', 'Soft Casa', 'Carta igienica morbida a 3 veli.', '', 3.49, 12, '/images/products/carta-igienica.png', '4 rotoli', FALSE, FALSE),
+(52, 8, 'Sapone mani', 'Casa Pulita', 'Sapone liquido delicato per le mani.', '', 1.49, 0, '/images/products/sapone-mani.png', '300 ml', FALSE, FALSE),
+(53, 8, 'Shampoo delicato', 'Benessere Casa', 'Shampoo delicato per uso quotidiano.', '', 2.99, 0, '/images/products/shampoo-delicato.png', '250 ml', FALSE, FALSE),
+(54, 8, 'Spugne cucina', 'Casa Pulita', 'Confezione di spugne abrasive per cucina.', '', 1.29, 0, '/images/products/spugne-cucina.png', '3 pezzi', FALSE, FALSE),
+(55, 8, 'Detersivo lavatrice', 'Casa Pulita', 'Detersivo liquido per lavatrice.', '', 4.99, 10, '/images/products/detersivo-lavatrice.png', '1.5 l', FALSE, FALSE),
+(56, 8, 'Sacchetti spazzatura', 'Casa Pulita', 'Sacchetti resistenti per rifiuti domestici.', '', 1.99, 0, '/images/products/sacchetti-spazzatura.png', '20 pezzi', FALSE, FALSE);
 SELECT setval('products_id_seq', (SELECT MAX(id) FROM products));
 
 -- Collegamento prodotti-supermercati
-INSERT INTO supermarket_products (
-    supermarket_id,
-    product_id,
-    stock_quantity,
-    is_available,
-    local_price
-)
-VALUES
-(1, 1, 40, TRUE, NULL),
-(2, 1, 40, TRUE, NULL),
-(3, 1, 40, TRUE, NULL),
-(1, 2, 35, TRUE, NULL),
-(2, 2, 35, TRUE, NULL),
-(1, 3, 22, TRUE, NULL),
-(3, 3, 22, TRUE, NULL),
-(1, 4, 60, TRUE, NULL),
-(2, 4, 60, TRUE, NULL),
-(3, 4, 60, TRUE, NULL),
-(1, 5, 28, TRUE, NULL),
-(2, 5, 28, TRUE, NULL),
-(3, 5, 28, TRUE, NULL),
-(1, 6, 18, TRUE, NULL),
-(2, 6, 18, TRUE, NULL),
-(1, 7, 45, TRUE, NULL),
-(2, 7, 45, TRUE, NULL),
-(3, 7, 45, TRUE, NULL),
-(1, 8, 30, TRUE, NULL),
-(2, 8, 30, TRUE, NULL),
-(1, 9, 24, TRUE, NULL),
-(2, 9, 24, TRUE, NULL),
-(3, 9, 24, TRUE, NULL),
-(1, 10, 16, TRUE, NULL),
-(2, 10, 16, TRUE, NULL),
-(1, 11, 12, TRUE, NULL),
-(2, 11, 12, TRUE, NULL),
-(1, 12, 20, TRUE, NULL),
-(3, 12, 20, TRUE, NULL),
-(1, 13, 32, TRUE, NULL),
-(2, 13, 32, TRUE, NULL),
-(3, 13, 32, TRUE, NULL),
-(1, 14, 26, TRUE, NULL),
-(2, 14, 26, TRUE, NULL),
-(1, 15, 15, TRUE, NULL),
-(3, 15, 15, TRUE, NULL),
-(1, 16, 100, TRUE, NULL),
-(2, 16, 100, TRUE, NULL),
-(3, 16, 100, TRUE, NULL),
-(1, 17, 38, TRUE, NULL),
-(2, 17, 38, TRUE, NULL),
-(3, 17, 38, TRUE, NULL),
-(1, 18, 25, TRUE, NULL),
-(2, 18, 25, TRUE, NULL),
-(1, 19, 34, TRUE, NULL),
-(3, 19, 34, TRUE, NULL),
-(1, 20, 42, TRUE, NULL),
-(2, 20, 42, TRUE, NULL),
-(1, 21, 30, TRUE, NULL),
-(2, 21, 30, TRUE, NULL),
-(3, 21, 30, TRUE, NULL),
-(1, 22, 50, TRUE, NULL),
-(2, 22, 50, TRUE, NULL),
-(3, 22, 50, TRUE, NULL);
+INSERT INTO supermarket_products (supermarket_id, product_id, stock_quantity, is_available, local_price) VALUES
+(1, 1, 55, TRUE, NULL),
+(1, 2, 45, TRUE, NULL),
+(1, 3, 32, TRUE, NULL),
+(1, 4, 38, TRUE, NULL),
+(1, 5, 42, TRUE, NULL),
+(1, 6, 35, TRUE, NULL),
+(1, 7, 50, TRUE, NULL),
+(1, 8, 70, TRUE, NULL),
+(1, 9, 64, TRUE, NULL),
+(1, 10, 40, TRUE, NULL),
+(1, 11, 28, TRUE, NULL),
+(1, 12, 55, TRUE, NULL),
+(1, 13, 30, TRUE, NULL),
+(1, 14, 24, TRUE, NULL),
+(1, 15, 60, TRUE, NULL),
+(1, 16, 45, TRUE, NULL),
+(1, 17, 36, TRUE, NULL),
+(1, 18, 40, TRUE, NULL),
+(1, 19, 32, TRUE, NULL),
+(1, 20, 20, TRUE, NULL),
+(1, 21, 18, TRUE, NULL),
+(1, 22, 22, TRUE, NULL),
+(1, 23, 0, FALSE, NULL),
+(1, 24, 26, TRUE, NULL),
+(1, 25, 20, TRUE, NULL),
+(1, 26, 28, TRUE, NULL),
+(1, 27, 16, TRUE, NULL),
+(1, 28, 24, TRUE, NULL),
+(1, 29, 42, TRUE, NULL),
+(1, 30, 30, TRUE, NULL),
+(1, 31, 25, TRUE, NULL),
+(1, 32, 35, TRUE, NULL),
+(1, 33, 26, TRUE, NULL),
+(1, 34, 28, TRUE, NULL),
+(1, 35, 22, TRUE, NULL),
+(1, 36, 120, TRUE, NULL),
+(1, 37, 60, TRUE, NULL),
+(1, 38, 45, TRUE, NULL),
+(1, 39, 32, TRUE, NULL),
+(1, 40, 55, TRUE, NULL),
+(1, 41, 80, TRUE, NULL),
+(1, 42, 45, TRUE, NULL),
+(1, 43, 38, TRUE, NULL),
+(1, 44, 36, TRUE, NULL),
+(1, 45, 52, TRUE, NULL),
+(1, 46, 40, TRUE, NULL),
+(1, 47, 28, TRUE, NULL),
+(1, 48, 20, TRUE, NULL),
+(1, 49, 30, TRUE, NULL),
+(1, 50, 34, TRUE, NULL),
+(1, 51, 55, TRUE, NULL),
+(1, 52, 44, TRUE, NULL),
+(1, 53, 28, TRUE, NULL),
+(1, 54, 36, TRUE, NULL),
+(1, 55, 30, TRUE, NULL),
+(1, 56, 42, TRUE, NULL),
+(2, 1, 41, TRUE, NULL),
+(2, 2, 33, TRUE, 1.80),
+(2, 3, 24, TRUE, NULL),
+(2, 4, 28, TRUE, NULL),
+(2, 5, 31, TRUE, NULL),
+(2, 6, 26, TRUE, NULL),
+(2, 7, 37, TRUE, NULL),
+(2, 8, 52, TRUE, NULL),
+(2, 9, 48, TRUE, NULL),
+(2, 10, 30, TRUE, NULL),
+(2, 11, 21, TRUE, NULL),
+(2, 12, 41, TRUE, NULL),
+(2, 13, 22, TRUE, NULL),
+(2, 14, 18, TRUE, NULL),
+(2, 15, 45, TRUE, NULL),
+(2, 16, 33, TRUE, 1.19),
+(2, 17, 0, FALSE, NULL),
+(2, 18, 30, TRUE, NULL),
+(2, 19, 24, TRUE, NULL),
+(2, 22, 16, TRUE, NULL),
+(2, 23, 10, TRUE, NULL),
+(2, 24, 19, TRUE, NULL),
+(2, 26, 21, TRUE, NULL),
+(2, 27, 12, TRUE, NULL),
+(2, 28, 18, TRUE, NULL),
+(2, 29, 31, TRUE, NULL),
+(2, 30, 22, TRUE, NULL),
+(2, 31, 18, TRUE, NULL),
+(2, 32, 26, TRUE, NULL),
+(2, 33, 19, TRUE, NULL),
+(2, 34, 21, TRUE, NULL),
+(2, 36, 90, TRUE, 0.37),
+(2, 37, 45, TRUE, NULL),
+(2, 38, 33, TRUE, NULL),
+(2, 40, 41, TRUE, 1.32),
+(2, 41, 60, TRUE, NULL),
+(2, 42, 33, TRUE, NULL),
+(2, 43, 28, TRUE, NULL),
+(2, 44, 27, TRUE, NULL),
+(2, 45, 39, TRUE, 1.61),
+(2, 46, 30, TRUE, NULL),
+(2, 47, 21, TRUE, NULL),
+(2, 49, 22, TRUE, NULL),
+(2, 50, 25, TRUE, NULL),
+(2, 51, 41, TRUE, 3.32),
+(2, 52, 33, TRUE, NULL),
+(2, 54, 27, TRUE, NULL),
+(2, 55, 22, TRUE, NULL),
+(2, 56, 31, TRUE, NULL),
+(3, 1, 30, TRUE, NULL),
+(3, 2, 24, TRUE, NULL),
+(3, 3, 17, TRUE, NULL),
+(3, 4, 20, TRUE, NULL),
+(3, 5, 23, TRUE, NULL),
+(3, 6, 19, TRUE, NULL),
+(3, 7, 27, TRUE, NULL),
+(3, 8, 38, TRUE, NULL),
+(3, 9, 35, TRUE, NULL),
+(3, 10, 22, TRUE, NULL),
+(3, 11, 15, TRUE, NULL),
+(3, 12, 30, TRUE, NULL),
+(3, 13, 16, TRUE, NULL),
+(3, 14, 13, TRUE, NULL),
+(3, 15, 33, TRUE, NULL),
+(3, 16, 24, TRUE, NULL),
+(3, 17, 19, TRUE, NULL),
+(3, 18, 22, TRUE, NULL),
+(3, 19, 17, TRUE, NULL),
+(3, 20, 11, TRUE, NULL),
+(3, 21, 9, TRUE, NULL),
+(3, 23, 7, TRUE, NULL),
+(3, 24, 14, TRUE, 4.31),
+(3, 25, 11, TRUE, 2.80),
+(3, 29, 23, TRUE, NULL),
+(3, 31, 0, FALSE, NULL),
+(3, 32, 19, TRUE, NULL),
+(3, 33, 14, TRUE, NULL),
+(3, 35, 12, TRUE, NULL),
+(3, 36, 66, TRUE, NULL),
+(3, 37, 33, TRUE, NULL),
+(3, 39, 17, TRUE, 2.37),
+(3, 41, 44, TRUE, NULL),
+(3, 42, 24, TRUE, NULL),
+(3, 43, 20, TRUE, NULL),
+(3, 44, 19, TRUE, 2.15),
+(3, 45, 28, TRUE, NULL),
+(3, 46, 22, TRUE, NULL),
+(3, 47, 15, TRUE, 2.80),
+(3, 48, 11, TRUE, NULL),
+(3, 50, 18, TRUE, NULL),
+(3, 51, 30, TRUE, NULL),
+(3, 52, 24, TRUE, NULL),
+(3, 53, 15, TRUE, NULL),
+(3, 54, 19, TRUE, NULL),
+(3, 55, 16, TRUE, NULL),
+(3, 56, 23, TRUE, NULL);
 
 -- Collegamento prodotti-allergeni
-INSERT INTO product_allergens (product_id, allergen_id)
-VALUES
-(4, 1),
-(6, 1),
-(6, 11),
-(7, 2),
-(8, 2),
-(9, 3),
-(11, 7),
-(12, 6),
+INSERT INTO product_allergens (product_id, allergen_id) VALUES
+(8, 1),
+(9, 1),
+(11, 1),
+(11, 11),
+(12, 1),
+(13, 1),
 (14, 1),
-(14, 2),
 (15, 2),
-(15, 3),
-(18, 1),
-(18, 3),
+(16, 2),
+(17, 3),
 (18, 2),
-(19, 5),
-(19, 6);
+(19, 2),
+(20, 2),
+(21, 2),
+(23, 7),
+(24, 6),
+(24, 10),
+(25, 6),
+(26, 7),
+(27, 8),
+(30, 1),
+(30, 2),
+(31, 2),
+(31, 3),
+(33, 9),
+(34, 1),
+(34, 7),
+(39, 1),
+(43, 1),
+(43, 2),
+(43, 3),
+(44, 5),
+(44, 6),
+(46, 1),
+(46, 11),
+(48, 5),
+(49, 1),
+(49, 3);
 
--- Ricette mock
-INSERT INTO recipes (
-    id,
-    name,
-    recipe_type,
-    description,
-    servings,
-    image_url
-)
-VALUES
-(1, 'Pasta al pomodoro', 'primo', 'Un primo semplice con spaghetti e condimento al pomodoro.', 2, ''),
-(2, 'Risotto con piselli', 'primo', 'Risotto leggero preparato con riso Carnaroli e piselli.', 2, ''),
-(3, 'Pollo con piselli', 'secondo', 'Secondo piatto semplice con petto di pollo e contorno di piselli.', 2, ''),
-(4, 'Salmone al forno', 'secondo', 'Filetti di salmone da cuocere al forno con un contorno semplice.', 2, ''),
-(5, 'Burger vegetale con insalata', 'secondo', 'Piatto vegetariano e vegano con burger vegetale e insalata mista.', 2, ''),
-(6, 'Insalata con pane integrale', 'contorno', 'Contorno veloce con insalata mista e pane integrale.', 2, ''),
-(7, 'Yogurt con banana', 'dolce', 'Dolce semplice con yogurt bianco e banana a fette.', 2, ''),
-(8, 'Gelato con cioccolato fondente', 'dolce', 'Dessert veloce con gelato alla vaniglia e cioccolato fondente.', 2, '');
-
+-- Ricette finali
+INSERT INTO recipes (id, name, recipe_type, description, servings, image_url) VALUES
+(1, 'Pasta al pomodoro', 'primo', 'Un primo semplice con spaghetti, pomodori ciliegino e parmigiano opzionale.', 2, '/images/recipes/pasta-al-pomodoro.png'),
+(2, 'Carbonara', 'primo', 'Primo piatto classico con pasta, uova, parmigiano e pancetta.', 2, '/images/recipes/carbonara.png'),
+(3, 'Risotto alle verdure', 'primo', 'Risotto con carote, zucchine e piselli, leggero ma completo.', 2, '/images/recipes/risotto-alle-verdure.png'),
+(4, 'Pollo al curry', 'secondo', 'Petto di pollo servito con riso e una base cremosa semplice.', 2, '/images/recipes/pollo-al-curry.png'),
+(5, 'Salmone al forno', 'secondo', 'Filetti di salmone con patate al forno.', 2, '/images/recipes/salmone-al-forno.png'),
+(6, 'Burger vegetale', 'secondo', 'Burger vegetale con insalata e pane integrale.', 2, '/images/recipes/burger-vegetale.png'),
+(7, 'Insalata greca', 'contorno', 'Insalata fresca con pomodori, feta e insalata mista.', 2, '/images/recipes/insalata-greca.png'),
+(8, 'Patate al forno', 'contorno', 'Contorno semplice di patate al forno, adatto a molti secondi.', 2, '/images/recipes/patate-al-forno.png'),
+(9, 'Verdure grigliate', 'contorno', 'Zucchine e carote grigliate, leggere e facili da preparare.', 2, '/images/recipes/verdure-grigliate.png'),
+(10, 'Tiramisù', 'dolce', 'Dolce al cucchiaio con mascarpone, uova e savoiardi.', 4, '/images/recipes/tiramisu.png'),
+(11, 'Pancake', 'dolce', 'Pancake semplici da colazione con marmellata opzionale.', 2, '/images/recipes/pancake.png'),
+(12, 'Crostata alla marmellata', 'dolce', 'Dolce casalingo con base di farina, uova e marmellata di albicocche.', 4, '/images/recipes/crostata-alla-marmellata.png');
 SELECT setval('recipes_id_seq', (SELECT MAX(id) FROM recipes));
 
--- Ingredienti delle ricette mock
-INSERT INTO recipe_ingredients (
-    recipe_id,
-    product_id,
-    quantity,
-    unit,
-    is_optional
-)
-VALUES
--- Pasta al pomodoro
+-- Ingredienti delle ricette
+INSERT INTO recipe_ingredients (recipe_id, product_id, quantity, unit, is_optional) VALUES
+(1, 8, 250, 'g', FALSE),
 (1, 4, 250, 'g', FALSE),
-
--- Risotto con piselli
-(2, 5, 180, 'g', FALSE),
-(2, 13, 150, 'g', FALSE),
-
--- Pollo con piselli
-(3, 10, 300, 'g', FALSE),
-(3, 13, 150, 'g', FALSE),
-
--- Salmone al forno
-(4, 11, 300, 'g', FALSE),
-
--- Burger vegetale con insalata
-(5, 12, 2, 'pezzi', FALSE),
-(5, 3, 1, 'busta', FALSE),
-
--- Insalata con pane integrale
+(1, 19, 40, 'g', TRUE),
+(2, 8, 250, 'g', FALSE),
+(2, 17, 2, 'pezzi', FALSE),
+(2, 19, 50, 'g', FALSE),
+(2, 28, 120, 'g', FALSE),
+(3, 10, 180, 'g', FALSE),
+(3, 5, 100, 'g', FALSE),
+(3, 6, 100, 'g', FALSE),
+(3, 29, 150, 'g', FALSE),
+(3, 19, 30, 'g', TRUE),
+(4, 22, 300, 'g', FALSE),
+(4, 10, 160, 'g', FALSE),
+(4, 15, 100, 'ml', TRUE),
+(5, 23, 300, 'g', FALSE),
+(5, 7, 500, 'g', FALSE),
+(6, 24, 2, 'pezzi', FALSE),
 (6, 3, 1, 'busta', FALSE),
-(6, 6, 100, 'g', TRUE),
-
--- Yogurt con banana
-(7, 8, 2, 'vasetti', FALSE),
-(7, 2, 2, 'pezzi', FALSE),
-
--- Gelato con cioccolato fondente
-(8, 15, 250, 'g', FALSE),
-(8, 19, 50, 'g', TRUE);
-
+(6, 11, 120, 'g', TRUE),
+(7, 3, 1, 'busta', FALSE),
+(7, 4, 200, 'g', FALSE),
+(7, 21, 150, 'g', FALSE),
+(8, 7, 600, 'g', FALSE),
+(9, 6, 300, 'g', FALSE),
+(9, 5, 200, 'g', FALSE),
+(10, 20, 250, 'g', FALSE),
+(10, 17, 3, 'pezzi', FALSE),
+(10, 49, 200, 'g', FALSE),
+(11, 12, 200, 'g', FALSE),
+(11, 15, 250, 'ml', FALSE),
+(11, 17, 2, 'pezzi', FALSE),
+(11, 47, 80, 'g', TRUE),
+(12, 12, 300, 'g', FALSE),
+(12, 17, 2, 'pezzi', FALSE),
+(12, 47, 250, 'g', FALSE),
+(12, 48, 40, 'g', TRUE);
 SELECT setval('recipe_ingredients_id_seq', (SELECT MAX(id) FROM recipe_ingredients));
 
 -- Slot di ritiro demo
--- Usiamo CURRENT_DATE e CURRENT_DATE + 1 per mantenere il seed riutilizzabile.
-INSERT INTO pickup_slots (
-    supermarket_id,
-    slot_date,
-    start_time,
-    end_time,
-    max_orders,
-    current_orders,
-    is_active
-)
-VALUES
--- Fresh2Go Market Centro - oggi
+-- Usiamo CURRENT_DATE per mantenere il seed riutilizzabile in giorni diversi.
+INSERT INTO pickup_slots (supermarket_id, slot_date, start_time, end_time, max_orders, current_orders, is_active) VALUES
 (1, CURRENT_DATE, '09:00', '10:00', 10, 2, TRUE),
 (1, CURRENT_DATE, '10:00', '11:00', 10, 10, TRUE),
-(1, CURRENT_DATE, '16:00', '17:00', 10, 4, TRUE),
+(1, CURRENT_DATE, '11:00', '12:00', 10, 4, TRUE),
+(1, CURRENT_DATE, '15:00', '16:00', 10, 5, TRUE),
+(1, CURRENT_DATE, '16:00', '17:00', 10, 6, TRUE),
 (1, CURRENT_DATE, '17:00', '18:00', 10, 0, FALSE),
-
--- Fresh2Go Market Centro - domani
-(1, CURRENT_DATE + 1, '09:00', '10:00', 10, 1, TRUE),
-(1, CURRENT_DATE + 1, '10:00', '11:00', 10, 3, TRUE),
-(1, CURRENT_DATE + 1, '16:00', '17:00', 10, 0, TRUE),
+(1, CURRENT_DATE + 1, '09:00', '10:00', 10, 3, TRUE),
+(1, CURRENT_DATE + 1, '10:00', '11:00', 10, 4, TRUE),
+(1, CURRENT_DATE + 1, '11:00', '12:00', 10, 5, TRUE),
+(1, CURRENT_DATE + 1, '15:00', '16:00', 10, 6, TRUE),
+(1, CURRENT_DATE + 1, '16:00', '17:00', 10, 7, TRUE),
 (1, CURRENT_DATE + 1, '17:00', '18:00', 10, 8, TRUE),
-
--- Fresh2Go Express Nord - oggi
-(2, CURRENT_DATE, '09:00', '10:00', 8, 1, TRUE),
-(2, CURRENT_DATE, '10:00', '11:00', 8, 8, TRUE),
-(2, CURRENT_DATE, '16:00', '17:00', 8, 2, TRUE),
-(2, CURRENT_DATE, '17:00', '18:00', 8, 0, TRUE),
-
--- Fresh2Go Express Nord - domani
-(2, CURRENT_DATE + 1, '09:00', '10:00', 8, 0, TRUE),
-(2, CURRENT_DATE + 1, '10:00', '11:00', 8, 4, TRUE),
+(1, CURRENT_DATE + 2, '09:00', '10:00', 10, 4, TRUE),
+(1, CURRENT_DATE + 2, '10:00', '11:00', 10, 5, TRUE),
+(1, CURRENT_DATE + 2, '11:00', '12:00', 10, 6, TRUE),
+(1, CURRENT_DATE + 2, '15:00', '16:00', 10, 7, TRUE),
+(1, CURRENT_DATE + 2, '16:00', '17:00', 10, 8, TRUE),
+(1, CURRENT_DATE + 2, '17:00', '18:00', 10, 9, TRUE),
+(2, CURRENT_DATE, '09:00', '10:00', 8, 4, TRUE),
+(2, CURRENT_DATE, '10:00', '11:00', 8, 5, TRUE),
+(2, CURRENT_DATE, '11:00', '12:00', 8, 6, TRUE),
+(2, CURRENT_DATE, '15:00', '16:00', 8, 7, TRUE),
+(2, CURRENT_DATE, '16:00', '17:00', 8, 0, TRUE),
+(2, CURRENT_DATE, '17:00', '18:00', 8, 1, TRUE),
+(2, CURRENT_DATE + 1, '09:00', '10:00', 8, 5, TRUE),
+(2, CURRENT_DATE + 1, '10:00', '11:00', 8, 6, TRUE),
+(2, CURRENT_DATE + 1, '11:00', '12:00', 8, 7, TRUE),
+(2, CURRENT_DATE + 1, '15:00', '16:00', 8, 0, TRUE),
 (2, CURRENT_DATE + 1, '16:00', '17:00', 8, 8, TRUE),
-(2, CURRENT_DATE + 1, '17:00', '18:00', 8, 1, TRUE),
-
--- Fresh2Go Bio Sud - oggi
+(2, CURRENT_DATE + 1, '17:00', '18:00', 8, 2, TRUE),
+(2, CURRENT_DATE + 2, '09:00', '10:00', 8, 6, TRUE),
+(2, CURRENT_DATE + 2, '10:00', '11:00', 8, 7, TRUE),
+(2, CURRENT_DATE + 2, '11:00', '12:00', 8, 0, FALSE),
+(2, CURRENT_DATE + 2, '15:00', '16:00', 8, 1, TRUE),
+(2, CURRENT_DATE + 2, '16:00', '17:00', 8, 2, TRUE),
+(2, CURRENT_DATE + 2, '17:00', '18:00', 8, 3, TRUE),
 (3, CURRENT_DATE, '09:00', '10:00', 6, 0, TRUE),
 (3, CURRENT_DATE, '10:00', '11:00', 6, 6, TRUE),
-(3, CURRENT_DATE, '16:00', '17:00', 6, 2, TRUE),
+(3, CURRENT_DATE, '11:00', '12:00', 6, 2, TRUE),
+(3, CURRENT_DATE, '15:00', '16:00', 6, 3, TRUE),
+(3, CURRENT_DATE, '16:00', '17:00', 6, 4, TRUE),
 (3, CURRENT_DATE, '17:00', '18:00', 6, 0, FALSE),
-
--- Fresh2Go Bio Sud - domani
 (3, CURRENT_DATE + 1, '09:00', '10:00', 6, 1, TRUE),
-(3, CURRENT_DATE + 1, '10:00', '11:00', 6, 0, TRUE),
+(3, CURRENT_DATE + 1, '10:00', '11:00', 6, 2, TRUE),
+(3, CURRENT_DATE + 1, '11:00', '12:00', 6, 3, TRUE),
+(3, CURRENT_DATE + 1, '15:00', '16:00', 6, 4, TRUE),
 (3, CURRENT_DATE + 1, '16:00', '17:00', 6, 5, TRUE),
-(3, CURRENT_DATE + 1, '17:00', '18:00', 6, 6, TRUE);
-
+(3, CURRENT_DATE + 1, '17:00', '18:00', 6, 0, TRUE),
+(3, CURRENT_DATE + 2, '09:00', '10:00', 6, 2, TRUE),
+(3, CURRENT_DATE + 2, '10:00', '11:00', 6, 3, TRUE),
+(3, CURRENT_DATE + 2, '11:00', '12:00', 6, 4, TRUE),
+(3, CURRENT_DATE + 2, '15:00', '16:00', 6, 5, TRUE),
+(3, CURRENT_DATE + 2, '16:00', '17:00', 6, 0, TRUE),
+(3, CURRENT_DATE + 2, '17:00', '18:00', 6, 1, TRUE);
 SELECT setval('pickup_slots_id_seq', (SELECT MAX(id) FROM pickup_slots));
