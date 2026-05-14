@@ -32,7 +32,13 @@ const allergens = computed(() => {
 <template>
   <article class="recipe-card">
     <div class="recipe-image">
-      <span>{{ recipe.name.charAt(0) }}</span>
+      <img
+        v-if="recipe.imageUrl"
+        :src="recipe.imageUrl"
+        :alt="recipe.name"
+      />
+        
+      <span v-else>{{ recipe.name.charAt(0) }}</span>
     </div>
 
     <div class="recipe-content">

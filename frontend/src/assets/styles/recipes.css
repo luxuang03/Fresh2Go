@@ -31,6 +31,13 @@
   justify-content: center;
 }
 
+.recipe-image img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
 .recipe-image span {
   font-size: 42px;
   font-weight: bold;

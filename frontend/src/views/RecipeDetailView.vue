@@ -281,7 +281,13 @@ function addIngredientsToCart() {
 
     <div v-else-if="recipe" class="recipe-detail">
       <div class="recipe-detail-image card">
-        <span>{{ recipe.name.charAt(0) }}</span>
+        <img
+          v-if="recipe.imageUrl"
+          :src="recipe.imageUrl"
+          :alt="recipe.name"
+        />
+
+        <span v-else>{{ recipe.name.charAt(0) }}</span>
       </div>
 
       <div class="recipe-detail-content card">

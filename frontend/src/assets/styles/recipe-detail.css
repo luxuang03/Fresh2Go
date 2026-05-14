@@ -12,6 +12,14 @@
   justify-content: center;
 }
 
+.recipe-detail-image img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  display: block;
+}
+
 .recipe-detail-image span {
   color: var(--color-primary);
   font-size: 56px;
