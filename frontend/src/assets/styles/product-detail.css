@@ -18,6 +18,14 @@
   justify-content: center;
 }
 
+.product-detail-image img {
+  width: 100%;
+  height: 260px;
+  object-fit: contain;
+  border-radius: var(--radius-card);
+  display: block;
+}
+
 .product-detail-image span {
   color: var(--color-primary);
   font-size: 48px;

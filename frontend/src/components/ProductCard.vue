@@ -49,7 +49,13 @@ function handleAddToCart() {
 <template>
   <article class="card product-card">
     <div class="product-image-placeholder">
-      <span>{{ product.name.charAt(0) }}</span>
+      <img
+        v-if="product.imageUrl"
+        :src="product.imageUrl"
+        :alt="product.name"
+      />
+        
+      <span v-else>{{ product.name.charAt(0) }}</span>
     </div>
 
     <div class="product-card-body">

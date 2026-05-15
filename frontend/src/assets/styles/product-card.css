@@ -6,17 +6,26 @@
 }
 
 .product-image-placeholder {
-  height: 120px;
+  height: 140px;
   border-radius: 8px;
-  background-color: var(--color-primary-light);
+  background-color: #ffffff;
   color: var(--color-primary-dark);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  overflow: hidden;
+
   font-size: 40px;
   font-weight: bold;
+}
+
+.product-image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .product-card-body {

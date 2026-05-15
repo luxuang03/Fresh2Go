@@ -115,7 +115,13 @@ function handleAddToCart() {
 
     <section v-if="product" class="product-detail">
       <div class="card product-detail-image">
-        <span>{{ product.name.charAt(0) }}</span>
+        <img
+          v-if="product.imageUrl"
+          :src="product.imageUrl"
+          :alt="product.name"
+        />
+            
+        <span v-else>{{ product.name.charAt(0) }}</span>
       </div>
 
       <div class="card">
