@@ -47,9 +47,15 @@ const cartCount = computed(() => {
           :key="item.id"
           class="card cart-item"
         >
-          <div class="cart-item-image">
-            <span>{{ item.name.charAt(0) }}</span>
-          </div>
+        <div class="cart-item-image">
+          <img
+            v-if="item.image"
+            :src="item.image"
+            :alt="item.name"
+          />
+                
+          <span v-else>{{ item.name.charAt(0) }}</span>
+        </div>
 
           <div class="cart-item-info">
             <h2>{{ item.name }}</h2>

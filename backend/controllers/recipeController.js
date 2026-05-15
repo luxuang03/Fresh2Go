@@ -108,6 +108,7 @@ async function getRecipeById(req, res, next) {
         p.brand,
         COALESCE(sp.local_price, p.price) AS price,
         p.discount_percentage AS "discountPercentage",
+        p.image_url AS "imageUrl",
         p.unit_label AS "unitLabel",
         ri.quantity,
         ri.unit,

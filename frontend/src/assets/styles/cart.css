@@ -30,11 +30,20 @@
   width: 90px;
   height: 90px;
   border-radius: 12px;
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  background-color: #f4f7f1;
+  border: 1px solid #cfe3c7;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.cart-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  display: block;
 }
 
 .cart-item-image span {

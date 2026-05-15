@@ -61,6 +61,7 @@ const ingredientsWithProducts = computed(() => {
       name: ingredient.productName,
       price: ingredient.price,
       finalPrice: ingredient.finalPrice,
+      imageUrl: ingredient.imageUrl,
       unitLabel: ingredient.unitLabel,
       isAvailable: ingredient.isAvailable,
       stockQuantity: ingredient.stockQuantity,
