@@ -55,7 +55,9 @@ const allergenLabels = computed(() => {
     return []
   }
 
-  return product.value.allergens
+  return product.value.allergens.map((allergen) => {
+    return allergen.label || allergen.name
+  })
 })
 
 const isProductAvailableInSelectedSupermarket = computed(() => {
