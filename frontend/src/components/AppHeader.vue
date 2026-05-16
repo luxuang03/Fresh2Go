@@ -31,7 +31,6 @@ function handleLogout() {
         <RouterLink to="/cart">Carrello ({{ cartCount }})</RouterLink>
 
         <template v-if="!isLoggedIn">
-          <RouterLink to="/register">Registrati</RouterLink>
           <RouterLink to="/login">Login</RouterLink>
         </template>
 

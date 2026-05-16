@@ -131,10 +131,13 @@ function logout(req, res, next) {
   })
 }
 
-function me(req, res, next) {
+async function me(req, res, next) {
   try {
     if (!req.session.user) {
-      throw createError('Utente non autenticato', 401)
+      return res.status(401).json({
+        message: 'Utente non autenticato',
+        user: null,
+      })
     }
 
     res.json({
