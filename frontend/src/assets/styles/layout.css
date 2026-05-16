@@ -72,12 +72,35 @@
 }
 
 .footer-content {
+  align-items: center;
   color: var(--color-text-muted);
   font-size: 14px;
 }
 
 .footer-content p {
   margin: 0;
+}
+
+.footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.footer-links a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 .page-title {

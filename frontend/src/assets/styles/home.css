@@ -65,6 +65,10 @@
   padding: 16px 22px;
 }
 
+.home-main-button:hover {
+  background-color: #e8942f;
+}
+
 .home-hero-image {
   display: flex;
   justify-content: flex-end;

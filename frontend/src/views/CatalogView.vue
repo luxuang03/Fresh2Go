@@ -29,6 +29,7 @@ const onlyAvailable = ref(false)
 const excludedAllergens = ref([])
 const onlyVegetarian = ref(false)
 const onlyVegan = ref(false)
+const showAdvancedFilters = ref(false)
 
 onMounted(async () => {
   const supermarketIdFromUrl = route.query.supermarketId
@@ -178,95 +179,109 @@ function resetFilters() {
       </p>
 
       <section class="catalog-filters">
-        <div class="filter-field filter-field-large">
-          <label for="product-search">Cerca prodotto</label>
-
-          <input
-            id="product-search"
-            v-model="searchText"
-            type="text"
-            placeholder="Es. pasta, latte, mele..."
-          />
-        </div>
-
-        <div class="filter-field">
-          <label for="category-filter">Categoria</label>
-
-          <select id="category-filter" v-model="selectedCategoryId">
-            <option value="">Tutte le categorie</option>
-
-            <option
-              v-for="category in categories"
-              :key="category.id"
-              :value="category.id"
-            >
-              {{ category.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-field">
-          <label for="max-price-filter">Prezzo massimo</label>
-
-          <input
-            id="max-price-filter"
-            v-model="maxPrice"
-            type="number"
-            min="0"
-            step="0.50"
-            placeholder="Es. 5"
-          />
-        </div>
-
-        <div class="filter-options">
-          <label>
-            <input v-model="onlyDiscounted" type="checkbox" />
-            Solo prodotti scontati
-          </label>
-
-          <label>
-            <input v-model="onlyAvailable" type="checkbox" />
-            Solo prodotti disponibili
-          </label>
-
-          <label>
-            <input v-model="onlyVegetarian" type="checkbox" />
-            Solo vegetariani
-          </label>
-
-          <label>
-            <input v-model="onlyVegan" type="checkbox" />
-            Solo vegani
-          </label>
-        </div>
-
-        <div class="allergen-filter">
-          <p class="filter-title">Escludi allergeni</p>
-
-          <div class="allergen-options">
-            <label
-              v-for="allergen in allergens"
-              :key="allergen.id"
-            >
-              <input
-                v-model="excludedAllergens"
-                type="checkbox"
-                :value="allergen.name"
-              />
-
-              {{ allergen.label || allergen.name }}
-            </label>
+        <div class="catalog-search-row">
+          <div class="filter-field filter-field-large">
+            <label for="product-search">Cerca prodotto</label>
+          
+            <input
+              id="product-search"
+              v-model="searchText"
+              type="text"
+              placeholder="Es. pasta, latte, mele..."
+            />
           </div>
+        
+          <button
+            type="button"
+            class="btn filter-toggle-button"
+            @click="showAdvancedFilters = !showAdvancedFilters"
+          >
+            {{ showAdvancedFilters ? 'Nascondi filtri' : 'Mostra filtri' }}
+          </button>
         </div>
-
-        <button
-          type="button"
-          class="btn filter-reset-button"
-          @click="resetFilters"
-        >
-          Reimposta filtri
-        </button>
-
+      
+        <div v-if="showAdvancedFilters" class="catalog-advanced-filters">
+          <div class="catalog-filter-main-row">
+            <div class="filter-field">
+              <label for="category-filter">Categoria</label>
+            
+              <select id="category-filter" v-model="selectedCategoryId">
+                <option value="">Tutte le categorie</option>
+              
+                <option
+                  v-for="category in categories"
+                  :key="category.id"
+                  :value="category.id"
+                >
+                  {{ category.name }}
+                </option>
+              </select>
+            </div>
+          
+            <div class="filter-field">
+              <label for="max-price-filter">Prezzo massimo</label>
+            
+              <input
+                id="max-price-filter"
+                v-model="maxPrice"
+                type="number"
+                min="0"
+                step="0.50"
+                placeholder="Es. 5"
+              />
+            </div>
+          
+            <div class="filter-options">
+              <label>
+                <input v-model="onlyDiscounted" type="checkbox" />
+                Solo prodotti scontati
+              </label>
+            
+              <label>
+                <input v-model="onlyAvailable" type="checkbox" />
+                Solo prodotti disponibili
+              </label>
+            
+              <label>
+                <input v-model="onlyVegetarian" type="checkbox" />
+                Solo vegetariani
+              </label>
+            
+              <label>
+                <input v-model="onlyVegan" type="checkbox" />
+                Solo vegani
+              </label>
+            </div>
+          </div>
+        
+          <div class="allergen-filter">
+            <p class="filter-title">Escludi allergeni</p>
+          
+            <div class="allergen-options">
+              <label
+                v-for="allergen in allergens"
+                :key="allergen.id"
+              >
+                <input
+                  v-model="excludedAllergens"
+                  type="checkbox"
+                  :value="allergen.name"
+                />
+            
+                {{ allergen.label || allergen.name }}
+              </label>
+            </div>
+          </div>
+        
+          <button
+            type="button"
+            class="btn filter-reset-button"
+            @click="resetFilters"
+          >
+            Reimposta filtri
+          </button>
+        </div>
+      
         <p class="catalog-summary muted-text">
           Prodotti trovati:
           <strong>{{ filteredProducts.length }}</strong>

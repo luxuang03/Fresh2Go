@@ -8,8 +8,8 @@
         </h1>
 
         <p>
-          Scegli il supermercato, prepara il carrello e prenota il ritiro in pochi
-          passaggi.
+          Scegli il tuo supermercato, riempi il carrello e prenota il ritiro senza stress.
+          Lasciati ispirare dalle nostre ricette e crea la tua lista della spesa con un click.
         </p>
 
         <div class="home-actions">
@@ -30,7 +30,7 @@
 
     <section class="home-steps" aria-label="Come funziona Fresh2Go">
       <div class="home-step">
-        <div class="home-step-icon">▣</div>
+        <div class="home-step-icon">📍</div>
         <div>
           <h2>Scegli</h2>
           <p>Seleziona il supermercato più vicino a te.</p>
@@ -46,10 +46,10 @@
       </div>
 
       <div class="home-step">
-        <div class="home-step-icon">▢</div>
+        <div class="home-step-icon">🛍️</div>
         <div>
           <h2>Ritira</h2>
-          <p>Prenota il ritiro e passa a ritirare la tua spesa.</p>
+          <p>Scegli l’orario e passa a prendere la tua spesa.</p>
         </div>
       </div>
     </section>
