@@ -1,18 +1,106 @@
+.supermarkets-intro {
+  margin-bottom: 28px;
+}
+
 .supermarket-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
   margin-top: 24px;
 }
 
-.supermarket-card h2 {
-  margin: 0 0 10px;
-  color: var(--color-primary);
-  font-size: 20px;
+.supermarket-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  border: 2px solid transparent;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
-.supermarket-card p {
+.supermarket-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.supermarket-card-selected {
+  border-color: var(--color-accent);
+  background-color: #fbfffb;
+  box-shadow: 0 6px 16px rgba(255, 183, 77, 0.25);
+}
+
+.supermarket-card-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.supermarket-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff3e0;
+  color: var(--color-text);
+  font-size: 24px;
+}
+
+.selected-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border-radius: 20px;
+  padding: 5px 10px;
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.supermarket-card h2 {
+  margin: 0 0 14px;
+  color: var(--color-primary);
+  font-size: 21px;
+}
+
+.supermarket-card-selected h2 {
+  color: var(--color-accent-dark);
+}
+
+.supermarket-info {
+  margin-bottom: 16px;
+}
+
+.supermarket-info p {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
   margin: 8px 0;
   color: var(--color-text-muted);
   line-height: 1.5;
+}
+
+.supermarket-info-icon {
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.supermarket-button {
+  width: 100%;
+}
+
+.supermarket-button-selected {
+  background-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.supermarket-button-selected:hover {
+  background-color: #f5a93e;
+  color: var(--color-text);
 }

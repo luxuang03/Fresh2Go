@@ -1,13 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getSupermarkets } from '../services/api' 
+import { getSupermarkets } from '../services/api'
 import { clearCart } from '../data/cart'
 
 const router = useRouter()
-const supermarkets = ref([]) 
+
+const supermarkets = ref([])
+const selectedSupermarketId = ref(null)
+
+const selectedSupermarket = computed(() => {
+  return supermarkets.value.find((supermarket) => {
+    return Number(supermarket.id) === Number(selectedSupermarketId.value)
+  })
+})
 
 onMounted(async () => {
+  selectedSupermarketId.value = Number(localStorage.getItem('selectedSupermarketId'))
+
   try {
     supermarkets.value = await getSupermarkets()
   } catch (error) {
@@ -15,54 +25,82 @@ onMounted(async () => {
   }
 })
 
+function isSelected(supermarketId) {
+  return Number(selectedSupermarket.value?.id) === Number(supermarketId)
+}
+
 function selectSupermarket(supermarketId) {
   const previousSupermarketId = localStorage.getItem('selectedSupermarketId')
+
+  if (isSelected(supermarketId)) {
+    router.push({
+      path: '/catalog',
+      query: {
+        supermarketId: supermarketId,
+      },
+    })
+
+    return
+  }
 
   if (previousSupermarketId && previousSupermarketId !== String(supermarketId)) {
     clearCart()
   }
 
   localStorage.setItem('selectedSupermarketId', supermarketId)
-
-  router.push({
-    path: '/catalog',
-    query: {
-      supermarketId: supermarketId,
-    },
-  })
+  selectedSupermarketId.value = supermarketId
 }
 </script>
 
 <template>
   <main>
-    <h1 class="page-title">Supermercati</h1>
+    <section class="supermarkets-intro">
 
-    <p class="page-description">
-      Scegli il punto vendita Fresh2Go da cui vuoi ordinare la spesa.
-      Il catalogo mostrerà solo i prodotti disponibili nel supermercato scelto.
-    </p>
+      <h1 class="page-title">Scegli il tuo supermercato</h1>
+
+      <p class="page-description">
+        Scegli il punto vendita Fresh2Go da cui vuoi ordinare la spesa. Il catalogo mostrerà solo
+        i prodotti disponibili nel supermercato scelto.
+      </p>
+
+    </section>
 
     <section class="supermarket-grid">
       <article
         v-for="supermarket in supermarkets"
         :key="supermarket.id"
         class="card supermarket-card"
+        :class="{ 'supermarket-card-selected': isSelected(supermarket.id) }"
       >
+        <div class="supermarket-card-top">
+          <div class="supermarket-icon">🛒</div>
+
+          <span v-if="isSelected(supermarket.id)" class="selected-badge">
+            Selezionato
+          </span>
+        </div>
+
         <h2>{{ supermarket.name }}</h2>
 
-        <p>{{ supermarket.address }}, {{ supermarket.city }}</p>
+        <div class="supermarket-info">
+          <p>
+            <span class="supermarket-info-icon">📍</span>
+            {{ supermarket.address }}, {{ supermarket.city }}
+          </p>
 
-        <p>
-          Orario:
-          {{ supermarket.openingTime }} - {{ supermarket.closingTime }}
-        </p>
+          <p>
+            <span class="supermarket-info-icon">🕒</span>
+            Orario: {{ supermarket.openingTime }} - {{ supermarket.closingTime }}
+          </p>
+        </div>
 
         <button
-          class="btn"
+          class="btn supermarket-button"
+          :class="{ 'supermarket-button-selected': isSelected(supermarket.id) }"
           type="button"
           @click="selectSupermarket(supermarket.id)"
         >
-          Scegli supermercato
+          {{ isSelected(supermarket.id) ? 'Vai al catalogo' : 'Scegli supermercato' }}
         </button>
       </article>
     </section>
