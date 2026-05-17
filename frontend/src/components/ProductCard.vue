@@ -21,8 +21,10 @@ const productDetailLink = computed(() => {
 })
 
 const productPrice = computed(() => {
-  if (props.product.finalPrice !== undefined && props.product.finalPrice !== null) {
-    return Number(props.product.finalPrice)
+  const finalPrice = props.product.finalPrice
+
+  if (finalPrice !== undefined && finalPrice !== null) {
+    return Number(finalPrice)
   }
 
   const price = Number(props.product.price)
@@ -35,7 +37,15 @@ const productPrice = computed(() => {
   return price - (price * discount) / 100
 })
 
+const hasDiscount = computed(() => {
+  return Number(props.product.discountPercentage) > 0
+})
+
 function handleAddToCart() {
+  if (!props.product.isAvailable) {
+    return
+  }
+
   const productToAdd = {
     ...props.product,
     price: productPrice.value,
@@ -47,16 +57,20 @@ function handleAddToCart() {
 </script>
 
 <template>
-  <article class="card product-card">
-    <div class="product-image-placeholder">
-      <img
-        v-if="product.imageUrl"
-        :src="product.imageUrl"
-        :alt="product.name"
-      />
-        
-      <span v-else>{{ product.name.charAt(0) }}</span>
-    </div>
+  <article
+    class="card product-card"
+    :class="{ 'product-card-unavailable': !product.isAvailable }"
+  >
+    <RouterLink :to="productDetailLink" class="product-image-link">
+      <div class="product-image-placeholder">
+        <img
+          v-if="product.imageUrl"
+          :src="product.imageUrl"
+          :alt="product.name"
+        >
+        <span v-else>{{ product.name.charAt(0) }}</span>
+      </div>
+    </RouterLink>
 
     <div class="product-card-body">
       <div class="product-card-main">
@@ -66,17 +80,9 @@ function handleAddToCart() {
           {{ product.name }}
         </h2>
 
-        <p class="product-description">
-          {{ product.description }}
-        </p>
-
-        <div class="product-info">
-          <span>{{ product.unitLabel }}</span>
-        </div>
-
         <div class="product-tags">
           <span
-            v-if="product.discountPercentage > 0"
+            v-if="hasDiscount"
             class="tag tag-accent"
           >
             -{{ product.discountPercentage }}%
@@ -94,34 +100,26 @@ function handleAddToCart() {
 
       <div class="product-footer">
         <div class="product-price-area">
+          <span v-if="hasDiscount" class="product-original-price">
+            € {{ Number(product.price).toFixed(2) }}
+          </span>
+
           <strong class="product-price">
             € {{ productPrice.toFixed(2) }}
+            <span v-if="product.unitLabel" class="product-price-unit">
+              / {{ product.unitLabel }}
+            </span>
           </strong>
-
-          <RouterLink :to="productDetailLink" class="product-detail-link">
-            Dettaglio
-          </RouterLink>
         </div>
 
         <div class="product-card-actions">
-          <span
-            v-if="product.isAvailable"
-            class="product-availability"
-          >
-            Disponibile
-          </span>
-
-          <span v-else class="product-availability product-unavailable">
-            Non disponibile
-          </span>
-
           <button
-            type="button"
             class="btn product-add-button"
+            :class="{ 'product-add-button-unavailable': !product.isAvailable }"
             :disabled="!product.isAvailable"
             @click="handleAddToCart"
           >
-            Aggiungi
+            {{ product.isAvailable ? 'Aggiungi' : 'Esaurito' }}
           </button>
         </div>
       </div>
