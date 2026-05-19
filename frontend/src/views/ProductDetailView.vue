@@ -191,14 +191,6 @@ function handleAddToCart() {
           {{ isProductAvailableInSelectedSupermarket ? 'Aggiungi' : 'Esaurito' }}
         </button>
 
-        <p
-          v-if="selectedSupermarket"
-          class="product-detail-availability"
-          :class="{ 'product-detail-availability-error': !isProductAvailableInSelectedSupermarket }"
-        >
-          {{ isProductAvailableInSelectedSupermarket ? 'Disponibile' : 'Non disponibile nel supermercato scelto' }}
-        </p>
-
         <section
           v-if="product.ingredients || allergenLabels.length"
           class="product-detail-extra"

@@ -44,7 +44,6 @@
 .product-detail-brand,
 .product-detail-title,
 .product-detail-description,
-.product-detail-availability,
 .product-detail-section p {
   margin: 0;
 }
@@ -105,17 +104,6 @@
 .product-detail-cart-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
-
-.product-detail-availability {
-  margin-top: 10px;
-  color: var(--color-primary);
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.product-detail-availability-error {
-  color: var(--color-text-muted);
 }
 
 .product-detail-extra {

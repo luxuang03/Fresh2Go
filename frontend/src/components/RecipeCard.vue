@@ -30,50 +30,46 @@ const allergens = computed(() => {
 </script>
 
 <template>
-  <article class="recipe-card">
-    <div class="recipe-image">
-      <img
-        v-if="recipe.imageUrl"
-        :src="recipe.imageUrl"
-        :alt="recipe.name"
-      />
-        
-      <span v-else>{{ recipe.name.charAt(0) }}</span>
-    </div>
+  <article class="card recipe-card">
+    <RouterLink
+      class="recipe-image-link"
+      :to="`/recipes/${recipe.id}`"
+    >
+      <div class="recipe-image">
+        <span class="tag tag-accent recipe-type-tag">
+          {{ recipeType }}
+        </span>
 
-    <div class="recipe-content">
-      <p class="recipe-type">{{ recipeType }}</p>
+        <img
+          v-if="recipe.imageUrl"
+          :src="recipe.imageUrl"
+          :alt="recipe.name"
+        />
 
-      <h3>{{ recipe.name }}</h3>
-
-      <p class="recipe-description">
-        {{ recipe.description }}
-      </p>
-
-      <div class="recipe-info">
-        <span>{{ recipe.servings }} porzioni</span>
-        <span>{{ ingredientsCount }} ingredienti</span>
+        <span v-else class="recipe-placeholder">
+          {{ recipe.name.charAt(0) }}
+        </span>
       </div>
+    </RouterLink>
+
+    <div class="recipe-card-body">
+      <h2 class="recipe-name">
+        {{ recipe.name }}
+      </h2>
+
+      <p class="recipe-info muted-text">
+        {{ recipe.servings }} porzioni · {{ ingredientsCount }} ingredienti
+      </p>
 
       <div v-if="allergens.length > 0" class="recipe-allergens">
         <span
           v-for="allergen in allergens"
           :key="allergen"
+          class="tag recipe-allergen-tag"
         >
           {{ allergen }}
         </span>
       </div>
-
-      <p v-else class="recipe-no-allergens">
-        Nessun allergene indicato
-      </p>
-
-      <RouterLink
-        class="btn-secondary"
-        :to="`/recipes/${recipe.id}`"
-      >
-        Vedi ricetta
-      </RouterLink>
     </div>
   </article>
 </template>
