@@ -22,7 +22,7 @@ const selectedSupermarketId = computed(() => {
 
 const selectedSupermarket = computed(() => {
   return supermarkets.value.find((supermarket) => {
-    return supermarket.id === selectedSupermarketId.value
+    return Number(supermarket.id) === Number(selectedSupermarketId.value)
   })
 })
 
@@ -115,23 +115,27 @@ function handleAddToCart() {
       Caricamento prodotto...
     </p>
 
-    <section v-if="product" class="product-detail">
-      <div class="card product-detail-image">
+    <p v-else-if="errorMessage" class="muted-text">
+      {{ errorMessage }}
+    </p>
+
+    <section v-else-if="product" class="card product-detail">
+      <div class="product-detail-image">
         <img
           v-if="product.imageUrl"
           :src="product.imageUrl"
           :alt="product.name"
         />
-            
+
         <span v-else>{{ product.name.charAt(0) }}</span>
       </div>
 
-      <div class="card">
+      <div class="product-detail-content">
         <p class="product-detail-brand muted-text">
           {{ product.brand }}
         </p>
 
-        <h1 class="page-title">
+        <h1 class="product-detail-title">
           {{ product.name }}
         </h1>
 
@@ -140,117 +144,33 @@ function handleAddToCart() {
         </p>
 
         <div class="product-detail-price-box">
-          <p
-            v-if="product.discountPercentage > 0"
-            class="product-detail-old-price muted-text"
-          >
-            € {{ Number(product.price).toFixed(2) }}
-          </p>
+          <div class="product-detail-price-area">
+            <p
+              v-if="product.discountPercentage > 0"
+              class="product-original-price"
+            >
+              € {{ Number(product.price).toFixed(2) }}
+            </p>
 
-          <p class="product-detail-price">
-            € {{ finalPrice.toFixed(2) }}
-          </p>
+            <div class="product-price product-detail-price">
+              <span>€ {{ finalPrice.toFixed(2) }}</span>
+
+              <span
+                v-if="product.unitLabel"
+                class="product-price-unit"
+              >
+                / {{ product.unitLabel }}
+              </span>
+            </div>
+          </div>
 
           <span
             v-if="product.discountPercentage > 0"
             class="tag tag-accent"
           >
-            Sconto {{ product.discountPercentage }}%
+            -{{ product.discountPercentage }}%
           </span>
         </div>
-
-        <div class="product-detail-info-grid">
-          <div>
-            <h2>Categoria</h2>
-            <p>{{ product.categoryName || 'Categoria non disponibile' }}</p>
-          </div>
-
-          <div>
-            <h2>Formato</h2>
-            <p>{{ product.unitLabel }}</p>
-          </div>
-
-          <div>
-            <h2>Disponibilità generale</h2>
-
-            <p v-if="product.isAvailable">
-              Disponibile, {{ product.stockQuantity }} pezzi in stock
-            </p>
-
-            <p v-else>
-              Non disponibile
-            </p>
-          </div>
-
-          <div>
-            <h2>Punto vendita scelto</h2>
-
-            <p v-if="selectedSupermarket && isProductAvailableInSelectedSupermarket">
-              Disponibile presso
-              <strong>{{ selectedSupermarket.name }}</strong>
-            </p>
-
-            <p v-else-if="selectedSupermarket">
-              Non disponibile presso
-              <strong>{{ selectedSupermarket.name }}</strong>
-            </p>
-
-            <p v-else>
-              Nessun supermercato selezionato.
-            </p>
-          </div>
-        </div>
-
-        <section class="product-detail-section">
-          <h2>Ingredienti</h2>
-
-          <p v-if="product.ingredients">
-            {{ product.ingredients }}
-          </p>
-
-          <p v-else class="muted-text">
-            Ingredienti non indicati.
-          </p>
-        </section>
-
-        <section class="product-detail-section">
-          <h2>Allergeni</h2>
-
-          <div v-if="allergenLabels.length" class="product-detail-tags">
-            <span
-              v-for="allergen in allergenLabels"
-              :key="allergen"
-              class="tag tag-accent"
-            >
-              {{ allergen }}
-            </span>
-          </div>
-
-          <p v-else class="muted-text">
-            Nessun allergene indicato.
-          </p>
-        </section>
-
-        <section class="product-detail-section">
-          <h2>Caratteristiche alimentari</h2>
-
-          <div class="product-detail-tags">
-            <span v-if="product.isVegan" class="tag">
-              Vegano
-            </span>
-
-            <span v-if="product.isVegetarian" class="tag">
-              Vegetariano
-            </span>
-
-            <span
-              v-if="!product.isVegan && !product.isVegetarian"
-              class="tag"
-            >
-              Nessuna indicazione specifica
-            </span>
-          </div>
-        </section>
 
         <RouterLink
           v-if="!selectedSupermarket"
@@ -263,32 +183,46 @@ function handleAddToCart() {
         <button
           v-else
           type="button"
-          class="btn product-detail-cart-button"
-          :disabled="!product.isAvailable || !isProductAvailableInSelectedSupermarket"
+          class="btn product-add-button product-detail-cart-button"
+          :class="{ 'product-add-button-unavailable': !isProductAvailableInSelectedSupermarket }"
+          :disabled="!isProductAvailableInSelectedSupermarket"
           @click="handleAddToCart"
         >
-          Aggiungi al carrello
+          {{ isProductAvailableInSelectedSupermarket ? 'Aggiungi' : 'Esaurito' }}
         </button>
 
         <p
-          v-if="selectedSupermarket && !isProductAvailableInSelectedSupermarket"
-          class="muted-text"
+          v-if="selectedSupermarket"
+          class="product-detail-availability"
+          :class="{ 'product-detail-availability-error': !isProductAvailableInSelectedSupermarket }"
         >
-          Questo prodotto non può essere aggiunto perché non è disponibile nel supermercato scelto.
+          {{ isProductAvailableInSelectedSupermarket ? 'Disponibile' : 'Non disponibile nel supermercato scelto' }}
         </p>
+
+        <section
+          v-if="product.ingredients || allergenLabels.length"
+          class="product-detail-extra"
+        >
+          <div v-if="product.ingredients" class="product-detail-section">
+            <h2>Ingredienti</h2>
+            <p>{{ product.ingredients }}</p>
+          </div>
+
+          <div v-if="allergenLabels.length" class="product-detail-section">
+            <h2>Allergeni</h2>
+
+            <div class="product-detail-tags">
+              <span
+                v-for="allergen in allergenLabels"
+                :key="allergen"
+                class="tag tag-accent"
+              >
+                {{ allergen }}
+              </span>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
-
-    <section v-else class="card">
-      <h1 class="page-title">Prodotto non trovato</h1>
-
-      <p class="muted-text">
-        Il prodotto richiesto non è presente nel catalogo locale.
-      </p>
-
-      <RouterLink :to="catalogLink" class="btn">
-        Torna al catalogo
-      </RouterLink>
     </section>
   </main>
 </template>

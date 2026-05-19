@@ -41,7 +41,7 @@ onMounted(async () => {
 
 const selectedSupermarket = computed(() => {
   return supermarkets.value.find((supermarket) => {
-    return supermarket.id === Number(selectedSupermarketId.value)
+    return Number(supermarket.id) === Number(selectedSupermarketId.value)
   })
 })
 
