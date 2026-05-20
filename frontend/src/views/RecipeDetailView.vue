@@ -1,16 +1,14 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { getRecipeById, getSupermarkets } from '../services/api'
+import { getRecipeById } from '../services/api'
 import { addToCart } from '../data/cart'
 
 const route = useRoute()
 const router = useRouter()
 
 const recipe = ref(null)
-const supermarkets = ref([])
 const selectedSupermarketId = ref('')
-const cartMessage = ref('')
 const selectedIngredientIds = ref([])
 const selectedServings = ref(1)
 const isLoading = ref(true)
@@ -27,27 +25,15 @@ onMounted(async () => {
   selectedSupermarketId.value = savedSupermarketId
 
   try {
-    const [recipeData, supermarketData] = await Promise.all([
-      getRecipeById(route.params.id, {
-        supermarketId: selectedSupermarketId.value,
-      }),
-      getSupermarkets(),
-    ])
-
-    recipe.value = recipeData
-    supermarkets.value = supermarketData
+    recipe.value = await getRecipeById(route.params.id, {
+      supermarketId: selectedSupermarketId.value,
+    })
   } catch (error) {
     console.error('Errore nel caricamento della ricetta:', error)
     errorMessage.value = 'Ricetta non trovata'
   } finally {
     isLoading.value = false
   }
-})
-
-const selectedSupermarket = computed(() => {
-  return supermarkets.value.find((supermarket) => {
-    return Number(supermarket.id) === Number(selectedSupermarketId.value)
-  })
 })
 
 const ingredientsWithProducts = computed(() => {
@@ -103,20 +89,34 @@ const selectedAvailableIngredients = computed(() => {
   })
 })
 
-const estimatedTotal = computed(() => {
-  return ingredientsWithProducts.value.reduce((total, ingredient) => {
-    if (!ingredient.product) {
-      return total
-    }
-
-    return total + getFinalPrice(ingredient.product) * getProductUnitsNeeded(ingredient)
-  }, 0)
-})
-
 const selectedTotal = computed(() => {
   return selectedAvailableIngredients.value.reduce((total, ingredient) => {
     return total + getFinalPrice(ingredient.product) * getProductUnitsNeeded(ingredient)
   }, 0)
+})
+
+const selectedCostItems = computed(() => {
+  return selectedAvailableIngredients.value.map((ingredient) => {
+    const unitsNeeded = getProductUnitsNeeded(ingredient)
+    const unitPrice = getFinalPrice(ingredient.product)
+
+    return {
+      productId: ingredient.productId,
+      name: ingredient.name,
+      unitsNeeded,
+      subtotal: unitPrice * unitsNeeded,
+    }
+  })
+})
+
+const areAllAvailableIngredientsSelected = computed(() => {
+  if (availableIngredients.value.length === 0) {
+    return false
+  }
+
+  return availableIngredients.value.every((ingredient) => {
+    return selectedIngredientIds.value.includes(ingredient.productId)
+  })
 })
 
 watch(
@@ -243,16 +243,19 @@ function formatPrice(value) {
   return Number(value).toFixed(2).replace('.', ',')
 }
 
-function addIngredientsToCart() {
-  cartMessage.value = ''
-
-  if (availableIngredients.value.length === 0) {
-    cartMessage.value = 'Nessun ingrediente disponibile da aggiungere al carrello.'
+function toggleAllIngredients() {
+  if (areAllAvailableIngredientsSelected.value) {
+    selectedIngredientIds.value = []
     return
   }
 
+  selectedIngredientIds.value = availableIngredients.value.map((ingredient) => {
+    return ingredient.productId
+  })
+}
+
+function addIngredientsToCart() {
   if (selectedAvailableIngredients.value.length === 0) {
-    cartMessage.value = 'Seleziona almeno un ingrediente disponibile da aggiungere.'
     return
   }
 
@@ -265,8 +268,6 @@ function addIngredientsToCart() {
 
     addToCart(productToAdd, getProductUnitsNeeded(ingredient))
   })
-
-  cartMessage.value = 'Ingredienti selezionati aggiunti al carrello.'
 }
 </script>
 
@@ -280,188 +281,163 @@ function addIngredientsToCart() {
       Caricamento ricetta...
     </p>
 
-    <div v-else-if="recipe" class="recipe-detail">
-      <div class="recipe-detail-image card">
-        <img
-          v-if="recipe.imageUrl"
-          :src="recipe.imageUrl"
-          :alt="recipe.name"
-        />
+    <article v-else-if="recipe" class="card recipe-detail">
+      <div class="recipe-detail-main">
+        <div class="recipe-detail-image">
+          <span class="tag tag-accent recipe-detail-type">
+            {{ recipe.recipeType || recipe.type }}
+          </span>
 
-        <span v-else>{{ recipe.name.charAt(0) }}</span>
-      </div>
+          <img
+            v-if="recipe.imageUrl"
+            :src="recipe.imageUrl"
+            :alt="recipe.name"
+          />
 
-      <div class="recipe-detail-content card">
-        <p class="recipe-type">{{ recipe.recipeType || recipe.type }}</p>
-
-        <h1 class="page-title">{{ recipe.name }}</h1>
-
-        <p class="recipe-description">
-          {{ recipe.description }}
-        </p>
-
-        <div class="recipe-info">
-          <span>{{ selectedServings }} porzioni</span>
-          <span>{{ ingredientsWithProducts.length }} ingredienti</span>
+          <span v-else class="recipe-detail-placeholder">
+            {{ recipe.name.charAt(0) }}
+          </span>
         </div>
 
-        <div class="servings-box">
-          <p class="muted-text">Modifica porzioni</p>
+        <div class="recipe-detail-content">
+          <h1 class="page-title">{{ recipe.name }}</h1>
 
-          <div class="servings-controls">
-            <button
-              type="button"
-              class="quantity-button"
-              @click="decreaseServings"
-              :disabled="selectedServings === 1"
-            >
-              -
-            </button>
-
-            <strong>{{ selectedServings }}</strong>
-
-            <button
-              type="button"
-              class="quantity-button"
-              @click="increaseServings"
-            >
-              +
-            </button>
-          </div>
-
-          <p class="muted-text">
-            Ricetta base per {{ recipe.servings }} porzioni.
-          </p>
-        </div>
-
-        <p v-if="selectedSupermarket" class="muted-text">
-          Ingredienti controllati presso
-          <strong>{{ selectedSupermarket?.name }}</strong>.
-        </p>
-
-        <div class="recipe-summary">
-          <div class="card">
-            <p class="muted-text">Costo prodotti necessari</p>
-            <strong>€ {{ formatPrice(estimatedTotal) }}</strong>
-          </div>
-
-          <div class="card">
-            <p class="muted-text">Costo selezionato</p>
-            <strong>€ {{ formatPrice(selectedTotal) }}</strong>
-          </div>
-
-          <div class="card">
-            <p class="muted-text">Allergeni</p>
-            <strong v-if="recipeAllergens.length > 0">
-              {{ recipeAllergens.length }}
-            </strong>
-            <strong v-else>Nessuno</strong>
-          </div>
-        </div>
-
-        <div v-if="recipeAllergens.length > 0" class="recipe-warning">
-          <h2>Attenzione allergeni</h2>
-
-          <p class="muted-text">
-            Questa ricetta contiene o può contenere:
+          <p class="recipe-description">
+            {{ recipe.description }}
           </p>
 
-          <div class="recipe-allergens">
+          <div v-if="recipeAllergens.length > 0" class="recipe-allergens">
             <span
               v-for="allergen in recipeAllergens"
               :key="allergen"
+              class="tag recipe-allergen-tag"
             >
               {{ allergen }}
             </span>
           </div>
-        </div>
 
-        <p v-else class="recipe-safe">
-          Questa ricetta non contiene allergeni segnalati.
-        </p>
+          <p v-else class="recipe-safe">
+            Nessun allergene segnalato.
+          </p>
 
-        <h2>Ingredienti</h2>
+          <div class="recipe-actions">
+            <div class="servings-box">
+              <span class="servings-label">Porzioni</span>
 
-        <p class="muted-text">
-          Deseleziona gli ingredienti che hai già a casa.
-        </p>
+              <div class="servings-controls">
+                <button
+                  type="button"
+                  class="quantity-button"
+                  :disabled="selectedServings === 1"
+                  @click="decreaseServings"
+                >
+                  -
+                </button>
 
-        <div class="ingredients-list">
-          <label
-            v-for="ingredient in ingredientsWithProducts"
-            :key="ingredient.productId"
-            class="ingredient-row ingredient-select-row"
-            :class="{ 'ingredient-disabled': !ingredient.isAvailableHere }"
-          >
-            <div class="ingredient-main">
-              <input
-                type="checkbox"
-                :value="ingredient.productId"
-                v-model="selectedIngredientIds"
-                :disabled="!ingredient.isAvailableHere"
-              />
+                <strong>{{ selectedServings }}</strong>
 
-              <div>
-                <h3>{{ ingredient.name }}</h3>
-
-                <p>
-                  Quantità ricetta:
-                  <strong>
-                    {{ formatQuantity(getUpdatedQuantity(ingredient)) }}
-                    {{ ingredient.unit }}
-                  </strong>
-                </p>
-
-                <p v-if="ingredient.product" class="muted-text">
-                  Da aggiungere al carrello:
-                  {{ getProductUnitsNeeded(ingredient) }}
-                  confezione/prodotto
-                </p>
-
-                <p v-if="ingredient.isOptional" class="muted-text">
-                  Ingrediente opzionale
-                </p>
+                <button
+                  type="button"
+                  class="quantity-button"
+                  @click="increaseServings"
+                >
+                  +
+                </button>
               </div>
             </div>
 
-            <div class="ingredient-info">
-              <p v-if="ingredient.product">
-                € {{ formatPrice(getFinalPrice(ingredient.product)) }}
+            <button
+              type="button"
+              class="btn btn-secondary recipe-add-button"
+              @click="addIngredientsToCart"
+            >
+              Aggiungi al carrello
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="recipe-detail-lower">
+        <div class="recipe-shopping-section">
+          <section class="recipe-ingredients-section">
+            <div class="recipe-section-header">
+              <h2>Ingredienti</h2>
+
+              <button
+                type="button"
+                class="ingredient-select-all"
+                @click="toggleAllIngredients"
+              >
+                {{ areAllAvailableIngredientsSelected ? 'Deseleziona tutto' : 'Seleziona tutto' }}
+              </button>
+            </div>
+
+            <div class="ingredients-list">
+              <label
+                v-for="ingredient in ingredientsWithProducts"
+                :key="ingredient.productId"
+                class="ingredient-row"
+                :class="{ 'ingredient-disabled': !ingredient.isAvailableHere }"
+              >
+                <input
+                  type="checkbox"
+                  :value="ingredient.productId"
+                  v-model="selectedIngredientIds"
+                  :disabled="!ingredient.isAvailableHere"
+                />
+
+                <span class="ingredient-name">
+                  {{ ingredient.name }}
+                </span>
+
+                <span
+                  v-if="ingredient.isAvailableHere"
+                  class="ingredient-quantity"
+                >
+                  {{ formatQuantity(getUpdatedQuantity(ingredient)) }}
+                  {{ ingredient.unit }}
+                </span>
+
+                <span
+                  v-if="!ingredient.isAvailableHere"
+                  class="tag tag-unavailable"
+                >
+                  Esaurito
+                </span>
+              </label>
+            </div>
+          </section>
+
+          <aside class="recipe-cost-box">
+            <div class="recipe-cost-summary">
+              <span class="muted-text">Costo stimato</span>
+              <strong>€ {{ formatPrice(selectedTotal) }}</strong>
+            </div>
+
+            <div class="recipe-cost-details">
+              <p v-if="selectedCostItems.length === 0" class="muted-text">
+                Nessun ingrediente selezionato.
               </p>
 
-              <span
-                v-if="ingredient.isAvailableHere"
-                class="tag"
+              <div
+                v-for="item in selectedCostItems"
+                :key="item.productId"
+                class="recipe-cost-row"
               >
-                Disponibile
-              </span>
+                <span class="recipe-cost-name">
+                  {{ item.name }}
+                  <span>x{{ item.unitsNeeded }}</span>
+                </span>
 
-              <span v-else class="tag tag-unavailable">
-                Non disponibile
-              </span>
+                <strong>
+                  € {{ formatPrice(item.subtotal) }}
+                </strong>
+              </div>
             </div>
-          </label>
+          </aside>
         </div>
-
-        <div class="recipe-cart-actions">
-          <button
-            type="button"
-            class="btn"
-            @click="addIngredientsToCart"
-          >
-            Aggiungi ingredienti selezionati
-          </button>
-
-          <RouterLink to="/cart" class="btn btn-secondary">
-            Vai al carrello
-          </RouterLink>
-        </div>
-
-        <p v-if="cartMessage" class="recipe-cart-message">
-          {{ cartMessage }}
-        </p>
       </div>
-    </div>
+    </article>
 
     <div v-else class="empty-message">
       {{ errorMessage || 'Ricetta non trovata.' }}
