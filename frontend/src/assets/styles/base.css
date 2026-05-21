@@ -1,8 +1,9 @@
 :root {
   --color-primary: #39913d;
+  --color-primary-light: #c1e5c2;
   --color-primary-dark: #256428;
-  --color-primary-light: #a5d6a7;
   --color-accent: #ffc067;
+  --color-accent-light: #ffe0b2;
   --color-accent-dark: #ff9428;
   --color-background: #f7f7f7;
   --color-background-light-green: #f8fff6;
@@ -73,6 +74,10 @@ button {
   color: var(--color-text);
 }
 
+.btn-secondary:hover {
+  background-color: var(--color-accent-dark);
+}
+
 .tag {
   display: inline-block;
   border-radius: 20px;
@@ -88,7 +93,7 @@ button {
 }
 
 .tag-accent {
-  background-color: var(--color-accent);
+  background-color: var(--color-accent-light);
   color: var(--color-text);
 }
 

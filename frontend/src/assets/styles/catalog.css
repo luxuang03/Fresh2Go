@@ -1,7 +1,7 @@
 .catalog-filters {
   background-color: #ffffff;
   border-radius: var(--radius-card);
-  padding: 16px;
+  padding: 18px;
   margin: 20px 0 24px;
   box-shadow: var(--shadow-soft);
 }
@@ -13,15 +13,13 @@
   align-items: end;
 }
 
-.filter-field,
-.filter-options {
+.filter-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .filter-field label,
-.filter-options label,
 .filter-title {
   font-weight: 600;
 }
@@ -29,9 +27,9 @@
 .filter-field input,
 .filter-field select {
   width: 100%;
-  padding: 10px;
+  padding: 11px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: #ffffff;
 }
 
@@ -42,8 +40,8 @@
 }
 
 .filter-toggle-button {
-  min-width: 130px;
-  padding: 10px 18px;
+  min-width: 140px;
+  padding: 11px 18px;
 }
 
 .catalog-advanced-filters {
@@ -52,48 +50,127 @@
   border-top: 1px solid #eeeeee;
 }
 
-.catalog-filter-main-row {
+.filter-section {
+  padding: 16px;
+  border: 1px solid #eeeeee;
+  border-radius: var(--radius-card);
+  background-color: var(--color-background-light-green);
+}
+
+.filter-section-header {
+  margin-bottom: 16px;
+}
+
+.filter-section-header h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+.filter-section-header p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.catalog-filter-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 18px;
   align-items: start;
 }
 
-.filter-options {
-  padding-top: 28px;
+.catalog-filter-grid .filter-field {
+  max-width: 360px;
 }
 
-.filter-options label,
-.allergen-options label {
+.filter-group {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.allergen-filter {
-  margin-top: 18px;
-  padding-top: 12px;
-  border-top: 1px solid #eeeeee;
-}
-
-.filter-title,
-.catalog-summary {
+.filter-title {
   margin: 0;
 }
 
-.allergen-options {
+.filter-pill-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 10px;
+}
+
+.filter-pill {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 9px 14px;
+  background-color: #ffffff;
+  color: var(--color-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-pill:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.filter-pill.active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  color: black;
+}
+
+.allergen-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  background-color: var(--color-background-light-orange);
+}
+
+.allergen-pill.active {
+  border-color: var(--color-accent-dark);
+  background-color: var(--color-accent-light);
+  color: var(--color-text);
+}
+
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.filter-action-button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+}
+
+.filter-apply-button {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.filter-apply-button:hover {
+  background-color: var(--color-primary-dark);
 }
 
 .filter-reset-button {
-  width: fit-content;
-  margin-top: 16px;
+  border: 1px solid var(--color-border);
+  background-color: #ffffff;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.filter-reset-button:hover {
+  background-color: #f7f7f7;
+  border-color: var(--color-text-muted);
 }
 
 .catalog-summary {
-  margin-top: 16px;
+  margin: 16px 0 0;
+  font-size: 0.95rem;
 }
 
 .products-grid {
@@ -106,4 +183,62 @@
 
 .empty-catalog-message {
   text-align: center;
+}
+
+@media screen and (max-width: 900px) {
+  .catalog-search-row {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-toggle-button {
+    width: fit-content;
+  }
+
+  .catalog-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .catalog-filters {
+    padding: 16px;
+  }
+
+  .catalog-search-row {
+    gap: 12px;
+  }
+
+  .filter-toggle-button {
+    width: 100%;
+  }
+
+  .filter-section {
+    padding: 14px;
+  }
+
+  .filter-section-header h2 {
+    font-size: 18px;
+  }
+
+  .catalog-filter-grid {
+    gap: 16px;
+  }
+
+  .filter-pill-list {
+    gap: 8px;
+  }
+
+  .filter-pill {
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+
+  .filter-actions {
+    flex-direction: column;
+  }
+
+  .filter-action-button {
+    width: 100%;
+  }
 }

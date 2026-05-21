@@ -74,8 +74,8 @@
 
 .recipe-allergen-tag {
   padding: 6px 11px;
-  background-color: var(--color-accent);
-  color: #8a4b00;
+  background-color: var(--color-accent-light);
+  color: var(--color-text);
   font-size: 14px;
   font-weight: 600;
 }

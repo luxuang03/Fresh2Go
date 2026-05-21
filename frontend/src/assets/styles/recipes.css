@@ -99,11 +99,6 @@
   gap: 6px;
 }
 
-.recipe-allergen-tag {
-  background-color: #fff3e0;
-  color: #8a4b00;
-}
-
 .results-count,
 .empty-message {
   margin-bottom: 16px;

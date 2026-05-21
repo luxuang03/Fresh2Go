@@ -194,11 +194,11 @@ function handleClearCart() {
         </div>
 
         <div class="cart-actions">
-          <RouterLink to="/catalog" class="btn btn-secondary">
+          <RouterLink to="/catalog" class="btn">
             Continua la spesa
           </RouterLink>
 
-          <RouterLink to="/cart/checkout" class="btn">
+          <RouterLink to="/cart/checkout" class="btn btn-secondary">
             Vai al checkout
           </RouterLink>
         </div>

@@ -65,3 +65,12 @@
     transform: translateY(0);
   }
 }
+
+@media screen and (max-width: 600px) {
+  .notification-container {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
