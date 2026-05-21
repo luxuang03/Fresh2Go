@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { getProductById, getSupermarkets } from '../services/api'
 import { addToCart } from '../data/cart'
+import { showNotification } from '../services/notification'
 
 const route = useRoute()
 
@@ -90,7 +91,13 @@ onMounted(async () => {
 })
 
 function handleAddToCart() {
-  if (!product.value || !isProductAvailableInSelectedSupermarket.value) {
+  if (!product.value) {
+    showNotification('Prodotto non trovato', 'error')
+    return
+  }
+
+  if (!isProductAvailableInSelectedSupermarket.value) {
+    showNotification('Questo prodotto non è disponibile', 'warning')
     return
   }
 
@@ -101,7 +108,7 @@ function handleAddToCart() {
   }
 
   addToCart(productToAdd)
-  alert('Prodotto aggiunto al carrello')
+  showNotification('Prodotto aggiunto al carrello', 'success')
 }
 </script>
 

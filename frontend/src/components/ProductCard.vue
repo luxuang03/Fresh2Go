@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { addToCart } from '../data/cart'
+import { showNotification } from '../services/notification'
 
 const props = defineProps({
   product: {
@@ -43,6 +44,7 @@ const hasDiscount = computed(() => {
 
 function handleAddToCart() {
   if (!props.product.isAvailable) {
+    showNotification('Questo prodotto non è disponibile', 'warning')
     return
   }
 
@@ -52,7 +54,7 @@ function handleAddToCart() {
   }
 
   addToCart(productToAdd)
-  alert('Prodotto aggiunto al carrello')
+  showNotification('Prodotto aggiunto al carrello', 'success')
 }
 </script>
 

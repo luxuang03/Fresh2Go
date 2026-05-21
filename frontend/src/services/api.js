@@ -1,12 +1,21 @@
+import { showNotification } from './notification'
+
 async function apiRequest(url, options = {}) {
-  const response = await fetch(url, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+  let response
+
+  try {
+    response = await fetch(url, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
+  } catch (error) {
+    showNotification('Problema di connessione con il server', 'error')
+    throw error
+  }
 
   const data = await response.json().catch(() => null)
 

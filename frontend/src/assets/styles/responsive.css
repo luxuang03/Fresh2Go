@@ -265,4 +265,11 @@
   .filter-reset-button {
     width: 100%;
   }
+
+  .notification-container {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+  }
 }

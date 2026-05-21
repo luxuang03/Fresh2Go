@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { getRecipeById } from '../services/api'
 import { addToCart } from '../data/cart'
+import { showNotification } from '../services/notification'
 
 const route = useRoute()
 const router = useRouter()
@@ -256,6 +257,7 @@ function toggleAllIngredients() {
 
 function addIngredientsToCart() {
   if (selectedAvailableIngredients.value.length === 0) {
+    showNotification('Seleziona almeno un ingrediente disponibile', 'warning')
     return
   }
 
@@ -268,6 +270,8 @@ function addIngredientsToCart() {
 
     addToCart(productToAdd, getProductUnitsNeeded(ingredient))
   })
+
+  showNotification('Ingredienti aggiunti al carrello', 'success')
 }
 </script>
 

@@ -3,6 +3,8 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getSupermarkets } from '../services/api'
 import { clearCart } from '../data/cart'
+import { showNotification } from '../services/notification'
+
 
 const router = useRouter()
 
@@ -22,6 +24,7 @@ onMounted(async () => {
     supermarkets.value = await getSupermarkets()
   } catch (error) {
     console.error('Errore nel caricamento dei supermercati:', error)
+    showNotification('Errore nel caricamento dei supermercati', 'error')
   }
 })
 
@@ -45,10 +48,12 @@ function selectSupermarket(supermarketId) {
 
   if (previousSupermarketId && previousSupermarketId !== String(supermarketId)) {
     clearCart()
+    showNotification('Hai cambiato supermercato. Il carrello è stato svuotato', 'warning')
   }
 
   localStorage.setItem('selectedSupermarketId', supermarketId)
   selectedSupermarketId.value = supermarketId
+  showNotification('Supermercato selezionato correttamente', 'success')
 }
 </script>
 
