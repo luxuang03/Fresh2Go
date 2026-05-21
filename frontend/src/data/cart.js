@@ -29,13 +29,19 @@ export function addToCart(product, quantityToAdd = 1) {
 
   if (existingItem) {
     existingItem.quantity += quantityToAdd
+
+    if (!existingItem.unitLabel && product.unitLabel) {
+      existingItem.unitLabel = product.unitLabel
+    }
   } else {
     cart.items.push({
       id: product.id,
       name: product.name,
       brand: product.brand,
-      price: product.price,
+      price: Number(product.price),
       image: product.imageUrl || product.image,
+      unitLabel: product.unitLabel || '',
+      supermarketId: product.supermarketId,
       quantity: quantityToAdd,
     })
   }
@@ -83,7 +89,7 @@ export function removeFromCart(productId) {
 }
 
 export function getItemSubtotal(item) {
-  return item.price * item.quantity
+  return Number(item.price) * item.quantity
 }
 
 export function getCartTotal() {

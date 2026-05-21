@@ -43,14 +43,6 @@
   .product-detail-info-grid {
     grid-template-columns: 1fr;
   }
-
-  .cart-page {
-    grid-template-columns: 1fr;
-  }
-
-  .cart-summary {
-    order: -1;
-  }
   
   .ingredient-row {
     flex-direction: column;
@@ -181,18 +173,6 @@
 
   .product-detail-cart-button {
     width: 100%;
-  }
-
-  .cart-item {
-    grid-template-columns: 1fr;
-  }
-
-  .cart-item-image {
-    width: 100%;
-  }
-
-  .cart-item-controls {
-    justify-items: start;
   }
 
   .home-hero {
