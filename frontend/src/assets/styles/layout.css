@@ -48,8 +48,7 @@
   flex-wrap: wrap;
 }
 
-.main-nav a,
-.nav-button {
+.main-nav a {
   color: var(--color-text);
   text-decoration: none;
   padding: 7px 10px;
@@ -59,8 +58,7 @@
 }
 
 .main-nav a:hover,
-.main-nav a.router-link-active,
-.nav-button:hover {
+.main-nav a.router-link-active {
   background-color: #f1f6ef;
   color: var(--color-primary);
 }

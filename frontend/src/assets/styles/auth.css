@@ -63,39 +63,62 @@
 }
 
 .profile-card {
-  max-width: 640px;
+  width: 100%;
 }
-
-.profile-info {
-  margin: 20px 0;
-}
-
-.profile-info p {
-  margin-bottom: 10px;
-}
-
-.profile-actions {
-  margin-top: 20px;
-}
-
-.nav-button {
-  border: none;
-  background: transparent;
-  color: #ffffff;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-}
-
-.nav-button:hover {
-  text-decoration: underline;
-} 
 
 .profile-layout {
   display: grid;
   grid-template-columns: 1fr 1.3fr;
   gap: 20px;
   align-items: start;
+}
+
+.profile-user-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.profile-user-header h2 {
+  margin: 0 0 6px;
+}
+
+.profile-user-header p {
+  margin: 0;
+}
+
+.profile-info {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profile-info-row:last-child {
+  border-bottom: none;
+}
+
+.profile-info-row span {
+  color: var(--color-text-muted);
+}
+
+.profile-info-row strong {
+  text-align: right;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 .profile-section-title {
@@ -152,7 +175,13 @@
     grid-template-columns: 1fr;
   }
 
-  .profile-order-item {
+  .profile-order-item,
+  .profile-info-row {
     flex-direction: column;
+    gap: 4px;
+  }
+
+  .profile-info-row strong {
+    text-align: left;
   }
 }

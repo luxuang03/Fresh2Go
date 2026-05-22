@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { checkCurrentUser, currentUser, isLoggedIn } from '../data/auth'
+import { checkCurrentUser, currentUser, isLoggedIn, logoutUser } from '../data/auth'
 import { getMyOrders } from '../services/api'
 
 const router = useRouter()
@@ -41,6 +41,11 @@ async function goToLogin() {
   router.push('/login')
 }
 
+function handleLogout() {
+  logoutUser()
+  router.push('/')
+}
+
 function formatDate(dateValue) {
   if (!dateValue) {
     return 'Data non disponibile'
@@ -75,39 +80,45 @@ function formatPrice(value) {
 
       <div v-else class="profile-layout">
         <section class="card profile-card">
-          <h2>Dati utente</h2>
+          <div class="profile-user-header">
+            <h2>Dati utente</h2>
+
+            <span class="tag">
+              Account attivo
+            </span>
+          </div>
 
           <div class="profile-info">
-            <p>
-              <strong>Nome:</strong>
-              {{ currentUser.fullName || 'Non inserito' }}
-            </p>
+            <div class="profile-info-row">
+              <span>Nome</span>
+              <strong>{{ currentUser.fullName || 'Non inserito' }}</strong>
+            </div>
 
-            <p>
-              <strong>Email:</strong>
-              {{ currentUser.email }}
-            </p>
+            <div class="profile-info-row">
+              <span>Email</span>
+              <strong>{{ currentUser.email }}</strong>
+            </div>
 
-            <p>
-              <strong>Telefono:</strong>
-              {{ currentUser.phone || 'Non inserito' }}
-            </p>
+            <div class="profile-info-row">
+              <span>Telefono</span>
+              <strong>{{ currentUser.phone || 'Non inserito' }}</strong>
+            </div>
           </div>
 
           <div class="profile-actions">
             <RouterLink to="/orders" class="btn">
               Visualizza storico ordini
             </RouterLink>
+
+            <button type="button" class="btn btn-secondary" @click="handleLogout">
+              Logout
+            </button>
           </div>
         </section>
 
         <section class="card profile-card">
           <div class="profile-section-title">
             <h2>Ordini recenti</h2>
-
-            <RouterLink to="/orders" class="small-link">
-              Vedi tutti
-            </RouterLink>
           </div>
 
           <div v-if="isLoadingOrders" class="profile-empty">

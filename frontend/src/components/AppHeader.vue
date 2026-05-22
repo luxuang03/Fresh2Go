@@ -4,16 +4,9 @@ import { useRouter } from 'vue-router'
 import { getCartCount } from '../data/cart'
 import { currentUser, isLoggedIn, logoutUser } from '../data/auth'
 
-const router = useRouter()
-
 const cartCount = computed(() => {
   return getCartCount()
 })
-
-function handleLogout() {
-  logoutUser()
-  router.push('/')
-}
 </script>
 
 <template>
@@ -38,10 +31,6 @@ function handleLogout() {
           <RouterLink to="/profile">
             {{ currentUser.fullName }}
           </RouterLink>
-
-          <button class="nav-button" type="button" @click="handleLogout">
-            Logout
-          </button>
         </template>
       </nav>
     </div>
