@@ -67,7 +67,7 @@ function formatPrice(value) {
 <template>
   <main>
     <RouterLink to="/orders" class="back-link">
-      ← Torna agli ordini
+      Torna agli ordini
     </RouterLink>
 
     <section v-if="isLoading" class="card orders-empty">
