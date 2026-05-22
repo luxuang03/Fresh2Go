@@ -127,6 +127,11 @@
   background-color: var(--color-background-light-orange);
 }
 
+.allergen-pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .allergen-pill.active {
   border-color: var(--color-accent-dark);
   background-color: var(--color-accent-light);
@@ -140,27 +145,10 @@
   margin-top: 18px;
 }
 
-.filter-action-button {
-  border: none;
-  border-radius: 999px;
-  padding: 10px 18px;
-  font-weight: 700;
-}
-
-.filter-apply-button {
-  background-color: var(--color-primary);
-  color: #ffffff;
-}
-
-.filter-apply-button:hover {
-  background-color: var(--color-primary-dark);
-}
-
 .filter-reset-button {
   border: 1px solid var(--color-border);
   background-color: #ffffff;
   color: var(--color-text);
-  font-weight: 500;
 }
 
 .filter-reset-button:hover {

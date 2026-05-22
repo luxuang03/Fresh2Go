@@ -288,7 +288,7 @@ function toggleAllergen(allergenName) {
           <div class="filter-actions">
             <button
               type="button"
-              class="filter-action-button filter-apply-button"
+              class="btn"
               @click="applyFilters"
             >
               Applica filtri
@@ -296,7 +296,7 @@ function toggleAllergen(allergenName) {
 
             <button
               type="button"
-              class="filter-action-button filter-reset-button"
+              class="btn filter-reset-button"
               @click="resetFilters"
             >
               Cancella filtri
