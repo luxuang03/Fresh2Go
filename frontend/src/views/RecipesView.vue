@@ -6,6 +6,7 @@ import RecipeCard from '../components/RecipeCard.vue'
 
 const selectedSupermarketId = ref('')
 const searchText = ref('')
+const appliedSearchText = ref('')
 const selectedType = ref('')
 const recipeTypes = ['primo', 'secondo', 'contorno', 'dolce']
 
@@ -39,6 +40,10 @@ onMounted(async () => {
   }
 })
 
+function searchRecipes() {
+  appliedSearchText.value = searchText.value.trim()
+}
+
 const selectedSupermarket = computed(() => {
   return supermarkets.value.find((supermarket) => {
     return Number(supermarket.id) === Number(selectedSupermarketId.value)
@@ -46,11 +51,21 @@ const selectedSupermarket = computed(() => {
 })
 
 const filteredRecipes = computed(() => {
-  const search = searchText.value.trim().toLowerCase()
+  const search = appliedSearchText.value.toLowerCase()
 
   return recipes.value.filter((recipe) => {
+    const recipeName = recipe.name.toLowerCase()
+
+    const matchesName = recipeName.includes(search)
+
+    const matchesIngredients = recipe.ingredients?.some((ingredient) => {
+      const ingredientName = ingredient.name || ingredient.productName || ''
+
+      return ingredientName.toLowerCase().includes(search)
+    })
+
     const matchesSearch =
-      search === '' || recipe.name.toLowerCase().includes(search)
+      search === '' || matchesName || matchesIngredients
 
     const recipeType = recipe.recipeType || recipe.type
 
@@ -105,12 +120,32 @@ const filteredRecipes = computed(() => {
           <div class="filter-field">
             <label for="recipe-search">Cerca ricetta</label>
 
-            <input
-              id="recipe-search"
-              v-model="searchText"
-              type="text"
-              placeholder="Es. pasta, pollo, yogurt..."
-            />
+            <div class="recipe-search-input">
+              <input
+                id="recipe-search"
+                v-model="searchText"
+                type="text"
+                placeholder="Es. pasta, pollo, yogurt..."
+                @keyup.enter="searchRecipes"
+              />
+
+              <button
+                type="button"
+                class="recipe-search-button"
+                aria-label="Cerca ricetta"
+                @click="searchRecipes"
+              >
+                <svg
+                  class="recipe-search-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8A7.5 7.5 0 0 1 10.5 18Zm0-2a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11Zm6.2.3 4 4a1 1 0 0 1-1.4 1.4l-4-4a1 1 0 0 1 1.4-1.4Z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="filter-field">

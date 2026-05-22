@@ -114,6 +114,12 @@ function applyFilters() {
   }
 }
 
+function searchProducts() {
+  if (selectedSupermarketId.value) {
+    loadProducts()
+  }
+}
+
 function resetFilters() {
   searchText.value = ''
   selectedCategoryId.value = ''
@@ -180,12 +186,32 @@ function toggleAllergen(allergenName) {
           <div class="filter-field">
             <label for="product-search">Cerca prodotto</label>
 
-            <input
-              id="product-search"
-              v-model="searchText"
-              type="text"
-              placeholder="Es. pasta, latte, mele..."
-            />
+            <div class="catalog-search-input">
+              <input
+                id="product-search"
+                v-model="searchText"
+                type="text"
+                placeholder="Es. pasta, latte, mele..."
+                @keyup.enter="searchProducts"
+              />
+                        
+              <button
+                type="button"
+                class="catalog-search-button"
+                aria-label="Cerca prodotto"
+                @click="searchProducts"
+              >
+                <svg
+                  class="catalog-search-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M10.5 18a7.5 7.5 0 1 1 5.3-12.8A7.5 7.5 0 0 1 10.5 18Zm0-2a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11Zm6.2.3 4 4a1 1 0 0 1-1.4 1.4l-4-4a1 1 0 0 1 1.4-1.4Z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <button

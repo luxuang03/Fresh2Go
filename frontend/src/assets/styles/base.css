@@ -166,3 +166,29 @@ button {
   gap: 10px;
   padding: 0 16px 16px;
 }
+
+.static-page-card {
+  max-width: 760px;
+}
+
+.static-info-list {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.static-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.static-info-row span {
+  color: var(--color-text-muted);
+}
+
+.static-info-row strong {
+  text-align: right;
+}

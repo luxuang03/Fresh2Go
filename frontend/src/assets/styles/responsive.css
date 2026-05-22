@@ -51,4 +51,13 @@
   .summary-row strong {
     white-space: nowrap;
   }
+
+  .static-info-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .static-info-row strong {
+    text-align: left;
+  }
 }
