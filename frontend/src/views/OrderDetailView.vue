@@ -51,6 +51,26 @@ function formatDate(dateValue) {
   return new Date(dateValue).toLocaleDateString('it-IT')
 }
 
+function formatCreatedAt(dateValue) {
+  if (!dateValue) {
+    return 'Data non disponibile'
+  }
+
+  const date = new Date(dateValue)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Data non disponibile'
+  }
+
+  const formattedDate = date.toLocaleDateString('it-IT')
+  const formattedTime = date.toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return `${formattedDate} alle ${formattedTime}`
+}
+
 function formatTime(timeValue) {
   if (!timeValue) {
     return ''
@@ -94,7 +114,7 @@ function formatPrice(value) {
       <h1 class="page-title">Dettaglio ordine #{{ order.id }}</h1>
 
       <p class="page-description">
-        Riepilogo dell'ordine confermato il {{ formatDate(order.createdAt) }}.
+        Riepilogo dell'ordine confermato il {{ formatCreatedAt(order.createdAt) }}.
       </p>
 
       <div class="order-detail-layout">
@@ -104,7 +124,7 @@ function formatPrice(value) {
               <h2>Informazioni ordine</h2>
 
               <p class="muted-text">
-                Ordine confermato il {{ formatDate(order.createdAt) }}
+                Ordine confermato il {{ formatCreatedAt(order.createdAt) }}
               </p>
             </div>
           </div>
@@ -123,6 +143,11 @@ function formatPrice(value) {
             <div class="profile-info-row">
               <span>Supermercato</span>
               <strong>{{ order.supermarketName }}</strong>
+            </div>
+
+            <div class="profile-info-row">
+              <span>Creato il</span>
+              <strong>{{ formatCreatedAt(order.createdAt) }}</strong>
             </div>
 
             <div class="profile-info-row">

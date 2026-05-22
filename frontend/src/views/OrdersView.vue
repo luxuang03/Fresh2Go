@@ -46,6 +46,26 @@ function formatDate(dateValue) {
   return date.toLocaleDateString('it-IT')
 }
 
+function formatCreatedAt(dateValue) {
+  if (!dateValue) {
+    return 'Data non disponibile'
+  }
+
+  const date = new Date(dateValue)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Data non disponibile'
+  }
+
+  const formattedDate = date.toLocaleDateString('it-IT')
+  const formattedTime = date.toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return `${formattedDate} alle ${formattedTime}`
+}
+
 function formatPickup(order) {
   if (!order.pickupDate || !order.startTime || !order.endTime) {
     return 'Ritiro non disponibile'
@@ -117,7 +137,7 @@ function formatPrice(value) {
           <h2>Ordine #{{ order.id }}</h2>
 
           <p class="muted-text">
-            Creato il {{ formatDate(order.createdAt) }}
+            Creato il {{ formatCreatedAt(order.createdAt) }}
           </p>
         </div>
 
