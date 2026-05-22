@@ -98,72 +98,81 @@ function formatPrice(value) {
       </p>
 
       <div class="order-detail-layout">
-        <section class="card order-detail-card">
-          <h2>Informazioni ordine</h2>
+        <section class="card profile-card">
+          <div class="profile-user-header">
+            <div>
+              <h2>Informazioni ordine</h2>
 
-          <p>
-            <strong>Stato:</strong>
-            {{ order.status }}
-          </p>
-
-          <p>
-            <strong>Cliente:</strong>
-            {{ order.customerName }}
-          </p>
-
-          <p>
-            <strong>Email:</strong>
-            {{ order.customerEmail }}
-          </p>
-
-          <p>
-            <strong>Supermercato:</strong>
-            {{ order.supermarketName }}
-          </p>
-
-          <p>
-            <strong>Data ritiro:</strong>
-            {{ formatDate(order.pickupDate) }}
-          </p>
-
-          <p>
-            <strong>Fascia oraria:</strong>
-            {{ formatTime(order.startTime) }} - {{ formatTime(order.endTime) }}
-          </p>
-        </section>
-
-        <section class="card order-detail-card">
-          <h2>Prodotti ordinati</h2>
-
-          <div class="order-items-list">
-            <div
-              v-for="item in items"
-              :key="item.id"
-              class="order-item-row"
-            >
-              <div>
-                <strong>{{ item.productName }}</strong>
-
-                <p class="muted-text">
-                  {{ item.quantity }} x € {{ formatPrice(item.unitPrice) }}
-                </p>
-              </div>
-
-              <span>
-                € {{ formatPrice(item.subtotal) }}
-              </span>
+              <p class="muted-text">
+                Ordine confermato il {{ formatDate(order.createdAt) }}
+              </p>
             </div>
           </div>
 
-          <hr>
+          <div class="profile-info">
+            <div class="profile-info-row">
+              <span>Cliente</span>
+              <strong>{{ order.customerName }}</strong>
+            </div>
 
-          <p>
-            Prodotti totali: {{ totalItems }}
-          </p>
+            <div class="profile-info-row">
+              <span>Email</span>
+              <strong>{{ order.customerEmail }}</strong>
+            </div>
 
-          <p class="cart-total">
-            Totale ordine: € {{ formatPrice(order.totalPrice) }}
-          </p>
+            <div class="profile-info-row">
+              <span>Supermercato</span>
+              <strong>{{ order.supermarketName }}</strong>
+            </div>
+
+            <div class="profile-info-row">
+              <span>Data ritiro</span>
+              <strong>{{ formatDate(order.pickupDate) }}</strong>
+            </div>
+
+            <div class="profile-info-row">
+              <span>Fascia oraria</span>
+              <strong>
+                {{ formatTime(order.startTime) }} - {{ formatTime(order.endTime) }}
+              </strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="summary-box order-detail-summary">
+          <div class="summary-main">
+            <div>
+              <h2>Riepilogo ordine</h2>
+
+              <p class="muted-text">
+                {{ totalItems }} prodotti ordinati
+              </p>
+            </div>
+
+            <strong>
+              € {{ formatPrice(order.totalPrice) }}
+            </strong>
+          </div>
+
+          <div class="summary-details">
+            <div
+              v-for="item in items"
+              :key="item.id"
+              class="summary-row"
+            >
+              <div class="summary-product">
+                <span>{{ item.productName }}</span>
+
+                <small>
+                  x{{ item.quantity }}
+                </small>
+              </div>
+
+              <strong>
+                € {{ formatPrice(item.subtotal) }}
+              </strong>
+            </div>
+          </div>
         </section>
       </div>
     </section>

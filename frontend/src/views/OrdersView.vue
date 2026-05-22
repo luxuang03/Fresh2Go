@@ -37,7 +37,13 @@ function formatDate(dateValue) {
     return 'Data non disponibile'
   }
 
-  return new Date(dateValue).toLocaleDateString('it-IT')
+  const date = new Date(dateValue)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Data non disponibile'
+  }
+
+  return date.toLocaleDateString('it-IT')
 }
 
 function formatPickup(order) {
@@ -53,6 +59,10 @@ function formatPickup(order) {
 }
 
 function formatPrice(value) {
+  if (value == null) {
+    return '0.00'
+  }
+
   return Number(value).toFixed(2)
 }
 </script>
@@ -103,18 +113,12 @@ function formatPrice(value) {
         :key="order.id"
         class="card order-card"
       >
-        <div class="order-card-header">
-          <div>
-            <h2>Ordine #{{ order.id }}</h2>
+        <div>
+          <h2>Ordine #{{ order.id }}</h2>
 
-            <p class="muted-text">
-              Creato il {{ formatDate(order.createdAt) }}
-            </p>
-          </div>
-
-          <span class="tag">
-            {{ order.status }}
-          </span>
+          <p class="muted-text">
+            Creato il {{ formatDate(order.createdAt) }}
+          </p>
         </div>
 
         <div class="order-info-grid">
@@ -144,7 +148,7 @@ function formatPrice(value) {
           </p>
         </div>
 
-        <div class="cart-actions">
+        <div class="order-actions">
           <RouterLink
             :to="`/orders/${order.id}`"
             class="btn"
