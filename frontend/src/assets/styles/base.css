@@ -192,3 +192,23 @@ button {
 .static-info-row strong {
   text-align: right;
 }
+
+.quantity-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.quantity-button:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.quantity-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

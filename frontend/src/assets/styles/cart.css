@@ -145,21 +145,6 @@
   gap: 10px;
 }
 
-.quantity-button {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background-color: var(--color-primary-light);
-  color: var(--color-primary);
-  font-weight: 700;
-}
-
-.quantity-button:hover {
-  background-color: var(--color-primary);
-  color: #ffffff;
-}
-
 .remove-button {
   border: none;
   background: none;

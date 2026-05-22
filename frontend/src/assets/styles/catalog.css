@@ -76,10 +76,6 @@
   fill: currentColor;
 }
 
-.catalog-search-button:hover {
-  color: var(--color-primary);
-}
-
 .filter-field input:focus,
 .filter-field select:focus {
   outline: none;
