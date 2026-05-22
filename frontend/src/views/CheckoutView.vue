@@ -20,7 +20,6 @@ const router = useRouter()
 const selectedSupermarketId = ref('')
 const checkoutMessage = ref('')
 const orderConfirmed = ref(false)
-
 const confirmedOrder = ref(null)
 
 const supermarkets = ref([])
@@ -42,10 +41,6 @@ const selectedSupermarket = computed(() => {
   })
 })
 
-const visiblePickupSlots = computed(() => {
-  return pickupSlots.value
-})
-
 function getTodayDate() {
   const today = new Date()
 
@@ -56,13 +51,16 @@ function getTodayDate() {
   return `${year}-${month}-${day}`
 }
 
+function formatPrice(value) {
+  return Number(value).toFixed(2).replace('.', ',')
+}
+
 const checkoutData = reactive({
   name: '',
   email: '',
   phone: '',
   pickupDate: getTodayDate(),
   pickupSlot: '',
-  notes: '',
 })
 
 const checkoutErrors = reactive({
@@ -107,6 +105,13 @@ onMounted(async () => {
   }
 })
 
+watch(
+  () => checkoutData.pickupDate,
+  () => {
+    loadPickupSlots()
+  },
+)
+
 async function loadPickupSlots() {
   if (!selectedSupermarketId.value || !checkoutData.pickupDate) {
     return
@@ -128,13 +133,6 @@ async function loadPickupSlots() {
     isLoadingSlots.value = false
   }
 }
-
-watch(
-  () => checkoutData.pickupDate,
-  () => {
-    loadPickupSlots()
-  },
-)
 
 function isEmailValid(email) {
   return email.includes('@') && email.includes('.')
@@ -189,18 +187,6 @@ function validateCheckoutData() {
   )
 }
 
-const selectedPickupSlotLabel = computed(() => {
-  const slot = pickupSlots.value.find((pickupSlot) => {
-    return Number(pickupSlot.id) === Number(checkoutData.pickupSlot)
-  })
-
-  if (!slot) {
-    return ''
-  }
-
-  return `${slot.startTime.slice(0, 5)} - ${slot.endTime.slice(0, 5)}`
-})
-
 async function confirmOrder() {
   const isValid = validateCheckoutData()
 
@@ -220,6 +206,11 @@ async function confirmOrder() {
         redirect: '/cart/checkout',
       },
     })
+    return
+  }
+
+  if (!selectedSupermarket.value) {
+    checkoutMessage.value = 'Seleziona un supermercato prima di confermare.'
     return
   }
 
@@ -246,20 +237,7 @@ async function confirmOrder() {
 
     confirmedOrder.value = {
       ...data.order,
-      supermarketName: selectedSupermarket.value.name,
-      pickupDate: checkoutData.pickupDate,
-      pickupSlot: selectedPickupSlotLabel.value,
-      items: cart.items.map((item) => {
-        return {
-          id: item.id,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          subtotal: getItemSubtotal(item),
-        }
-      }),
-      totalItems: cartCount.value,
-      totalPrice: cartTotal.value,
+      customerName: checkoutData.name,
     }
 
     clearCart()
@@ -276,66 +254,24 @@ async function confirmOrder() {
   <main>
     <h1 class="page-title">Checkout</h1>
 
-    <p class="page-description">
-      Controlla il riepilogo della spesa e scegli quando ritirare l'ordine.
-    </p>
-
     <section v-if="orderConfirmed && confirmedOrder" class="card checkout-confirmation">
       <h2>Ordine confermato</h2>
 
       <p>
-        Grazie {{ confirmedOrder.customerName }}, il tuo ordine è stato confermato correttamente.
+        Grazie {{ confirmedOrder.customerName }}! Il tuo ordine è stato registrato correttamente.
       </p>
 
       <p>
-        Potrai ritirare la spesa presso
-        <strong>{{ confirmedOrder.supermarketName }}</strong>
-        il giorno
-        <strong>{{ confirmedOrder.pickupDate }}</strong>
-        nella fascia
-        <strong>{{ confirmedOrder.pickupSlot }}</strong>.
+        Puoi controllare tutti i dettagli dell'ordine nello storico ordini del tuo profilo.
       </p>
 
-      <div class="confirmed-order-box">
-        <h3>Riepilogo ordine</h3>
-
-        <div
-          v-for="item in confirmedOrder.items"
-          :key="item.id"
-          class="checkout-item"
-        >
-          <div>
-            <strong>{{ item.name }}</strong>
-            <p class="muted-text">
-              {{ item.quantity }} x € {{ item.price.toFixed(2) }}
-            </p>
-          </div>
-
-          <span>
-            € {{ item.subtotal.toFixed(2) }}
-          </span>
-        </div>
-
-        <p>
-          Totale prodotti: {{ confirmedOrder.totalItems }}
-        </p>
-
-        <p class="cart-total">
-          Totale pagato: € {{ confirmedOrder.totalPrice.toFixed(2) }}
-        </p>
-      </div>
-
-      <div class="cart-actions">
-        <RouterLink to="/orders" class="btn">
-          Vai agli ordini
+      <div class="checkout-confirmation-actions">
+        <RouterLink to="/orders" class="btn btn-secondary">
+          Vai ai miei ordini
         </RouterLink>
-      
-        <RouterLink to="/catalog" class="btn btn-secondary">
+
+        <RouterLink to="/catalog" class="btn">
           Torna al catalogo
-        </RouterLink>
-      
-        <RouterLink to="/" class="btn btn-secondary">
-          Torna alla home
         </RouterLink>
       </div>
     </section>
@@ -359,6 +295,7 @@ async function confirmOrder() {
         <form class="checkout-form" @submit.prevent="confirmOrder" novalidate>
           <div class="form-field">
             <label for="name">Nome e cognome</label>
+
             <input
               id="name"
               v-model="checkoutData.name"
@@ -373,6 +310,7 @@ async function confirmOrder() {
 
           <div class="form-field">
             <label for="email">Email</label>
+
             <input
               id="email"
               v-model="checkoutData.email"
@@ -387,6 +325,7 @@ async function confirmOrder() {
 
           <div class="form-field">
             <label for="phone">Telefono</label>
+
             <input
               id="phone"
               v-model="checkoutData.phone"
@@ -426,6 +365,7 @@ async function confirmOrder() {
 
             <div class="form-field">
               <label for="pickupDate">Data di ritiro</label>
+
               <input
                 id="pickupDate"
                 v-model="checkoutData.pickupDate"
@@ -444,10 +384,10 @@ async function confirmOrder() {
               <p v-if="isLoadingSlots" class="muted-text">
                 Caricamento fasce orarie...
               </p>
-              
+
               <div v-else class="pickup-slots-grid">
                 <button
-                  v-for="slot in visiblePickupSlots"
+                  v-for="slot in pickupSlots"
                   :key="slot.id"
                   type="button"
                   class="pickup-slot"
@@ -464,27 +404,13 @@ async function confirmOrder() {
                 </button>
               </div>
 
-              <p class="muted-text">
-                Alcune fasce non sono selezionabili per simulare gli slot già occupati o non disponibili.
-              </p>
-
               <p v-if="checkoutErrors.pickupSlot" class="form-error">
                 {{ checkoutErrors.pickupSlot }}
               </p>
             </div>
           </div>
 
-          <div class="form-field">
-            <label for="notes">Note per il ritiro</label>
-            <textarea
-              id="notes"
-              v-model="checkoutData.notes"
-              rows="4"
-              placeholder="Eventuali indicazioni aggiuntive"
-            ></textarea>
-          </div>
-
-          <button type="submit" class="btn" :disabled="isSubmittingOrder">
+          <button type="submit" class="btn btn-secondary" :disabled="isSubmittingOrder">
             {{ isSubmittingOrder ? 'Conferma in corso...' : 'Conferma ordine' }}
           </button>
 
@@ -494,56 +420,34 @@ async function confirmOrder() {
         </form>
       </div>
 
-      <aside class="card checkout-summary">
-        <h2>Riepilogo ordine</h2>
+      <aside class="cart-summary-box checkout-summary">
+        <div class="cart-summary-main">
+          <span class="muted-text">Riepilogo ordine</span>
 
-        <div class="checkout-items">
+          <strong>
+            € {{ formatPrice(cartTotal) }}
+          </strong>
+        </div>
+
+        <div class="cart-summary-details">
           <div
             v-for="item in cart.items"
             :key="item.id"
-            class="checkout-item"
+            class="cart-summary-row cart-summary-product"
           >
-            <div>
-              <strong>{{ item.name }}</strong>
-              <p class="muted-text">
-                {{ item.quantity }} x € {{ item.price.toFixed(2) }}
-              </p>
-            </div>
-
             <span>
-              € {{ getItemSubtotal(item).toFixed(2) }}
+              {{ item.name }}
+              <small>x{{ item.quantity }}</small>
             </span>
+
+            <strong>
+              € {{ formatPrice(getItemSubtotal(item)) }}
+            </strong>
           </div>
         </div>
 
-        <hr>
-
-        <p>
-          Prodotti diversi: {{ cart.items.length }}
-        </p>
-
-        <p>
-          Totale confezioni/prodotti: {{ cartCount }}
-        </p>
-
-        <p v-if="selectedSupermarket">
-          Ritiro: {{ selectedSupermarket.name }}
-        </p>
-
-        <p v-if="checkoutData.pickupDate">
-          Data: {{ checkoutData.pickupDate }}
-        </p>
-
-        <p v-if="checkoutData.pickupSlot">
-          Fascia: {{ checkoutData.pickupSlot }}
-        </p>
-
-        <p class="cart-total">
-          Totale: € {{ cartTotal.toFixed(2) }}
-        </p>
-
         <div class="cart-actions">
-          <RouterLink to="/cart" class="btn btn-secondary">
+          <RouterLink to="/cart" class="btn">
             Torna al carrello
           </RouterLink>
         </div>
