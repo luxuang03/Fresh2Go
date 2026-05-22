@@ -420,8 +420,8 @@ async function confirmOrder() {
         </form>
       </div>
 
-      <aside class="cart-summary-box checkout-summary">
-        <div class="cart-summary-main">
+      <aside class="summary-box checkout-summary">
+        <div class="summary-main">
           <span class="muted-text">Riepilogo ordine</span>
 
           <strong>
@@ -429,11 +429,11 @@ async function confirmOrder() {
           </strong>
         </div>
 
-        <div class="cart-summary-details">
+        <div class="summary-details">
           <div
             v-for="item in cart.items"
             :key="item.id"
-            class="cart-summary-row cart-summary-product"
+            class="summary-row summary-product"
           >
             <span>
               {{ item.name }}
@@ -446,7 +446,7 @@ async function confirmOrder() {
           </div>
         </div>
 
-        <div class="cart-actions">
+        <div class="summary-actions">
           <RouterLink to="/cart" class="btn">
             Torna al carrello
           </RouterLink>

@@ -157,8 +157,8 @@ function handleClearCart() {
         </div>
       </section>
 
-      <aside class="cart-summary-box">
-        <div class="cart-summary-main">
+      <aside class="summary-box">
+        <div class="summary-main">
           <span class="muted-text">Riepilogo ordine</span>
 
           <strong>
@@ -166,13 +166,13 @@ function handleClearCart() {
           </strong>
         </div>
 
-        <div class="cart-summary-details">
-          <div class="cart-summary-row">
+        <div class="summary-details">
+          <div class="summary-row">
             <span>Prodotti diversi</span>
             <strong>{{ cart.items.length }}</strong>
           </div>
 
-          <div class="cart-summary-row">
+          <div class="summary-row">
             <span>Totale pezzi</span>
             <strong>{{ cartCount }}</strong>
           </div>
@@ -180,7 +180,7 @@ function handleClearCart() {
           <div
             v-for="item in cart.items"
             :key="item.id"
-            class="cart-summary-row cart-summary-product"
+            class="summary-row summary-product"
           >
             <span>
               {{ item.name }}
@@ -193,7 +193,7 @@ function handleClearCart() {
           </div>
         </div>
 
-        <div class="cart-actions">
+        <div class="summary-actions">
           <RouterLink to="/catalog" class="btn">
             Continua la spesa
           </RouterLink>

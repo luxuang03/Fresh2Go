@@ -412,13 +412,13 @@ function addIngredientsToCart() {
             </div>
           </section>
 
-          <aside class="recipe-cost-box">
-            <div class="recipe-cost-summary">
+          <aside class="summary-box">
+            <div class="summary-main">
               <span class="muted-text">Costo stimato</span>
               <strong>€ {{ formatPrice(selectedTotal) }}</strong>
             </div>
 
-            <div class="recipe-cost-details">
+            <div class="summary-details">
               <p v-if="selectedCostItems.length === 0" class="muted-text">
                 Nessun ingrediente selezionato.
               </p>
@@ -426,11 +426,11 @@ function addIngredientsToCart() {
               <div
                 v-for="item in selectedCostItems"
                 :key="item.productId"
-                class="recipe-cost-row"
+                class="summary-row"
               >
-                <span class="recipe-cost-name">
+                <span class="summary-name">
                   {{ item.name }}
-                  <span>x{{ item.unitsNeeded }}</span>
+                  <small>x{{ item.unitsNeeded }}</small>
                 </span>
 
                 <strong>

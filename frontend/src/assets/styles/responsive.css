@@ -43,4 +43,12 @@
   .page-title {
     font-size: 26px;
   }
+
+  .summary-row span {
+    min-width: 0;
+  }
+
+  .summary-row strong {
+    white-space: nowrap;
+  }
 }

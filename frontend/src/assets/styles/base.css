@@ -100,3 +100,62 @@ button {
 .muted-text {
   color: var(--color-text-muted);
 }
+
+.summary-box {
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-card);
+  background-color: var(--color-background-light-orange);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.summary-main {
+  padding: 16px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary-main strong {
+  color: var(--color-primary);
+  font-size: 24px;
+}
+
+.summary-details {
+  border-top: 1px solid var(--color-border);
+  padding: 8px 16px 12px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.summary-row + .summary-row {
+  border-top: 1px dashed var(--color-border);
+}
+
+.summary-product span,
+.summary-name {
+  font-weight: 600;
+}
+
+.summary-product small,
+.summary-name small {
+  margin-left: 6px;
+  color: var(--color-primary);
+  font-size: 13px;
+}
+
+.summary-actions {
+  display: grid;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
