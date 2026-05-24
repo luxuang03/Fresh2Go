@@ -22,9 +22,29 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100%;
+}
+
 body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+img {
+  display: block;
+}
+
+body {
+  width: 100%;
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
   font-family: Arial, Helvetica, sans-serif;
   color: var(--color-text);
   background-color: var(--color-background);

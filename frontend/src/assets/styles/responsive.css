@@ -1,7 +1,102 @@
 @media screen and (max-width: 900px) {
-  .header-content,
+  .header-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
   .footer-content {
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-nav {
+    display: none;
+  }
+
+  .mobile-menu-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .mobile-menu-overlay-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-menu {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+    width: min(82vw, 360px);
+    height: 100vh;
+    padding: 24px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    visibility: hidden;
+    pointer-events: none;
+    background-color: #ffffff;
+    box-shadow: var(--shadow-soft);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-menu-open {
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .mobile-menu-close {
+    border: none;
+    background: none;
+    color: var(--color-text);
+    font-size: 30px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .mobile-nav {
+    display: grid;
+    gap: 4px;
+  }
+
+  .mobile-nav a {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-nav a:hover,
+  .mobile-nav a.router-link-active {
+    color: var(--color-primary);
   }
 
   .page-content {
@@ -21,19 +116,18 @@
     padding-right: 16px;
   }
 
-  .main-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
+  .logo {
+    font-size: 26px;
   }
 
-  .main-nav a,
+  .mobile-menu {
+    width: 86vw;
+    padding: 22px;
+  }
+
   .btn {
+    width: 100%;
     text-align: center;
-  }
-
-  .btn {
-    width: 100%;
   }
 
   .card {
@@ -42,6 +136,19 @@
 
   .page-title {
     font-size: 26px;
+  }
+
+  .page-description {
+    font-size: 15px;
+  }
+
+  .summary-main {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summary-main strong {
+    font-size: 22px;
   }
 
   .summary-row span {
@@ -59,5 +166,9 @@
 
   .static-info-row strong {
     text-align: left;
+  }
+
+  .footer-links {
+    gap: 12px;
   }
 }

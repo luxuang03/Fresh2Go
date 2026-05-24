@@ -214,10 +214,35 @@
   align-items: stretch;
   gap: 18px;
   margin-top: 24px;
+  padding-bottom: 32px;
 }
 
 .empty-catalog-message {
   text-align: center;
+}
+
+.back-to-top-button {
+  position: fixed;
+  right: 22px;
+  bottom: 24px;
+  z-index: 900;
+
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--color-primary);
+  border-radius: 50%;
+
+  background-color: #ffffff;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-soft);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.back-to-top-button:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
 }
 
 @media screen and (max-width: 900px) {
@@ -275,5 +300,13 @@
 
   .filter-action-button {
     width: 100%;
+  }
+
+  .back-to-top-button {
+    right: 18px;
+    bottom: 76px;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
   }
 }
