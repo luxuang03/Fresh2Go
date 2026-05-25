@@ -61,7 +61,7 @@ const allergens = computed(() => {
         {{ recipe.servings }} porzioni · {{ ingredientsCount }} ingredienti
       </p>
 
-      <div v-if="allergens.length > 0" class="recipe-allergens">
+      <div v-if="allergens.length > 0" class="tag-list">
         <span
           v-for="allergen in allergens"
           :key="allergen"

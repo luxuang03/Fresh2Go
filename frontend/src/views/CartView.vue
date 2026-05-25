@@ -86,7 +86,7 @@ function handleClearCart() {
           </button>
         </div>
 
-        <div class="cart-list">
+        <div>
           <article
             v-for="item in cart.items"
             :key="item.id"

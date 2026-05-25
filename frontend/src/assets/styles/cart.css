@@ -79,7 +79,6 @@
   height: 100%;
   object-fit: contain;
   padding: 8px;
-  display: block;
 }
 
 .cart-item-image span {

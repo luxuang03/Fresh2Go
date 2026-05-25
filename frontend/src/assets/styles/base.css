@@ -272,3 +272,9 @@ button {
 .text-link:hover {
   color: var(--color-primary-dark);
 }
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
