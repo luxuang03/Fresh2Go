@@ -315,7 +315,7 @@ function scrollToTop() {
           <div class="filter-section allergen-filter">
             <p class="filter-title">Escludi allergeni</p>
 
-            <div class="filter-pill-list allergen-options">
+            <div class="filter-pill-list">
               <button
                 v-for="allergen in allergens"
                 :key="allergen.id"

@@ -293,7 +293,7 @@ async function confirmOrder() {
         <h2>Dati per il ritiro</h2>
 
         <form class="checkout-form" @submit.prevent="confirmOrder" novalidate>
-          <div class="form-field">
+          <div class="form-row">
             <label for="name">Nome e cognome</label>
 
             <input
@@ -308,7 +308,7 @@ async function confirmOrder() {
             </p>
           </div>
 
-          <div class="form-field">
+          <div class="form-row">
             <label for="email">Email</label>
 
             <input
@@ -323,7 +323,7 @@ async function confirmOrder() {
             </p>
           </div>
 
-          <div class="form-field">
+          <div class="form-row">
             <label for="phone">Telefono</label>
 
             <input
@@ -363,7 +363,7 @@ async function confirmOrder() {
               </p>
             </div>
 
-            <div class="form-field">
+            <div class="form-row">
               <label for="pickupDate">Data di ritiro</label>
 
               <input
@@ -378,7 +378,7 @@ async function confirmOrder() {
               </p>
             </div>
 
-            <div class="form-field">
+            <div class="form-row">
               <label>Fascia oraria</label>
 
               <p v-if="isLoadingSlots" class="muted-text">
