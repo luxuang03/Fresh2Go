@@ -278,3 +278,9 @@ button {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.success-message {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 600;
+}

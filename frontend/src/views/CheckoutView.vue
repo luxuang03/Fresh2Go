@@ -414,7 +414,7 @@ async function confirmOrder() {
             {{ isSubmittingOrder ? 'Conferma in corso...' : 'Conferma ordine' }}
           </button>
 
-          <p v-if="checkoutMessage" class="checkout-message">
+          <p v-if="checkoutMessage" class="success-message">
             {{ checkoutMessage }}
           </p>
         </form>

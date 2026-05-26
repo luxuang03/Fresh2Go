@@ -167,12 +167,6 @@
   word-break: break-word;
 }
 
-.small-link {
-  color: var(--color-primary);
-  font-weight: 600;
-  text-decoration: underline;
-}
-
 @media (max-width: 800px) {
   .profile-layout {
     grid-template-columns: 1fr;
