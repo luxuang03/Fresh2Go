@@ -275,4 +275,8 @@
   .tag-unavailable {
     grid-column: 2;
   }
+
+  .tag-unavailable {
+    justify-self: start;
+  }
 }
