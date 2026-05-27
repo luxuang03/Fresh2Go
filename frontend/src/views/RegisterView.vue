@@ -30,6 +30,31 @@ async function handleRegister() {
     return
   }
 
+  if (username.value.trim().length > 30) {
+    errorMessage.value = 'Lo username non può superare i 30 caratteri.'
+    return
+  }
+  
+  if (fullName.value.trim().length > 80) {
+    errorMessage.value = 'Il nome completo non può superare i 80 caratteri.'
+    return
+  }
+  
+  if (email.value.trim().length > 120) {
+    errorMessage.value = "L'email non può superare i 120 caratteri."
+    return
+  }
+  
+  if (phone.value && phone.value.trim().length > 20) {
+    errorMessage.value = 'Il numero di telefono non può superare i 20 caratteri.'
+    return
+  }
+
+  if (password.value.length < 6 || password.value.length > 128) {
+    errorMessage.value = 'La password deve essere compresa tra 6 e 128 caratteri.'
+    return
+  }
+
   if (password.value !== confirmPassword.value) {
     errorMessage.value = 'Le password non coincidono.'
     return
@@ -73,35 +98,38 @@ async function handleRegister() {
 
         <form class="auth-form" @submit.prevent="handleRegister">
           <div class="form-row">
-            <label for="username">Username</label>
+            <label for="username">Username*</label>
             <input
               id="username"
               v-model="username"
               type="text"
               name="username"
               placeholder="mariorossi"
+              maxlength="30"
             />
           </div>
 
           <div class="form-row">
-            <label for="fullName">Nome completo</label>
+            <label for="fullName">Nome completo*</label>
             <input
               id="fullName"
               v-model="fullName"
               type="text"
               name="fullName"
               placeholder="Mario Rossi"
+              maxlength="80"
             />
           </div>
 
           <div class="form-row">
-            <label for="email">Email</label>
+            <label for="email">Email*</label>
             <input
               id="email"
               v-model="email"
               type="email"
               name="email"
               placeholder="mario.rossi@email.com"
+              maxlength="120"
             />
           </div>
 
@@ -113,28 +141,31 @@ async function handleRegister() {
               type="tel"
               name="phone"
               placeholder="Opzionale"
+              maxlength="20"
             />
           </div>
 
           <div class="form-row">
-            <label for="password">Password</label>
+            <label for="password">Password*</label>
             <input
               id="password"
               v-model="password"
               type="password"
               name="password"
               placeholder="Inserisci una password"
+              maxlength="128"
             />
           </div>
 
           <div class="form-row">
-            <label for="confirmPassword">Conferma password</label>
+            <label for="confirmPassword">Conferma password*</label>
             <input
               id="confirmPassword"
               v-model="confirmPassword"
               type="password"
               name="confirmPassword"
               placeholder="Ripeti la password"
+              maxlength="128"
             />
           </div>
 

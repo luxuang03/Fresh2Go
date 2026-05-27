@@ -11,12 +11,28 @@ async function register(req, res, next) {
   try {
     const { username, email, password, fullName, phone } = req.body
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !fullName) {
       throw createError('Username, email e password sono obbligatori', 400)
     }
 
-    if (password.length < 6) {
-      throw createError('La password deve avere almeno 6 caratteri', 400)
+    if (password.length < 6 || password.length > 128) {
+      throw createError('La password deve essere compresa tra 6 e 128 caratteri', 400)
+    }
+
+    if (username.length > 30) {
+      throw createError('Lo username non può superare i 30 caratteri', 400)
+    }
+
+    if (email.length > 120) {
+      throw createError("L'email non può superare i 120 caratteri", 400)
+    }
+
+    if (fullName.length > 80) {
+      throw createError('Il nome completo non può superare i 80 caratteri', 400)
+    }
+
+    if (phone && phone.length > 20) {
+      throw createError('Il numero di telefono non può superare i 20 caratteri', 400)
     }
 
     const existingUser = await pool.query(
