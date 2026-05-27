@@ -100,7 +100,7 @@ function selectSupermarket(supermarketId) {
         </div>
 
         <button
-          class="btn supermarket-button"
+          class="btn"
           :class="{ 'supermarket-button-selected': isSelected(supermarket.id) }"
           type="button"
           @click="selectSupermarket(supermarket.id)"

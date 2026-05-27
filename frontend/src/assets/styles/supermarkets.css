@@ -94,11 +94,6 @@
   flex-shrink: 0;
 }
 
-.supermarket-button {
-  width: 100%;
-  margin-top: auto;
-}
-
 .supermarket-button-selected {
   background-color: var(--color-accent);
   color: var(--color-text);

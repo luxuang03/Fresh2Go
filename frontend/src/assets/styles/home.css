@@ -60,13 +60,7 @@
 }
 
 .home-main-button {
-  min-width: 230px;
-  border-radius: 8px;
   padding: 16px 22px;
-}
-
-.home-main-button:hover {
-  background-color: #e8942f;
 }
 
 .home-hero-image {
