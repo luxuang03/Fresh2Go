@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import PaymentForm from '../components/PaymentForm.vue'
 import {
   cart,
   clearCart,
@@ -16,6 +17,8 @@ import {
 } from '../services/api'
 
 const router = useRouter()
+
+const paymentFormRef = ref(null)
 
 const selectedSupermarketId = ref('')
 const checkoutMessage = ref('')
@@ -156,6 +159,8 @@ function validateCheckoutData() {
   checkoutErrors.pickupSlot = ''
   checkoutMessage.value = ''
 
+  const isPaymentValid = paymentFormRef.value ? paymentFormRef.value.validate() : false
+
   if (checkoutData.name.trim() === '') {
     checkoutErrors.name = 'Inserisci nome e cognome.'
   }
@@ -183,7 +188,8 @@ function validateCheckoutData() {
     checkoutErrors.email === '' &&
     checkoutErrors.phone === '' &&
     checkoutErrors.pickupDate === '' &&
-    checkoutErrors.pickupSlot === ''
+    checkoutErrors.pickupSlot === '' &&
+    isPaymentValid
   )
 }
 
@@ -408,11 +414,13 @@ async function confirmOrder() {
                 {{ checkoutErrors.pickupSlot }}
               </p>
             </div>
-          </div>
 
-          <button type="submit" class="btn btn-secondary" :disabled="isSubmittingOrder">
-            {{ isSubmittingOrder ? 'Conferma in corso...' : 'Conferma ordine' }}
-          </button>
+            <PaymentForm ref="paymentFormRef" />
+
+            <button type="submit" class="btn btn-secondary" :disabled="isSubmittingOrder">
+              {{ isSubmittingOrder ? 'Conferma in corso...' : 'Conferma ordine' }}
+            </button>
+          </div>
 
           <p v-if="checkoutMessage" class="success-message">
             {{ checkoutMessage }}

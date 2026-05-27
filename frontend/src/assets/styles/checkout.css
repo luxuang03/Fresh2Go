@@ -104,6 +104,12 @@
   gap: 12px;
 }
 
+.form-row-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 @media screen and (max-width: 900px) {
   .checkout-page {
     grid-template-columns: 1fr;
@@ -116,6 +122,10 @@
 
 @media screen and (max-width: 600px) {
   .checkout-confirmation-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row-group {
     grid-template-columns: 1fr;
   }
 }
