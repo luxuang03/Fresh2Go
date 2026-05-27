@@ -97,7 +97,7 @@ async function createOrder(req, res, next) {
         customer_email AS "customerEmail",
         total_price AS "totalPrice",
         status,
-        created_at AS "createdAt"
+        TO_CHAR(created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "createdAt"
       `,
       [
         userId,
@@ -177,7 +177,7 @@ async function getMyOrders(req, res, next) {
         o.customer_email AS "customerEmail",
         o.total_price AS "totalPrice",
         o.status,
-        o.created_at AS "createdAt",
+        TO_CHAR(o.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "createdAt",
         s.name AS "supermarketName",
         ps.slot_date AS "pickupDate",
         ps.start_time AS "startTime",
@@ -213,7 +213,7 @@ async function getOrderById(req, res, next) {
         o.customer_email AS "customerEmail",
         o.total_price AS "totalPrice",
         o.status,
-        o.created_at AS "createdAt",
+        TO_CHAR(o.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "createdAt",
         s.name AS "supermarketName",
         ps.slot_date AS "pickupDate",
         ps.start_time AS "startTime",
