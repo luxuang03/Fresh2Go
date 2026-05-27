@@ -12,12 +12,9 @@
           Lasciati ispirare dalle nostre ricette e crea la tua lista della spesa con un click.
         </p>
 
-        <div class="home-actions">
-          <RouterLink to="/supermarkets" class="btn home-main-button">
-            Scegli il tuo supermercato
-          </RouterLink>
-
-        </div>
+        <RouterLink to="/supermarkets" class="btn home-main-button">
+          Scegli il tuo supermercato
+        </RouterLink>
       </div>
 
       <div class="home-hero-image">
