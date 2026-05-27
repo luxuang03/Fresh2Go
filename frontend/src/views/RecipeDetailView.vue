@@ -310,7 +310,7 @@ function addIngredientsToCart() {
             {{ recipe.description }}
           </p>
 
-          <div v-if="recipeAllergens.length > 0" class="recipe-allergens">
+          <div v-if="recipeAllergens.length > 0" class="tag-list">
             <span
               v-for="allergen in recipeAllergens"
               :key="allergen"
@@ -352,7 +352,7 @@ function addIngredientsToCart() {
 
             <button
               type="button"
-              class="btn btn-secondary recipe-add-button"
+              class="btn recipe-add-button"
               @click="addIngredientsToCart"
             >
               Aggiungi al carrello

@@ -1,5 +1,5 @@
 <template>
-  <main class="home-page">
+  <main>
     <section class="home-hero">
       <div class="home-hero-text">
         <h1>

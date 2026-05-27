@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
 import {
@@ -28,8 +28,11 @@ const excludedAllergens = ref([])
 const onlyVegetarian = ref(false)
 const onlyVegan = ref(false)
 const showAdvancedFilters = ref(false)
+const showBackToTop = ref(false)
 
 onMounted(async () => {
+  window.addEventListener('scroll', checkScrollPosition)
+
   const supermarketIdFromUrl = route.query.supermarketId
   const savedSupermarketId = localStorage.getItem('selectedSupermarketId')
 
@@ -47,6 +50,10 @@ onMounted(async () => {
 
   await loadInitialData()
   await loadProducts()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', checkScrollPosition)
 })
 
 const selectedSupermarket = computed(() => {
@@ -141,6 +148,17 @@ function toggleAllergen(allergenName) {
 
   excludedAllergens.value.push(allergenName)
 }
+
+function checkScrollPosition() {
+  showBackToTop.value = window.scrollY > 500
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  })
+}
 </script>
 
 <template>
@@ -194,7 +212,7 @@ function toggleAllergen(allergenName) {
                 placeholder="Es. pasta, latte, mele..."
                 @keyup.enter="searchProducts"
               />
-                        
+
               <button
                 type="button"
                 class="catalog-search-button"
@@ -297,7 +315,7 @@ function toggleAllergen(allergenName) {
           <div class="filter-section allergen-filter">
             <p class="filter-title">Escludi allergeni</p>
 
-            <div class="filter-pill-list allergen-options">
+            <div class="filter-pill-list">
               <button
                 v-for="allergen in allergens"
                 :key="allergen.id"
@@ -353,6 +371,16 @@ function toggleAllergen(allergenName) {
       >
         Nessun prodotto trovato per questo supermercato con i filtri selezionati.
       </p>
+
+      <button
+        v-if="showBackToTop"
+        class="back-to-top-button"
+        type="button"
+        aria-label="Torna in alto"
+        @click="scrollToTop"
+      >
+        ↑
+      </button>
     </template>
   </main>
 </template>

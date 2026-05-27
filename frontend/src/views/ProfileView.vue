@@ -61,7 +61,7 @@ function formatPrice(value) {
 
 <template>
   <main>
-    <section class="page-section">
+    <section>
       <h1 class="page-title">Profilo</h1>
 
       <p class="page-description">
@@ -163,7 +163,7 @@ function formatPrice(value) {
 
               <RouterLink
                 :to="`/orders/${order.id}`"
-                class="small-link"
+                class="text-link"
               >
                 Dettaglio
               </RouterLink>

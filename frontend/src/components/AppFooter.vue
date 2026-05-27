@@ -2,7 +2,7 @@
   <footer class="app-footer">
     <div class="footer-content">
       <div class="footer-info">
-        <p>&copy; 2026 <span class="footer-brand">Fresh2Go</span></p>
+        <p>&copy; 2026 Fresh2Go</p>
         <p>Spesa online con ritiro programmato.</p>
       </div>
 

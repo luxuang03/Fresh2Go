@@ -142,7 +142,7 @@ async function handleRegister() {
             {{ errorMessage }}
           </p>
 
-          <p v-if="successMessage" class="checkout-message">
+          <p v-if="successMessage" class="success-message">
             {{ successMessage }}
           </p>
 
