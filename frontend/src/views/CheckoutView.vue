@@ -391,6 +391,10 @@ async function confirmOrder() {
                 Caricamento fasce orarie...
               </p>
 
+              <p v-else-if="!pickupSlots.length" class="muted-text pickup-slots-empty">
+                Nessuna fascia oraria disponibile
+              </p>
+
               <div v-else class="pickup-slots-grid">
                 <button
                   v-for="slot in pickupSlots"
