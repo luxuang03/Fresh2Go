@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const session = require('express-session')
 const PgSession = require('connect-pg-simple')(session)
+const path = require('path')
 require('dotenv').config()
 
 const pool = require('./db')
@@ -11,6 +12,7 @@ const errorHandler = require('./middleware/errorHandler')
 
 const app = express()
 const PORT = process.env.PORT || 3000
+const frontendPath = path.join(__dirname, '../frontend/dist')
 
 app.use(
   cors({
@@ -62,6 +64,16 @@ app.get('/api/db-test', async (req, res) => {
 })
 
 app.use('/api', apiRoutes)
+
+app.use(express.static(frontendPath))
+
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    return res.sendFile(path.join(frontendPath, 'index.html'))
+  }
+
+  next()
+})
 
 app.use(notFoundHandler)
 app.use(errorHandler)
